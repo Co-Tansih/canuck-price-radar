@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { TrendingUp, MapPin, Clock, Shield, Star, Users, CheckCircle, Bell, Leaf } from 'lucide-react';
+import { TrendingUp, MapPin, Clock, Shield, Star, Users, CheckCircle, Bell, Leaf, Sparkles, Zap, Heart } from 'lucide-react';
 import SearchBar from './SearchBar';
 import FilterPanel from './FilterPanel';
 
@@ -119,38 +119,62 @@ const Homepage = () => {
   ];
 
   return (
-    <div className="min-h-screen maple-leaf-bg">
-      {/* Hero Section with Enhanced Canadian Styling */}
-      <section className="hero-gradient py-20 relative overflow-hidden">
-        {/* Floating Canadian Elements */}
+    <div className="min-h-screen maple-leaf-bg relative overflow-hidden">
+      {/* Particle System */}
+      <div className="particles fixed inset-0 z-0">
+        {Array.from({ length: 20 }).map((_, i) => (
+          <div
+            key={i}
+            className="particle"
+            style={{
+              left: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 15}s`,
+              animationDuration: `${15 + Math.random() * 10}s`
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Background Shapes */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div className="shape-blob absolute top-20 left-10 w-64 h-64 opacity-30" />
+        <div className="shape-organic absolute bottom-20 right-20 w-96 h-96 opacity-20" />
+        <div className="shape-blob absolute top-1/2 left-1/2 w-80 h-80 opacity-10 transform -translate-x-1/2 -translate-y-1/2" />
+      </div>
+
+      {/* Hero Section with Advanced Effects */}
+      <section className="hero-gradient py-20 relative overflow-hidden z-10">
+        {/* Enhanced Floating Canadian Elements */}
         <div className="absolute inset-0 pointer-events-none">
-          <Leaf className="absolute top-20 left-10 h-12 w-12 text-primary/20 floating-element" />
-          <Leaf className="absolute top-40 right-20 h-8 w-8 text-accent/30 floating-element" />
-          <Leaf className="absolute bottom-20 left-1/4 h-10 w-10 text-primary/15 floating-element" />
-          <Leaf className="absolute top-60 right-1/3 h-6 w-6 text-accent/25 floating-element" />
+          <Leaf className="absolute top-20 left-10 h-12 w-12 text-primary/30 floating-element animate-glow" />
+          <Heart className="absolute top-40 right-20 h-8 w-8 text-accent/40 floating-element" />
+          <Sparkles className="absolute bottom-20 left-1/4 h-10 w-10 text-primary/25 floating-element" />
+          <Zap className="absolute top-60 right-1/3 h-6 w-6 text-accent/35 floating-element" />
+          <Leaf className="absolute bottom-40 right-10 h-14 w-14 text-primary/20 floating-element animate-morph" />
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full mb-6 animate-fade-in-up">
-              <Leaf className="h-5 w-5 text-primary" />
+            <div className="inline-flex items-center gap-2 glass-canadian backdrop-blur-sm px-6 py-3 rounded-full mb-6 animate-stagger hover-glow">
+              <Leaf className="h-5 w-5 text-primary animate-glow" />
               <span className="text-sm font-medium text-gray-700">Proudly Canadian</span>
+              <Sparkles className="h-4 w-4 text-accent" />
             </div>
             
-            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 animate-fade-in-up">
+            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 animate-stagger-delay-1">
               Find the Best Prices in
-              <span className="text-shimmer block">Canada</span>
+              <span className="gradient-text block animate-glow">Canada</span>
             </h1>
             
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8 animate-fade-in-up">
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8 animate-stagger-delay-2">
               Compare prices across thousands of products from top Canadian retailers. 
               Find better deals, check local availability, and save money on everything you need.
             </p>
           </div>
           
-          {/* Enhanced Search Section */}
-          <div className="max-w-4xl mx-auto animate-fade-in-up">
-            <div className="canadian-border-glow rounded-2xl p-6 bg-white/90 backdrop-blur-sm">
+          {/* Enhanced Search Section with Glassmorphism */}
+          <div className="max-w-4xl mx-auto animate-stagger-delay-3">
+            <div className="glass-intense rounded-3xl p-8 hover-lift">
               <SearchBar />
               <div className="mt-6">
                 <FilterPanel />
@@ -158,15 +182,15 @@ const Homepage = () => {
             </div>
           </div>
 
-          {/* Popular Searches with Canadian styling */}
-          <div className="mt-8 text-center animate-fade-in-up">
+          {/* Popular Searches with Clay Design */}
+          <div className="mt-8 text-center animate-stagger-delay-3">
             <p className="text-sm text-gray-500 mb-3">Popular searches:</p>
-            <div className="flex flex-wrap justify-center gap-2">
-              {['Power Drill', 'Winter Jacket', 'Lumber', 'Smartphone', 'Work Boots'].map((term) => (
+            <div className="flex flex-wrap justify-center gap-3">
+              {['Power Drill', 'Winter Jacket', 'Lumber', 'Smartphone', 'Work Boots'].map((term, index) => (
                 <Link
                   key={term}
                   to={`/search?q=${term}`}
-                  className="px-4 py-2 bg-white/80 backdrop-blur-sm text-gray-600 rounded-full text-sm hover:bg-white hover:shadow-md transition-all border border-primary/20 canadian-button"
+                  className={`clay-card px-6 py-3 text-gray-600 text-sm hover-lift transition-all animate-stagger-delay-${index + 1}`}
                 >
                   {term}
                 </Link>
@@ -176,17 +200,19 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* Stats Section with Canadian glow effect */}
-      <section className="py-16 bg-white border-b canadian-glow">
+      {/* Stats Section with Neumorphism */}
+      <section className="py-16 bg-gradient-to-r from-gray-100 via-white to-gray-100 border-b canadian-glow relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
               <div key={index} className="text-center group">
-                <div className="text-3xl md:text-4xl font-bold text-primary mb-2 group-hover:scale-110 transition-transform">
-                  {stat.number}
-                </div>
-                <div className="text-gray-600 text-sm md:text-base">
-                  {stat.label}
+                <div className={`neomorphism-canadian p-6 hover-glow animate-stagger-delay-${index + 1}`}>
+                  <div className="text-3xl md:text-4xl font-bold gradient-text mb-2 group-hover:scale-110 transition-transform">
+                    {stat.number}
+                  </div>
+                  <div className="text-gray-600 text-sm md:text-base">
+                    {stat.label}
+                  </div>
                 </div>
               </div>
             ))}
@@ -195,47 +221,48 @@ const Homepage = () => {
       </section>
 
       {/* Enhanced Featured Deals Section */}
-      <section className="py-20 bg-gradient-to-br from-gray-50 via-white to-primary/5">
+      <section className="py-20 gradient-aurora relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full mb-4">
-              <Star className="h-5 w-5 text-primary animate-bounce-gentle" />
-              <span className="text-sm font-medium text-primary">Today's Best</span>
+            <div className="inline-flex items-center gap-2 glass-card px-6 py-3 rounded-full mb-4 hover-glow">
+              <Star className="h-5 w-5 text-primary animate-glow" />
+              <span className="text-sm font-medium text-white">Today's Best</span>
+              <Sparkles className="h-4 w-4 text-accent" />
             </div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl font-bold text-white mb-4 animate-glow">
               Featured Deals
             </h2>
-            <p className="text-lg text-gray-600">
+            <p className="text-lg text-white/90">
               Hand-picked deals from across Canada's top retailers
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {featuredDeals.map((deal, index) => (
-              <div key={index} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all transform hover:-translate-y-1 canadian-border-glow">
+              <div key={index} className={`glass-intense rounded-2xl overflow-hidden hover-lift animate-stagger-delay-${index + 1}`}>
                 <div className="aspect-w-16 aspect-h-12 relative overflow-hidden">
                   <img
                     src={deal.image}
                     alt={deal.title}
-                    className="w-full h-48 object-cover transition-transform hover:scale-105"
+                    className="w-full h-48 object-cover transition-transform hover:scale-105 mask-gradient"
                   />
-                  <div className="absolute top-4 right-4 bg-primary text-white px-2 py-1 rounded-full text-sm font-bold">
+                  <div className="absolute top-4 right-4 clay-button px-3 py-2 text-white text-sm font-bold animate-glow">
                     ${deal.savings} OFF
                   </div>
                 </div>
                 <div className="p-6">
-                  <h3 className="font-semibold text-gray-900 mb-2">{deal.title}</h3>
+                  <h3 className="font-semibold text-white mb-2">{deal.title}</h3>
                   <div className="flex items-center justify-between mb-4">
                     <div>
-                      <span className="text-2xl font-bold text-primary">${deal.salePrice}</span>
-                      <span className="text-gray-500 line-through ml-2">${deal.originalPrice}</span>
+                      <span className="text-2xl font-bold gradient-text">${deal.salePrice}</span>
+                      <span className="text-white/60 line-through ml-2">${deal.originalPrice}</span>
                     </div>
                   </div>
-                  <div className="text-sm text-gray-600 mb-4 flex items-center">
-                    <Leaf className="h-4 w-4 text-primary mr-1" />
+                  <div className="text-sm text-white/80 mb-4 flex items-center">
+                    <Leaf className="h-4 w-4 text-accent mr-1 animate-glow" />
                     Available at {deal.store}
                   </div>
-                  <button className="w-full bg-primary text-primary-foreground py-3 rounded-lg hover:bg-primary/90 transition-colors canadian-button font-semibold">
+                  <button className="w-full canadian-button text-white py-3 rounded-lg font-semibold">
                     View Deal
                   </button>
                 </div>
@@ -245,11 +272,11 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-20 bg-white">
+      {/* Features Section with Mixed Design Systems */}
+      <section className="py-20 bg-white relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4 animate-glow">
               Why Choose PriceTrackr?
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
@@ -260,9 +287,11 @@ const Homepage = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {features.map((feature, index) => (
-              <div key={index} className="text-center p-6 rounded-lg hover:shadow-lg transition-shadow">
+              <div key={index} className={`text-center clay-card p-8 hover-lift animate-stagger-delay-${index + 1}`}>
                 <div className="flex justify-center mb-4">
-                  {feature.icon}
+                  <div className="neomorphism p-4 rounded-full">
+                    {feature.icon}
+                  </div>
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-3">
                   {feature.title}
@@ -276,18 +305,18 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* How It Works Section */}
-      <section className="py-20 bg-gradient-to-br from-primary via-primary/90 to-primary/80 text-primary-foreground relative overflow-hidden">
-        {/* Canadian themed background elements */}
+      {/* How It Works Section with Glass Design */}
+      <section className="py-20 gradient-canadian text-primary-foreground relative overflow-hidden z-10">
+        {/* Enhanced background elements */}
         <div className="absolute inset-0 pointer-events-none">
-          <Leaf className="absolute top-10 left-10 h-20 w-20 text-white/10 floating-element" />
-          <Leaf className="absolute bottom-20 right-20 h-16 w-16 text-white/10 floating-element" />
-          <Leaf className="absolute top-1/2 left-1/4 h-12 w-12 text-white/10 floating-element" />
+          <div className="shape-blob absolute top-10 left-10 w-40 h-40 opacity-20" />
+          <div className="shape-organic absolute bottom-20 right-20 w-32 h-32 opacity-15" />
+          <Leaf className="absolute top-1/2 left-1/4 h-24 w-24 text-white/10 floating-element animate-morph" />
         </div>
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold mb-4">
+            <h2 className="text-3xl font-bold mb-4 animate-glow">
               How PriceTrackr Works
             </h2>
             <p className="text-xl opacity-90">
@@ -297,8 +326,8 @@ const Homepage = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {howItWorksSteps.map((step, index) => (
-              <div key={index} className="text-center group">
-                <div className="w-16 h-16 bg-white text-primary rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4 group-hover:scale-110 transition-transform canadian-border-glow">
+              <div key={index} className={`text-center group animate-stagger-delay-${index + 1}`}>
+                <div className="glass-intense w-20 h-20 rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4 group-hover:scale-110 transition-transform hover-glow">
                   {step.step}
                 </div>
                 <h3 className="text-xl font-semibold mb-3">
@@ -313,11 +342,11 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* Categories Section */}
-      <section className="py-20 bg-gradient-to-br from-gray-50 via-white to-accent/5">
+      {/* Categories Section with Enhanced Design */}
+      <section className="py-20 bg-gradient-to-br from-gray-50 via-white to-accent/5 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4 animate-glow">
               Shop by Category
             </h2>
             <p className="text-lg text-gray-600">
@@ -330,19 +359,21 @@ const Homepage = () => {
               <Link
                 key={index}
                 to={`/search?category=${category.name}`}
-                className="group relative overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow"
+                className={`group relative overflow-hidden clay-card hover-lift animate-stagger-delay-${index + 1}`}
               >
                 <div className="aspect-w-16 aspect-h-12">
                   <img
                     src={category.image}
                     alt={category.name}
-                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500 mask-circle"
                   />
                 </div>
-                <div className="absolute inset-0 bg-black bg-opacity-40 group-hover:bg-opacity-50 transition-all" />
-                <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                  <h3 className="text-lg font-semibold mb-1">{category.name}</h3>
-                  <p className="text-sm opacity-90">{category.count} products</p>
+                <div className="absolute inset-0 gradient-aurora opacity-60 group-hover:opacity-70 transition-all" />
+                <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                  <div className="glass-card p-4 rounded-lg">
+                    <h3 className="text-lg font-semibold mb-1">{category.name}</h3>
+                    <p className="text-sm opacity-90">{category.count} products</p>
+                  </div>
                 </div>
               </Link>
             ))}
@@ -350,11 +381,11 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* Trending Products Section */}
-      <section className="py-20 bg-white">
+      {/* Trending Products with Neumorphism */}
+      <section className="py-20 bg-white relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4 animate-glow">
               Trending Now
             </h2>
             <p className="text-lg text-gray-600">
@@ -367,9 +398,9 @@ const Homepage = () => {
               <Link
                 key={index}
                 to={`/search?q=${product}`}
-                className="group bg-gradient-to-r from-primary/5 to-primary/10 p-6 rounded-lg text-center hover:from-primary/10 hover:to-primary/20 transition-all"
+                className={`group neomorphism-canadian p-6 text-center hover-glow transition-all animate-stagger-delay-${index % 4 + 1}`}
               >
-                <TrendingUp className="h-8 w-8 text-primary mx-auto mb-3 group-hover:scale-110 transition-transform" />
+                <TrendingUp className="h-8 w-8 text-primary mx-auto mb-3 group-hover:scale-110 transition-transform animate-glow" />
                 <h3 className="font-medium text-gray-900">{product}</h3>
               </Link>
             ))}
@@ -377,30 +408,30 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* Testimonials Section */}
-      <section className="py-20 bg-gradient-to-br from-gray-50 via-white to-primary/5">
+      {/* Testimonials with Glass Cards */}
+      <section className="py-20 gradient-aurora relative overflow-hidden z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl font-bold text-white mb-4 animate-glow">
               What Our Customers Say
             </h2>
-            <p className="text-lg text-gray-600">
+            <p className="text-lg text-white/90">
               Join thousands of satisfied Canadian shoppers
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {testimonials.map((testimonial, index) => (
-              <div key={index} className="bg-white p-6 rounded-lg shadow-md">
+              <div key={index} className={`glass-intense p-8 rounded-2xl hover-lift animate-stagger-delay-${index + 1}`}>
                 <div className="flex items-center mb-4">
                   {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
+                    <Star key={i} className="h-5 w-5 text-yellow-400 fill-current animate-glow" />
                   ))}
                 </div>
-                <p className="text-gray-700 mb-4 italic">"{testimonial.comment}"</p>
-                <div className="border-t pt-4">
-                  <div className="font-semibold text-gray-900">{testimonial.name}</div>
-                  <div className="text-sm text-gray-500">{testimonial.location}</div>
+                <p className="text-white/90 mb-4 italic">"{testimonial.comment}"</p>
+                <div className="border-t border-white/20 pt-4">
+                  <div className="font-semibold text-white">{testimonial.name}</div>
+                  <div className="text-sm text-white/70">{testimonial.location}</div>
                 </div>
               </div>
             ))}
@@ -409,61 +440,69 @@ const Homepage = () => {
       </section>
 
       {/* Enhanced Newsletter Section */}
-      <section className="py-20 bg-gradient-to-br from-primary via-primary/90 to-primary/80 text-primary-foreground relative overflow-hidden">
+      <section className="py-20 gradient-canadian text-primary-foreground relative overflow-hidden z-10">
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-white/5 rounded-full animate-bounce-gentle"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-24 h-24 bg-accent/20 rounded-full floating-element"></div>
+          <div className="shape-organic absolute top-1/4 left-1/4 w-64 h-64 opacity-10 animate-morph"></div>
+          <div className="shape-blob absolute bottom-1/4 right-1/4 w-48 h-48 opacity-15 floating-element"></div>
         </div>
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <div className="max-w-2xl mx-auto">
-            <Bell className="h-16 w-16 mx-auto mb-6 opacity-90 animate-bounce-gentle" />
-            <h2 className="text-3xl font-bold mb-4">
-              Never Miss a Deal
-            </h2>
-            <p className="text-xl mb-8 opacity-90">
-              Get notified when prices drop on products you're watching
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="flex-1 px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500 canadian-border-glow"
-              />
-              <button className="bg-white text-primary px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors canadian-button">
-                Subscribe
-              </button>
+            <div className="glass-intense p-8 rounded-3xl hover-lift">
+              <Bell className="h-16 w-16 mx-auto mb-6 opacity-90 animate-glow" />
+              <h2 className="text-3xl font-bold mb-4 animate-glow">
+                Never Miss a Deal
+              </h2>
+              <p className="text-xl mb-8 opacity-90">
+                Get notified when prices drop on products you're watching
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+                <input
+                  type="email"
+                  placeholder="Enter your email"
+                  className="flex-1 px-6 py-4 rounded-xl text-gray-900 placeholder-gray-500 neomorphism-inset"
+                />
+                <button className="canadian-button px-8 py-4 rounded-xl font-semibold">
+                  Subscribe
+                </button>
+              </div>
+              <p className="text-sm mt-4 opacity-75">
+                No spam, unsubscribe anytime. We respect your privacy.
+              </p>
             </div>
-            <p className="text-sm mt-4 opacity-75">
-              No spam, unsubscribe anytime. We respect your privacy.
-            </p>
           </div>
         </div>
       </section>
 
       {/* Enhanced CTA Section */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-white relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="bg-gradient-to-br from-primary/5 via-white to-accent/5 rounded-3xl p-12 canadian-border-glow">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Ready to Start Saving?
-            </h2>
-            <p className="text-xl text-gray-600 mb-8">
-              Join thousands of Canadians who save money with PriceTrackr
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                to="/search"
-                className="inline-flex items-center px-8 py-3 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition-colors canadian-button"
-              >
-                Start Comparing Prices
-              </Link>
-              <Link
-                to="/stores"
-                className="inline-flex items-center px-8 py-3 border-2 border-primary text-primary font-semibold rounded-lg hover:bg-primary/5 transition-colors canadian-button"
-              >
-                Find Local Stores
-              </Link>
+          <div className="glass-canadian rounded-3xl p-12 hover-lift relative overflow-hidden">
+            <div className="shape-blob absolute top-0 right-0 w-32 h-32 opacity-20" />
+            <div className="shape-organic absolute bottom-0 left-0 w-40 h-40 opacity-15" />
+            <div className="relative z-10">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4 animate-glow">
+                Ready to Start Saving?
+              </h2>
+              <p className="text-xl text-gray-600 mb-8">
+                Join thousands of Canadians who save money with PriceTrackr
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link
+                  to="/search"
+                  className="inline-flex items-center px-8 py-4 canadian-button font-semibold rounded-xl hover-glow"
+                >
+                  <Sparkles className="mr-2 h-5 w-5" />
+                  Start Comparing Prices
+                </Link>
+                <Link
+                  to="/stores"
+                  className="inline-flex items-center px-8 py-4 clay-card font-semibold rounded-xl hover-lift transition-colors"
+                >
+                  <MapPin className="mr-2 h-5 w-5" />
+                  Find Local Stores
+                </Link>
+              </div>
             </div>
           </div>
         </div>
