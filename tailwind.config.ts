@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,15 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// Additional vibrant colors for e-commerce appeal
+				success: '142 76% 36%',
+				warning: '43 96% 56%',
+				info: '199 89% 48%',
+				gradient: {
+					from: '262 83% 58%',
+					via: '199 89% 48%',
+					to: '142 76% 36%'
 				}
 			},
 			borderRadius: {
