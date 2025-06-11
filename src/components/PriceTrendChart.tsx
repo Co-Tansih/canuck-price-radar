@@ -96,7 +96,7 @@ const PriceTrendChart = ({ data }: PriceTrendChartProps) => {
               y={averagePrice} 
               stroke="#9ca3af" 
               strokeDasharray="5 5" 
-              label={{ value: `Avg: $${averagePrice.toFixed(2)}`, position: 'topRight' }}
+              label={{ value: `Avg: $${averagePrice.toFixed(2)}`, position: 'top' }}
             />
             {stores.map((store, index) => (
               <Line
