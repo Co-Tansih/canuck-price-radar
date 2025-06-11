@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { TrendingUp, MapPin, Clock, Shield } from 'lucide-react';
+import { TrendingUp, MapPin, Clock, Shield, Star, Users, CheckCircle, Bell } from 'lucide-react';
 import SearchBar from './SearchBar';
 import FilterPanel from './FilterPanel';
 
@@ -34,6 +34,89 @@ const Homepage = () => {
     { name: 'Clothing', count: '5,600+', image: 'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=300&h=200&fit=crop' },
     { name: 'Building Materials', count: '1,800+', image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=300&h=200&fit=crop' },
     { name: 'Accessories', count: '3,200+', image: 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=300&h=200&fit=crop' }
+  ];
+
+  const testimonials = [
+    {
+      name: 'Sarah Thompson',
+      location: 'Toronto, ON',
+      rating: 5,
+      comment: 'PriceTrackr saved me over $200 on my home renovation project. The price comparison feature is incredible!'
+    },
+    {
+      name: 'Mike Rodriguez',
+      location: 'Vancouver, BC',
+      rating: 5,
+      comment: 'Finally found a tool that shows me real Canadian prices and availability. Game changer for my business.'
+    },
+    {
+      name: 'Jennifer Liu',
+      location: 'Calgary, AB',
+      rating: 5,
+      comment: 'Love the local store finder. I can see what\'s in stock before making the trip. So convenient!'
+    }
+  ];
+
+  const featuredDeals = [
+    {
+      title: 'DeWalt 20V Drill Kit',
+      originalPrice: 189.99,
+      salePrice: 149.99,
+      savings: 40,
+      store: 'Home Depot',
+      image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=200&h=200&fit=crop'
+    },
+    {
+      title: 'Winter Work Jacket',
+      originalPrice: 129.99,
+      salePrice: 89.99,
+      savings: 40,
+      store: 'Mark\'s',
+      image: 'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=200&h=200&fit=crop'
+    },
+    {
+      title: 'Pressure Treated Lumber',
+      originalPrice: 24.99,
+      salePrice: 19.99,
+      savings: 5,
+      store: 'Rona',
+      image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=200&h=200&fit=crop'
+    }
+  ];
+
+  const trendingProducts = [
+    'Power Tools', 'Winter Boots', 'Insulation', 'Smart Home Devices', 
+    'Work Gloves', 'Paint Supplies', 'Safety Equipment', 'Outdoor Gear'
+  ];
+
+  const howItWorksSteps = [
+    {
+      step: 1,
+      title: 'Search Products',
+      description: 'Enter what you\'re looking for in our search bar or browse by category.'
+    },
+    {
+      step: 2,
+      title: 'Compare Prices',
+      description: 'View prices from multiple Canadian retailers side by side.'
+    },
+    {
+      step: 3,
+      title: 'Check Availability',
+      description: 'See which stores have the item in stock near you.'
+    },
+    {
+      step: 4,
+      title: 'Save Money',
+      description: 'Choose the best deal and save money on your purchase.'
+    }
+  ];
+
+  const stats = [
+    { number: '50,000+', label: 'Products Tracked' },
+    { number: '100+', label: 'Partner Stores' },
+    { number: '$2.5M+', label: 'Total Savings' },
+    { number: '25,000+', label: 'Happy Customers' }
   ];
 
   return (
@@ -78,6 +161,68 @@ const Homepage = () => {
         </div>
       </section>
 
+      {/* Stats Section */}
+      <section className="py-16 bg-white border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {stats.map((stat, index) => (
+              <div key={index} className="text-center">
+                <div className="text-3xl md:text-4xl font-bold text-primary mb-2">
+                  {stat.number}
+                </div>
+                <div className="text-gray-600 text-sm md:text-base">
+                  {stat.label}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Deals Section */}
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Today's Best Deals
+            </h2>
+            <p className="text-lg text-gray-600">
+              Hand-picked deals from across Canada's top retailers
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {featuredDeals.map((deal, index) => (
+              <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                <div className="aspect-w-16 aspect-h-12">
+                  <img
+                    src={deal.image}
+                    alt={deal.title}
+                    className="w-full h-48 object-cover"
+                  />
+                </div>
+                <div className="p-6">
+                  <h3 className="font-semibold text-gray-900 mb-2">{deal.title}</h3>
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <span className="text-2xl font-bold text-primary">${deal.salePrice}</span>
+                      <span className="text-gray-500 line-through ml-2">${deal.originalPrice}</span>
+                    </div>
+                    <div className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-sm font-medium">
+                      Save ${deal.savings}
+                    </div>
+                  </div>
+                  <div className="text-sm text-gray-600 mb-4">Available at {deal.store}</div>
+                  <button className="w-full bg-primary text-primary-foreground py-2 rounded-lg hover:bg-primary/90 transition-colors">
+                    View Deal
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Features Section */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -102,6 +247,36 @@ const Homepage = () => {
                 </h3>
                 <p className="text-gray-600">
                   {feature.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works Section */}
+      <section className="py-20 bg-primary text-primary-foreground">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold mb-4">
+              How PriceTrackr Works
+            </h2>
+            <p className="text-xl opacity-90">
+              Save money in 4 simple steps
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {howItWorksSteps.map((step, index) => (
+              <div key={index} className="text-center">
+                <div className="w-16 h-16 bg-white text-primary rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">
+                  {step.step}
+                </div>
+                <h3 className="text-xl font-semibold mb-3">
+                  {step.title}
+                </h3>
+                <p className="opacity-90">
+                  {step.description}
                 </p>
               </div>
             ))}
@@ -146,21 +321,115 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 bg-primary text-primary-foreground">
+      {/* Trending Products Section */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Trending Now
+            </h2>
+            <p className="text-lg text-gray-600">
+              See what other Canadians are searching for
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {trendingProducts.map((product, index) => (
+              <Link
+                key={index}
+                to={`/search?q=${product}`}
+                className="group bg-gradient-to-r from-primary/5 to-primary/10 p-6 rounded-lg text-center hover:from-primary/10 hover:to-primary/20 transition-all"
+              >
+                <TrendingUp className="h-8 w-8 text-primary mx-auto mb-3 group-hover:scale-110 transition-transform" />
+                <h3 className="font-medium text-gray-900">{product}</h3>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              What Our Customers Say
+            </h2>
+            <p className="text-lg text-gray-600">
+              Join thousands of satisfied Canadian shoppers
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {testimonials.map((testimonial, index) => (
+              <div key={index} className="bg-white p-6 rounded-lg shadow-md">
+                <div className="flex items-center mb-4">
+                  {[...Array(testimonial.rating)].map((_, i) => (
+                    <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
+                  ))}
+                </div>
+                <p className="text-gray-700 mb-4 italic">"{testimonial.comment}"</p>
+                <div className="border-t pt-4">
+                  <div className="font-semibold text-gray-900">{testimonial.name}</div>
+                  <div className="text-sm text-gray-500">{testimonial.location}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Newsletter Section */}
+      <section className="py-20 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold mb-4">
+          <div className="max-w-2xl mx-auto">
+            <Bell className="h-16 w-16 mx-auto mb-6 opacity-90" />
+            <h2 className="text-3xl font-bold mb-4">
+              Never Miss a Deal
+            </h2>
+            <p className="text-xl mb-8 opacity-90">
+              Get notified when prices drop on products you're watching
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+              <input
+                type="email"
+                placeholder="Enter your email"
+                className="flex-1 px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500"
+              />
+              <button className="bg-white text-primary px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                Subscribe
+              </button>
+            </div>
+            <p className="text-sm mt-4 opacity-75">
+              No spam, unsubscribe anytime. We respect your privacy.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">
             Ready to Start Saving?
           </h2>
-          <p className="text-xl mb-8 opacity-90">
+          <p className="text-xl text-gray-600 mb-8">
             Join thousands of Canadians who save money with PriceTrackr
           </p>
-          <Link
-            to="/search"
-            className="inline-flex items-center px-8 py-3 bg-white text-primary font-semibold rounded-lg hover:bg-gray-100 transition-colors"
-          >
-            Start Comparing Prices
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              to="/search"
+              className="inline-flex items-center px-8 py-3 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition-colors"
+            >
+              Start Comparing Prices
+            </Link>
+            <Link
+              to="/stores"
+              className="inline-flex items-center px-8 py-3 border border-primary text-primary font-semibold rounded-lg hover:bg-primary/5 transition-colors"
+            >
+              Find Local Stores
+            </Link>
+          </div>
         </div>
       </section>
     </div>
