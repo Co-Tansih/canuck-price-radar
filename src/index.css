@@ -16,16 +16,19 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 262 83% 58%;
+    /* Canadian Red as primary */
+    --primary: 0 85% 50%;
     --primary-foreground: 0 0% 98%;
 
-    --secondary: 142 76% 36%;
+    /* Canadian Red darker variant as secondary */
+    --secondary: 0 75% 35%;
     --secondary-foreground: 0 0% 98%;
 
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 43 96% 56%;
+    /* Golden accent for maple leaf */
+    --accent: 45 100% 65%;
     --accent-foreground: 222.2 47.4% 11.2%;
 
     --destructive: 0 84.2% 60.2%;
@@ -33,18 +36,18 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 262 83% 58%;
+    --ring: 0 85% 50%;
 
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 262 83% 58%;
+    --sidebar-primary: 0 85% 50%;
     --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 43 96% 96%;
-    --sidebar-accent-foreground: 262 83% 58%;
+    --sidebar-accent: 45 100% 95%;
+    --sidebar-accent-foreground: 0 85% 50%;
     --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 262 83% 58%;
+    --sidebar-ring: 0 85% 50%;
   }
 
   .dark {
@@ -57,16 +60,16 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 262 83% 58%;
+    --primary: 0 85% 55%;
     --primary-foreground: 222.2 47.4% 11.2%;
 
-    --secondary: 142 76% 36%;
+    --secondary: 0 75% 40%;
     --secondary-foreground: 210 40% 98%;
 
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 43 96% 56%;
+    --accent: 45 100% 70%;
     --accent-foreground: 222.2 47.4% 11.2%;
 
     --destructive: 0 62.8% 30.6%;
@@ -74,16 +77,16 @@
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 262 83% 58%;
+    --ring: 0 85% 55%;
     
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 262 83% 58%;
+    --sidebar-primary: 0 85% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 240 3.7% 15.9%;
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 262 83% 58%;
+    --sidebar-ring: 0 85% 55%;
   }
 }
 
@@ -94,5 +97,149 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* Canadian themed animations and effects */
+@layer utilities {
+  .canadian-glow {
+    background: linear-gradient(45deg, 
+      hsl(0 85% 50% / 0.1), 
+      hsl(0 0% 100% / 0.2), 
+      hsl(0 85% 50% / 0.1)
+    );
+    animation: canadian-pulse 4s ease-in-out infinite;
+  }
+
+  .maple-leaf-bg {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .maple-leaf-bg::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: 
+      radial-gradient(circle at 20% 30%, hsl(0 85% 50% / 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, hsl(45 100% 65% / 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 40% 90%, hsl(0 85% 50% / 0.03) 0%, transparent 50%);
+    animation: float-bubbles 20s linear infinite;
+    pointer-events: none;
+  }
+
+  .hero-gradient {
+    background: linear-gradient(135deg, 
+      hsl(0 0% 100%) 0%,
+      hsl(0 85% 50% / 0.05) 25%,
+      hsl(0 0% 100%) 50%,
+      hsl(45 100% 65% / 0.05) 75%,
+      hsl(0 0% 100%) 100%
+    );
+  }
+
+  .canadian-border-glow {
+    border: 2px solid transparent;
+    background: linear-gradient(white, white) padding-box,
+                linear-gradient(45deg, hsl(0 85% 50%), hsl(45 100% 65%), hsl(0 85% 50%)) border-box;
+    animation: border-glow 3s ease-in-out infinite;
+  }
+
+  .text-shimmer {
+    background: linear-gradient(
+      90deg,
+      hsl(0 85% 50%) 0%,
+      hsl(45 100% 65%) 50%,
+      hsl(0 85% 50%) 100%
+    );
+    background-size: 200% auto;
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    animation: shimmer 3s linear infinite;
+  }
+}
+
+@keyframes canadian-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.02);
+    opacity: 1;
+  }
+}
+
+@keyframes float-bubbles {
+  0% {
+    transform: translateY(0) rotate(0deg);
+  }
+  100% {
+    transform: translateY(-100px) rotate(360deg);
+  }
+}
+
+@keyframes border-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px hsl(0 85% 50% / 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px hsl(0 85% 50% / 0.6), 0 0 30px hsl(45 100% 65% / 0.3);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Enhanced button animations */
+.canadian-button {
+  @apply relative overflow-hidden;
+  transition: all 0.3s ease;
+}
+
+.canadian-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.canadian-button:hover::before {
+  left: 100%;
+}
+
+/* Floating elements */
+.floating-element {
+  animation: float 6s ease-in-out infinite;
+}
+
+.floating-element:nth-child(2n) {
+  animation-delay: -2s;
+}
+
+.floating-element:nth-child(3n) {
+  animation-delay: -4s;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
   }
 }

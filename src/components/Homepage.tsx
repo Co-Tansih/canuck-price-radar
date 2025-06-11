@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { TrendingUp, MapPin, Clock, Shield, Star, Users, CheckCircle, Bell } from 'lucide-react';
+import { TrendingUp, MapPin, Clock, Shield, Star, Users, CheckCircle, Bell, Leaf } from 'lucide-react';
 import SearchBar from './SearchBar';
 import FilterPanel from './FilterPanel';
 
@@ -120,38 +119,54 @@ const Homepage = () => {
   ];
 
   return (
-    <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary/5 to-primary/10 py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen maple-leaf-bg">
+      {/* Hero Section with Enhanced Canadian Styling */}
+      <section className="hero-gradient py-20 relative overflow-hidden">
+        {/* Floating Canadian Elements */}
+        <div className="absolute inset-0 pointer-events-none">
+          <Leaf className="absolute top-20 left-10 h-12 w-12 text-primary/20 floating-element" />
+          <Leaf className="absolute top-40 right-20 h-8 w-8 text-accent/30 floating-element" />
+          <Leaf className="absolute bottom-20 left-1/4 h-10 w-10 text-primary/15 floating-element" />
+          <Leaf className="absolute top-60 right-1/3 h-6 w-6 text-accent/25 floating-element" />
+        </div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+            <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full mb-6 animate-fade-in-up">
+              <Leaf className="h-5 w-5 text-primary" />
+              <span className="text-sm font-medium text-gray-700">Proudly Canadian</span>
+            </div>
+            
+            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 animate-fade-in-up">
               Find the Best Prices in
-              <span className="text-primary block">Canada</span>
+              <span className="text-shimmer block">Canada</span>
             </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
+            
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8 animate-fade-in-up">
               Compare prices across thousands of products from top Canadian retailers. 
               Find better deals, check local availability, and save money on everything you need.
             </p>
           </div>
           
-          {/* Search Section */}
-          <div className="max-w-4xl mx-auto">
-            <SearchBar />
-            <div className="mt-6">
-              <FilterPanel />
+          {/* Enhanced Search Section */}
+          <div className="max-w-4xl mx-auto animate-fade-in-up">
+            <div className="canadian-border-glow rounded-2xl p-6 bg-white/90 backdrop-blur-sm">
+              <SearchBar />
+              <div className="mt-6">
+                <FilterPanel />
+              </div>
             </div>
           </div>
 
-          {/* Popular Searches */}
-          <div className="mt-8 text-center">
+          {/* Popular Searches with Canadian styling */}
+          <div className="mt-8 text-center animate-fade-in-up">
             <p className="text-sm text-gray-500 mb-3">Popular searches:</p>
             <div className="flex flex-wrap justify-center gap-2">
               {['Power Drill', 'Winter Jacket', 'Lumber', 'Smartphone', 'Work Boots'].map((term) => (
                 <Link
                   key={term}
                   to={`/search?q=${term}`}
-                  className="px-3 py-1 bg-white text-gray-600 rounded-full text-sm hover:bg-gray-50 transition-colors border"
+                  className="px-4 py-2 bg-white/80 backdrop-blur-sm text-gray-600 rounded-full text-sm hover:bg-white hover:shadow-md transition-all border border-primary/20 canadian-button"
                 >
                   {term}
                 </Link>
@@ -161,13 +176,13 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-16 bg-white border-b">
+      {/* Stats Section with Canadian glow effect */}
+      <section className="py-16 bg-white border-b canadian-glow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="text-3xl md:text-4xl font-bold text-primary mb-2">
+              <div key={index} className="text-center group">
+                <div className="text-3xl md:text-4xl font-bold text-primary mb-2 group-hover:scale-110 transition-transform">
                   {stat.number}
                 </div>
                 <div className="text-gray-600 text-sm md:text-base">
@@ -179,12 +194,16 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* Featured Deals Section */}
-      <section className="py-20 bg-gray-50">
+      {/* Enhanced Featured Deals Section */}
+      <section className="py-20 bg-gradient-to-br from-gray-50 via-white to-primary/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full mb-4">
+              <Star className="h-5 w-5 text-primary animate-bounce-gentle" />
+              <span className="text-sm font-medium text-primary">Today's Best</span>
+            </div>
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Today's Best Deals
+              Featured Deals
             </h2>
             <p className="text-lg text-gray-600">
               Hand-picked deals from across Canada's top retailers
@@ -193,13 +212,16 @@ const Homepage = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {featuredDeals.map((deal, index) => (
-              <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                <div className="aspect-w-16 aspect-h-12">
+              <div key={index} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all transform hover:-translate-y-1 canadian-border-glow">
+                <div className="aspect-w-16 aspect-h-12 relative overflow-hidden">
                   <img
                     src={deal.image}
                     alt={deal.title}
-                    className="w-full h-48 object-cover"
+                    className="w-full h-48 object-cover transition-transform hover:scale-105"
                   />
+                  <div className="absolute top-4 right-4 bg-primary text-white px-2 py-1 rounded-full text-sm font-bold">
+                    ${deal.savings} OFF
+                  </div>
                 </div>
                 <div className="p-6">
                   <h3 className="font-semibold text-gray-900 mb-2">{deal.title}</h3>
@@ -208,12 +230,12 @@ const Homepage = () => {
                       <span className="text-2xl font-bold text-primary">${deal.salePrice}</span>
                       <span className="text-gray-500 line-through ml-2">${deal.originalPrice}</span>
                     </div>
-                    <div className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-sm font-medium">
-                      Save ${deal.savings}
-                    </div>
                   </div>
-                  <div className="text-sm text-gray-600 mb-4">Available at {deal.store}</div>
-                  <button className="w-full bg-primary text-primary-foreground py-2 rounded-lg hover:bg-primary/90 transition-colors">
+                  <div className="text-sm text-gray-600 mb-4 flex items-center">
+                    <Leaf className="h-4 w-4 text-primary mr-1" />
+                    Available at {deal.store}
+                  </div>
+                  <button className="w-full bg-primary text-primary-foreground py-3 rounded-lg hover:bg-primary/90 transition-colors canadian-button font-semibold">
                     View Deal
                   </button>
                 </div>
@@ -255,8 +277,15 @@ const Homepage = () => {
       </section>
 
       {/* How It Works Section */}
-      <section className="py-20 bg-primary text-primary-foreground">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-20 bg-gradient-to-br from-primary via-primary/90 to-primary/80 text-primary-foreground relative overflow-hidden">
+        {/* Canadian themed background elements */}
+        <div className="absolute inset-0 pointer-events-none">
+          <Leaf className="absolute top-10 left-10 h-20 w-20 text-white/10 floating-element" />
+          <Leaf className="absolute bottom-20 right-20 h-16 w-16 text-white/10 floating-element" />
+          <Leaf className="absolute top-1/2 left-1/4 h-12 w-12 text-white/10 floating-element" />
+        </div>
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold mb-4">
               How PriceTrackr Works
@@ -268,8 +297,8 @@ const Homepage = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {howItWorksSteps.map((step, index) => (
-              <div key={index} className="text-center">
-                <div className="w-16 h-16 bg-white text-primary rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">
+              <div key={index} className="text-center group">
+                <div className="w-16 h-16 bg-white text-primary rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4 group-hover:scale-110 transition-transform canadian-border-glow">
                   {step.step}
                 </div>
                 <h3 className="text-xl font-semibold mb-3">
@@ -285,7 +314,7 @@ const Homepage = () => {
       </section>
 
       {/* Categories Section */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-gradient-to-br from-gray-50 via-white to-accent/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
@@ -349,7 +378,7 @@ const Homepage = () => {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-gradient-to-br from-gray-50 via-white to-primary/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
@@ -379,11 +408,16 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* Newsletter Section */}
-      <section className="py-20 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      {/* Enhanced Newsletter Section */}
+      <section className="py-20 bg-gradient-to-br from-primary via-primary/90 to-primary/80 text-primary-foreground relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-white/5 rounded-full animate-bounce-gentle"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-24 h-24 bg-accent/20 rounded-full floating-element"></div>
+        </div>
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <div className="max-w-2xl mx-auto">
-            <Bell className="h-16 w-16 mx-auto mb-6 opacity-90" />
+            <Bell className="h-16 w-16 mx-auto mb-6 opacity-90 animate-bounce-gentle" />
             <h2 className="text-3xl font-bold mb-4">
               Never Miss a Deal
             </h2>
@@ -394,9 +428,9 @@ const Homepage = () => {
               <input
                 type="email"
                 placeholder="Enter your email"
-                className="flex-1 px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500"
+                className="flex-1 px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500 canadian-border-glow"
               />
-              <button className="bg-white text-primary px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+              <button className="bg-white text-primary px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors canadian-button">
                 Subscribe
               </button>
             </div>
@@ -407,28 +441,30 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* Enhanced CTA Section */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
-            Ready to Start Saving?
-          </h2>
-          <p className="text-xl text-gray-600 mb-8">
-            Join thousands of Canadians who save money with PriceTrackr
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              to="/search"
-              className="inline-flex items-center px-8 py-3 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition-colors"
-            >
-              Start Comparing Prices
-            </Link>
-            <Link
-              to="/stores"
-              className="inline-flex items-center px-8 py-3 border border-primary text-primary font-semibold rounded-lg hover:bg-primary/5 transition-colors"
-            >
-              Find Local Stores
-            </Link>
+          <div className="bg-gradient-to-br from-primary/5 via-white to-accent/5 rounded-3xl p-12 canadian-border-glow">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Ready to Start Saving?
+            </h2>
+            <p className="text-xl text-gray-600 mb-8">
+              Join thousands of Canadians who save money with PriceTrackr
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link
+                to="/search"
+                className="inline-flex items-center px-8 py-3 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition-colors canadian-button"
+              >
+                Start Comparing Prices
+              </Link>
+              <Link
+                to="/stores"
+                className="inline-flex items-center px-8 py-3 border-2 border-primary text-primary font-semibold rounded-lg hover:bg-primary/5 transition-colors canadian-button"
+              >
+                Find Local Stores
+              </Link>
+            </div>
           </div>
         </div>
       </section>
