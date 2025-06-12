@@ -581,6 +581,58 @@ const Homepage = () => {
         </div>
       </section>
 
+      {/* Trust & Security Section - NEW */}
+      <section 
+        className={`py-16 bg-white relative z-10 transition-all duration-1000 ${
+          visibleSections.has('trust') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`}
+        id="trust"
+        data-animate
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 neomorphism px-6 py-3 rounded-full mb-6 hover-lift">
+              <Shield className="h-5 w-5 text-primary" />
+              <span className="text-sm font-medium text-gray-700">Trusted & Secure</span>
+              <CheckCircle className="h-4 w-4 text-accent" />
+            </div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Your Privacy & Security Matter
+            </h2>
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+              We protect your data with industry-leading security measures and never share your personal information with third parties. 
+              Shop with confidence knowing your privacy is our priority.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="text-center clay-card p-6 hover-lift">
+              <div className="neomorphism p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                <Shield className="h-8 w-8 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Secure Data</h3>
+              <p className="text-gray-600">Your personal information is encrypted and protected with bank-level security.</p>
+            </div>
+            
+            <div className="text-center clay-card p-6 hover-lift">
+              <div className="neomorphism p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                <Users className="h-8 w-8 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">No Spam</h3>
+              <p className="text-gray-600">We respect your inbox and only send relevant price alerts and updates.</p>
+            </div>
+            
+            <div className="text-center clay-card p-6 hover-lift">
+              <div className="neomorphism p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                <CheckCircle className="h-8 w-8 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Always Free</h3>
+              <p className="text-gray-600">Our core price comparison service will always be free for Canadian shoppers.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Newsletter with Parallax - SOFTENED WITH GRADIENT */}
       <section 
         className={`py-20 bg-gradient-to-tl from-orange-600 via-primary to-yellow-500 text-primary-foreground relative overflow-hidden z-10 transition-all duration-1000 ${
