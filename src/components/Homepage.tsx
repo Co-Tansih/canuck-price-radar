@@ -293,9 +293,9 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* Progressive Disclosure - Featured Deals - REMOVED SHINY BACKGROUND */}
+      {/* Progressive Disclosure - Featured Deals - SOFTENED WITH GRADIENT */}
       <section 
-        className={`py-20 bg-primary text-primary-foreground relative z-10 transition-all duration-1000 ${
+        className={`py-20 bg-gradient-to-br from-orange-500 via-primary to-red-600 text-primary-foreground relative z-10 transition-all duration-1000 ${
           visibleSections.has('deals') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
         }`}
         id="deals"
@@ -418,9 +418,9 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* Parallax How It Works - REMOVED SHINY BACKGROUND */}
+      {/* Parallax How It Works - SOFTENED WITH GRADIENT */}
       <section 
-        className={`py-20 bg-primary text-primary-foreground relative overflow-hidden z-10 transition-all duration-1000 ${
+        className={`py-20 bg-gradient-to-tr from-yellow-500 via-primary to-orange-600 text-primary-foreground relative overflow-hidden z-10 transition-all duration-1000 ${
           visibleSections.has('how-it-works') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
         }`}
         id="how-it-works"
@@ -530,9 +530,9 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* Progressive Disclosure - Testimonials - REMOVED SHINY BACKGROUND */}
+      {/* Progressive Disclosure - Testimonials - SOFTENED WITH GRADIENT */}
       <section 
-        className={`py-20 bg-primary relative overflow-hidden z-10 transition-all duration-1000 ${
+        className={`py-20 bg-gradient-to-bl from-red-500 via-primary to-yellow-600 relative overflow-hidden z-10 transition-all duration-1000 ${
           visibleSections.has('testimonials') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
         }`}
         id="testimonials"
@@ -581,9 +581,9 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* Newsletter with Parallax - REMOVED SHINY BACKGROUND */}
+      {/* Newsletter with Parallax - SOFTENED WITH GRADIENT */}
       <section 
-        className={`py-20 bg-primary text-primary-foreground relative overflow-hidden z-10 transition-all duration-1000 ${
+        className={`py-20 bg-gradient-to-tl from-orange-600 via-primary to-yellow-500 text-primary-foreground relative overflow-hidden z-10 transition-all duration-1000 ${
           visibleSections.has('newsletter') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
         }`}
         id="newsletter"
