@@ -1,31 +1,76 @@
 
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { TrendingUp, MapPin, Clock, Shield, Star, Users, CheckCircle, Bell, Leaf, Sparkles, Zap, Heart } from 'lucide-react';
+import { TrendingUp, MapPin, Clock, Shield, Star, Users, CheckCircle, Bell, Leaf, Sparkles, Zap, Heart, ChevronDown, ChevronUp } from 'lucide-react';
 import SearchBar from './SearchBar';
 import FilterPanel from './FilterPanel';
 
 const Homepage = () => {
+  const [scrollY, setScrollY] = useState(0);
+  const [visibleSections, setVisibleSections] = useState(new Set());
+  const [expandedSections, setExpandedSections] = useState({
+    features: false,
+    deals: false,
+    testimonials: false
+  });
+
+  // Parallax scroll effect
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Intersection Observer for scroll-triggered animations
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setVisibleSections(prev => new Set([...prev, entry.target.id]));
+          }
+        });
+      },
+      { threshold: 0.2 }
+    );
+
+    const sections = document.querySelectorAll('[data-animate]');
+    sections.forEach((section) => observer.observe(section));
+
+    return () => observer.disconnect();
+  }, []);
+
+  const toggleSection = (section: keyof typeof expandedSections) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
+
   const features = [
     {
       icon: <TrendingUp className="h-8 w-8 text-primary" />,
       title: 'Price Tracking',
-      description: 'Monitor price changes across multiple retailers and get alerts when prices drop.'
+      description: 'Monitor price changes across multiple retailers and get alerts when prices drop.',
+      details: 'Set up custom price alerts, track historical pricing data, and never miss a deal again.'
     },
     {
       icon: <MapPin className="h-8 w-8 text-primary" />,
       title: 'Local Availability',
-      description: 'Check product availability at nearby stores with real-time inventory updates.'
+      description: 'Check product availability at nearby stores with real-time inventory updates.',
+      details: 'Real-time inventory tracking across 100+ Canadian retailers with store locator integration.'
     },
     {
       icon: <Clock className="h-8 w-8 text-primary" />,
       title: 'Delivery Estimates',
-      description: 'Compare delivery times and shipping costs from different retailers.'
+      description: 'Compare delivery times and shipping costs from different retailers.',
+      details: 'Get accurate delivery estimates, compare shipping options, and choose the fastest route.'
     },
     {
       icon: <Shield className="h-8 w-8 text-primary" />,
       title: 'Canadian Focused',
-      description: 'Designed specifically for Canadian shoppers with local store partnerships.'
+      description: 'Designed specifically for Canadian shoppers with local store partnerships.',
+      details: 'Built for Canadians, by Canadians. Supporting local businesses and Canadian retailers.'
     }
   ];
 
@@ -41,19 +86,22 @@ const Homepage = () => {
       name: 'Sarah Thompson',
       location: 'Toronto, ON',
       rating: 5,
-      comment: 'PriceTrackr saved me over $200 on my home renovation project. The price comparison feature is incredible!'
+      comment: 'PriceTrackr saved me over $200 on my home renovation project. The price comparison feature is incredible!',
+      details: 'I was shopping for power tools and found the same drill for 40% less at a local store. The real-time inventory feature saved me a trip!'
     },
     {
       name: 'Mike Rodriguez',
       location: 'Vancouver, BC',
       rating: 5,
-      comment: 'Finally found a tool that shows me real Canadian prices and availability. Game changer for my business.'
+      comment: 'Finally found a tool that shows me real Canadian prices and availability. Game changer for my business.',
+      details: 'As a contractor, I need reliable suppliers. PriceTrackr helps me find the best deals and check stock levels instantly.'
     },
     {
       name: 'Jennifer Liu',
       location: 'Calgary, AB',
       rating: 5,
-      comment: 'Love the local store finder. I can see what\'s in stock before making the trip. So convenient!'
+      comment: 'Love the local store finder. I can see what\'s in stock before making the trip. So convenient!',
+      details: 'The mobile app is fantastic. I can check prices while shopping and make sure I\'m getting the best deal.'
     }
   ];
 
@@ -93,22 +141,26 @@ const Homepage = () => {
     {
       step: 1,
       title: 'Search Products',
-      description: 'Enter what you\'re looking for in our search bar or browse by category.'
+      description: 'Enter what you\'re looking for in our search bar or browse by category.',
+      details: 'Use our smart search with filters, categories, and predictive suggestions.'
     },
     {
       step: 2,
       title: 'Compare Prices',
-      description: 'View prices from multiple Canadian retailers side by side.'
+      description: 'View prices from multiple Canadian retailers side by side.',
+      details: 'See real-time pricing, historical data, and price trend analysis.'
     },
     {
       step: 3,
       title: 'Check Availability',
-      description: 'See which stores have the item in stock near you.'
+      description: 'See which stores have the item in stock near you.',
+      details: 'Real-time inventory with store locations and contact information.'
     },
     {
       step: 4,
       title: 'Save Money',
-      description: 'Choose the best deal and save money on your purchase.'
+      description: 'Choose the best deal and save money on your purchase.',
+      details: 'Set price alerts, compare shipping, and track your savings.'
     }
   ];
 
@@ -136,17 +188,28 @@ const Homepage = () => {
         ))}
       </div>
 
-      {/* Background Shapes */}
+      {/* Parallax Background Shapes */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="shape-blob absolute top-20 left-10 w-64 h-64 opacity-30" />
-        <div className="shape-organic absolute bottom-20 right-20 w-96 h-96 opacity-20" />
-        <div className="shape-blob absolute top-1/2 left-1/2 w-80 h-80 opacity-10 transform -translate-x-1/2 -translate-y-1/2" />
+        <div 
+          className="shape-blob absolute top-20 left-10 w-64 h-64 opacity-30"
+          style={{ transform: `translateY(${scrollY * 0.1}px)` }}
+        />
+        <div 
+          className="shape-organic absolute bottom-20 right-20 w-96 h-96 opacity-20"
+          style={{ transform: `translateY(${scrollY * -0.15}px)` }}
+        />
+        <div 
+          className="shape-blob absolute top-1/2 left-1/2 w-80 h-80 opacity-10 transform -translate-x-1/2 -translate-y-1/2"
+          style={{ transform: `translate(-50%, -50%) translateY(${scrollY * 0.05}px)` }}
+        />
       </div>
 
-      {/* Hero Section */}
+      {/* Hero Section with Parallax */}
       <section className="hero-gradient py-20 relative overflow-hidden z-10">
-        {/* Floating Canadian Elements */}
-        <div className="absolute inset-0 pointer-events-none">
+        <div 
+          className="absolute inset-0 pointer-events-none"
+          style={{ transform: `translateY(${scrollY * 0.3}px)` }}
+        >
           <Leaf className="absolute top-20 left-10 h-12 w-12 text-primary/30 floating-element" />
           <Heart className="absolute top-40 right-20 h-8 w-8 text-accent/40 floating-element" />
           <Sparkles className="absolute bottom-20 left-1/4 h-10 w-10 text-primary/25 floating-element" />
@@ -155,7 +218,13 @@ const Homepage = () => {
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center mb-12">
+          <div 
+            className={`text-center mb-12 transition-all duration-1000 ${
+              visibleSections.has('hero') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+            }`}
+            id="hero"
+            data-animate
+          >
             <div className="inline-flex items-center gap-2 glass-canadian backdrop-blur-sm px-6 py-3 rounded-full mb-6 animate-stagger hover-lift">
               <Leaf className="h-5 w-5 text-primary" />
               <span className="text-sm font-medium text-gray-700">Proudly Canadian</span>
@@ -173,7 +242,6 @@ const Homepage = () => {
             </p>
           </div>
           
-          {/* Search Section with Glassmorphism */}
           <div className="max-w-4xl mx-auto animate-stagger-delay-3">
             <div className="glass-intense rounded-3xl p-8 hover-lift">
               <SearchBar />
@@ -183,7 +251,6 @@ const Homepage = () => {
             </div>
           </div>
 
-          {/* Popular Searches */}
           <div className="mt-8 text-center animate-stagger-delay-3">
             <p className="text-sm text-gray-500 mb-3">Popular searches:</p>
             <div className="flex flex-wrap justify-center gap-3">
@@ -201,8 +268,14 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-16 bg-gradient-to-r from-gray-100 via-white to-gray-100 border-b relative z-10">
+      {/* Animated Stats Section */}
+      <section 
+        className={`py-16 bg-gradient-to-r from-gray-100 via-white to-gray-100 border-b relative z-10 transition-all duration-1000 ${
+          visibleSections.has('stats') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`}
+        id="stats"
+        data-animate
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
@@ -221,8 +294,14 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* Featured Deals Section */}
-      <section className="py-20 gradient-aurora relative z-10">
+      {/* Progressive Disclosure - Featured Deals */}
+      <section 
+        className={`py-20 gradient-aurora relative z-10 transition-all duration-1000 ${
+          visibleSections.has('deals') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`}
+        id="deals"
+        data-animate
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 glass-card px-6 py-3 rounded-full mb-4 hover-lift">
@@ -230,9 +309,18 @@ const Homepage = () => {
               <span className="text-sm font-medium text-white">Today's Best</span>
               <Sparkles className="h-4 w-4 text-accent" />
             </div>
-            <h2 className="text-3xl font-bold text-white mb-4">
-              Featured Deals
-            </h2>
+            <div className="flex items-center justify-center gap-4 mb-4">
+              <h2 className="text-3xl font-bold text-white">Featured Deals</h2>
+              <button
+                onClick={() => toggleSection('deals')}
+                className="p-2 rounded-full glass-card hover-lift transition-all"
+              >
+                {expandedSections.deals ? 
+                  <ChevronUp className="h-5 w-5 text-white" /> : 
+                  <ChevronDown className="h-5 w-5 text-white" />
+                }
+              </button>
+            </div>
             <p className="text-lg text-white/90">
               Hand-picked deals from across Canada's top retailers
             </p>
@@ -245,7 +333,7 @@ const Homepage = () => {
                   <img
                     src={deal.image}
                     alt={deal.title}
-                    className="w-full h-48 object-cover transition-transform hover:scale-105 mask-gradient"
+                    className="w-full h-48 object-cover"
                   />
                   <div className="absolute top-4 right-4 clay-button px-3 py-2 text-white text-sm font-bold">
                     ${deal.savings} OFF
@@ -263,6 +351,11 @@ const Homepage = () => {
                     <Leaf className="h-4 w-4 text-accent mr-1" />
                     Available at {deal.store}
                   </div>
+                  {expandedSections.deals && (
+                    <div className="text-sm text-white/70 mb-4 animate-accordion-down">
+                      Limited time offer - while supplies last. Check store for availability.
+                    </div>
+                  )}
                   <button className="w-full canadian-button text-white py-3 rounded-lg font-semibold">
                     View Deal
                   </button>
@@ -273,13 +366,28 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-20 bg-white relative z-10">
+      {/* Progressive Disclosure - Features */}
+      <section 
+        className={`py-20 bg-white relative z-10 transition-all duration-1000 ${
+          visibleSections.has('features') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`}
+        id="features"
+        data-animate
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Why Choose PriceTrackr?
-            </h2>
+            <div className="flex items-center justify-center gap-4 mb-4">
+              <h2 className="text-3xl font-bold text-gray-900">Why Choose PriceTrackr?</h2>
+              <button
+                onClick={() => toggleSection('features')}
+                className="p-2 rounded-full neomorphism hover-lift transition-all"
+              >
+                {expandedSections.features ? 
+                  <ChevronUp className="h-5 w-5 text-primary" /> : 
+                  <ChevronDown className="h-5 w-5 text-primary" />
+                }
+              </button>
+            </div>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
               We make it easy to find the best deals across Canada's top retailers, 
               saving you time and money on every purchase.
@@ -297,19 +405,32 @@ const Homepage = () => {
                 <h3 className="text-xl font-semibold text-gray-900 mb-3">
                   {feature.title}
                 </h3>
-                <p className="text-gray-600">
+                <p className="text-gray-600 mb-4">
                   {feature.description}
                 </p>
+                {expandedSections.features && (
+                  <p className="text-sm text-gray-500 animate-accordion-down">
+                    {feature.details}
+                  </p>
+                )}
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* How It Works Section */}
-      <section className="py-20 gradient-canadian text-primary-foreground relative overflow-hidden z-10">
-        {/* Background elements */}
-        <div className="absolute inset-0 pointer-events-none">
+      {/* Parallax How It Works */}
+      <section 
+        className={`py-20 gradient-canadian text-primary-foreground relative overflow-hidden z-10 transition-all duration-1000 ${
+          visibleSections.has('how-it-works') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`}
+        id="how-it-works"
+        data-animate
+      >
+        <div 
+          className="absolute inset-0 pointer-events-none"
+          style={{ transform: `translateY(${scrollY * 0.1}px)` }}
+        >
           <div className="shape-blob absolute top-10 left-10 w-40 h-40 opacity-20" />
           <div className="shape-organic absolute bottom-20 right-20 w-32 h-32 opacity-15" />
           <Leaf className="absolute top-1/2 left-1/4 h-24 w-24 text-white/10 floating-element animate-morph" />
@@ -317,12 +438,8 @@ const Homepage = () => {
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold mb-4">
-              How PriceTrackr Works
-            </h2>
-            <p className="text-xl opacity-90">
-              Save money in 4 simple steps
-            </p>
+            <h2 className="text-3xl font-bold mb-4">How PriceTrackr Works</h2>
+            <p className="text-xl opacity-90">Save money in 4 simple steps</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -331,25 +448,26 @@ const Homepage = () => {
                 <div className="glass-intense w-20 h-20 rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4 group-hover:scale-110 transition-transform hover-lift">
                   {step.step}
                 </div>
-                <h3 className="text-xl font-semibold mb-3">
-                  {step.title}
-                </h3>
-                <p className="opacity-90">
-                  {step.description}
-                </p>
+                <h3 className="text-xl font-semibold mb-3">{step.title}</h3>
+                <p className="opacity-90 mb-2">{step.description}</p>
+                <p className="text-sm opacity-75">{step.details}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Categories Section */}
-      <section className="py-20 bg-gradient-to-br from-gray-50 via-white to-accent/5 relative z-10">
+      {/* Clear Image Categories */}
+      <section 
+        className={`py-20 bg-gradient-to-br from-gray-50 via-white to-accent/5 relative z-10 transition-all duration-1000 ${
+          visibleSections.has('categories') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`}
+        id="categories"
+        data-animate
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Shop by Category
-            </h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Shop by Category</h2>
             <p className="text-lg text-gray-600">
               Explore thousands of products across our most popular categories
             </p>
@@ -366,7 +484,7 @@ const Homepage = () => {
                   <img
                     src={category.image}
                     alt={category.name}
-                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500 mask-circle"
+                    className="w-full h-48 object-cover"
                   />
                 </div>
                 <div className="absolute inset-0 gradient-aurora opacity-60 group-hover:opacity-70 transition-all" />
@@ -382,13 +500,17 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* Trending Products */}
-      <section className="py-20 bg-white relative z-10">
+      {/* Responsive Trending Products */}
+      <section 
+        className={`py-20 bg-white relative z-10 transition-all duration-1000 ${
+          visibleSections.has('trending') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`}
+        id="trending"
+        data-animate
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Trending Now
-            </h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Trending Now</h2>
             <p className="text-lg text-gray-600">
               See what other Canadians are searching for
             </p>
@@ -409,13 +531,28 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="py-20 gradient-aurora relative overflow-hidden z-10">
+      {/* Progressive Disclosure - Testimonials */}
+      <section 
+        className={`py-20 gradient-aurora relative overflow-hidden z-10 transition-all duration-1000 ${
+          visibleSections.has('testimonials') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`}
+        id="testimonials"
+        data-animate
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-white mb-4">
-              What Our Customers Say
-            </h2>
+            <div className="flex items-center justify-center gap-4 mb-4">
+              <h2 className="text-3xl font-bold text-white">What Our Customers Say</h2>
+              <button
+                onClick={() => toggleSection('testimonials')}
+                className="p-2 rounded-full glass-card hover-lift transition-all"
+              >
+                {expandedSections.testimonials ? 
+                  <ChevronUp className="h-5 w-5 text-white" /> : 
+                  <ChevronDown className="h-5 w-5 text-white" />
+                }
+              </button>
+            </div>
             <p className="text-lg text-white/90">
               Join thousands of satisfied Canadian shoppers
             </p>
@@ -430,6 +567,11 @@ const Homepage = () => {
                   ))}
                 </div>
                 <p className="text-white/90 mb-4 italic">"{testimonial.comment}"</p>
+                {expandedSections.testimonials && (
+                  <p className="text-white/70 text-sm mb-4 animate-accordion-down">
+                    {testimonial.details}
+                  </p>
+                )}
                 <div className="border-t border-white/20 pt-4">
                   <div className="font-semibold text-white">{testimonial.name}</div>
                   <div className="text-sm text-white/70">{testimonial.location}</div>
@@ -440,9 +582,18 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* Newsletter Section */}
-      <section className="py-20 gradient-canadian text-primary-foreground relative overflow-hidden z-10">
-        <div className="absolute inset-0 pointer-events-none">
+      {/* Newsletter with Parallax */}
+      <section 
+        className={`py-20 gradient-canadian text-primary-foreground relative overflow-hidden z-10 transition-all duration-1000 ${
+          visibleSections.has('newsletter') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`}
+        id="newsletter"
+        data-animate
+      >
+        <div 
+          className="absolute inset-0 pointer-events-none"
+          style={{ transform: `translateY(${scrollY * 0.05}px)` }}
+        >
           <div className="shape-organic absolute top-1/4 left-1/4 w-64 h-64 opacity-10 animate-morph"></div>
           <div className="shape-blob absolute bottom-1/4 right-1/4 w-48 h-48 opacity-15 floating-element"></div>
         </div>
@@ -451,9 +602,7 @@ const Homepage = () => {
           <div className="max-w-2xl mx-auto">
             <div className="glass-intense p-8 rounded-3xl hover-lift">
               <Bell className="h-16 w-16 mx-auto mb-6 opacity-90" />
-              <h2 className="text-3xl font-bold mb-4">
-                Never Miss a Deal
-              </h2>
+              <h2 className="text-3xl font-bold mb-4">Never Miss a Deal</h2>
               <p className="text-xl mb-8 opacity-90">
                 Get notified when prices drop on products you're watching
               </p>
@@ -475,8 +624,14 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 bg-white relative z-10">
+      {/* Final CTA */}
+      <section 
+        className={`py-20 bg-white relative z-10 transition-all duration-1000 ${
+          visibleSections.has('cta') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`}
+        id="cta"
+        data-animate
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="glass-canadian rounded-3xl p-12 hover-lift relative overflow-hidden">
             <div className="shape-blob absolute top-0 right-0 w-32 h-32 opacity-20" />
