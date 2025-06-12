@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { TrendingUp, MapPin, Clock, Shield, Star, Users, CheckCircle, Bell, Leaf, Sparkles, Zap, Heart, ChevronDown, ChevronUp } from 'lucide-react';
@@ -294,9 +293,9 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* Progressive Disclosure - Featured Deals */}
+      {/* Progressive Disclosure - Featured Deals - REMOVED SHINY BACKGROUND */}
       <section 
-        className={`py-20 gradient-aurora relative z-10 transition-all duration-1000 ${
+        className={`py-20 bg-primary text-primary-foreground relative z-10 transition-all duration-1000 ${
           visibleSections.has('deals') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
         }`}
         id="deals"
@@ -343,7 +342,7 @@ const Homepage = () => {
                   <h3 className="font-semibold text-white mb-2">{deal.title}</h3>
                   <div className="flex items-center justify-between mb-4">
                     <div>
-                      <span className="text-2xl font-bold gradient-text">${deal.salePrice}</span>
+                      <span className="text-2xl font-bold text-white">${deal.salePrice}</span>
                       <span className="text-white/60 line-through ml-2">${deal.originalPrice}</span>
                     </div>
                   </div>
@@ -419,9 +418,9 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* Parallax How It Works */}
+      {/* Parallax How It Works - REMOVED SHINY BACKGROUND */}
       <section 
-        className={`py-20 gradient-canadian text-primary-foreground relative overflow-hidden z-10 transition-all duration-1000 ${
+        className={`py-20 bg-primary text-primary-foreground relative overflow-hidden z-10 transition-all duration-1000 ${
           visibleSections.has('how-it-works') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
         }`}
         id="how-it-works"
@@ -457,7 +456,7 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* Clear Image Categories */}
+      {/* Clear Image Categories - REMOVED IMAGE EFFECTS */}
       <section 
         className={`py-20 bg-gradient-to-br from-gray-50 via-white to-accent/5 relative z-10 transition-all duration-1000 ${
           visibleSections.has('categories') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
@@ -487,7 +486,7 @@ const Homepage = () => {
                     className="w-full h-48 object-cover"
                   />
                 </div>
-                <div className="absolute inset-0 gradient-aurora opacity-60 group-hover:opacity-70 transition-all" />
+                <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-all" />
                 <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
                   <div className="glass-card p-4 rounded-lg">
                     <h3 className="text-lg font-semibold mb-1">{category.name}</h3>
@@ -531,9 +530,9 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* Progressive Disclosure - Testimonials */}
+      {/* Progressive Disclosure - Testimonials - REMOVED SHINY BACKGROUND */}
       <section 
-        className={`py-20 gradient-aurora relative overflow-hidden z-10 transition-all duration-1000 ${
+        className={`py-20 bg-primary relative overflow-hidden z-10 transition-all duration-1000 ${
           visibleSections.has('testimonials') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
         }`}
         id="testimonials"
@@ -582,9 +581,9 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* Newsletter with Parallax */}
+      {/* Newsletter with Parallax - REMOVED SHINY BACKGROUND */}
       <section 
-        className={`py-20 gradient-canadian text-primary-foreground relative overflow-hidden z-10 transition-all duration-1000 ${
+        className={`py-20 bg-primary text-primary-foreground relative overflow-hidden z-10 transition-all duration-1000 ${
           visibleSections.has('newsletter') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
         }`}
         id="newsletter"
