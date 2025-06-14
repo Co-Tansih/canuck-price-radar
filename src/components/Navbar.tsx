@@ -1,14 +1,34 @@
 
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Search, Menu, X, MapPin } from 'lucide-react';
-import SearchBar from './SearchBar';
+import { Search, Menu, X, MapPin, LogOut, User } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
+  const { user, signOut } = useAuth();
+  const { toast } = useToast();
 
   const isActive = (path: string) => location.pathname === path;
+
+  const handleSignOut = async () => {
+    const { error } = await signOut();
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to sign out. Please try again.",
+      });
+    } else {
+      toast({
+        title: "Signed out",
+        description: "You have been successfully signed out.",
+      });
+    }
+  };
 
   return (
     <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
@@ -55,6 +75,18 @@ const Navbar = () => {
               <MapPin className="h-4 w-4" />
               <span>Store Locator</span>
             </Link>
+            
+            {/* User Menu */}
+            <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-1 text-sm text-gray-600">
+                <User className="h-4 w-4" />
+                <span>{user?.email}</span>
+              </div>
+              <Button variant="outline" size="sm" onClick={handleSignOut}>
+                <LogOut className="h-4 w-4 mr-1" />
+                Sign Out
+              </Button>
+            </div>
           </div>
 
           {/* Mobile menu button */}
@@ -104,6 +136,22 @@ const Navbar = () => {
                 <MapPin className="h-4 w-4" />
                 <span>Store Locator</span>
               </Link>
+              
+              <div className="border-t border-gray-200 pt-2 mt-2">
+                <div className="px-3 py-2 text-sm text-gray-600 flex items-center space-x-1">
+                  <User className="h-4 w-4" />
+                  <span>{user?.email}</span>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleSignOut}
+                  className="mx-3"
+                >
+                  <LogOut className="h-4 w-4 mr-1" />
+                  Sign Out
+                </Button>
+              </div>
             </div>
           </div>
         )}
