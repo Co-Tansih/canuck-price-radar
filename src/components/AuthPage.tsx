@@ -99,7 +99,9 @@ const AuthPage = () => {
       </div>
 
       {/* Left Panel - Welcome Section */}
-      <div className="flex-1 relative maple-leaf-bg hero-gradient flex items-center justify-center p-8">
+      <div className={`flex-1 relative maple-leaf-bg hero-gradient flex items-center justify-center p-8 transition-all duration-700 ease-in-out ${
+        isLogin ? 'order-1' : 'order-2'
+      }`}>
         {/* Floating 3D Shapes */}
         <div className="absolute top-20 left-20 w-20 h-20 shape-blob floating-element opacity-30"></div>
         <div className="absolute bottom-32 right-16 w-32 h-32 shape-organic floating-element opacity-20"></div>
@@ -108,22 +110,15 @@ const AuthPage = () => {
         {/* Main Content */}
         <div className="relative z-10 text-center max-w-md">
           <div className="glass-canadian p-8 rounded-3xl backdrop-blur-xl border border-white/30 animate-stagger">
-            <h1 className="text-4xl font-bold text-white mb-4 gradient-text">
+            <h1 className="text-4xl font-bold text-gray-800 mb-4 gradient-text">
               {isLogin ? 'Welcome Back!' : 'Hello, Friend!'}
             </h1>
-            <p className="text-white/90 mb-8 text-lg">
+            <p className="text-gray-700 mb-8 text-lg font-medium">
               {isLogin 
                 ? 'To keep connected with us please login with your personal info' 
                 : 'Enter your personal details and start your journey with us'
               }
             </p>
-            <Button
-              onClick={() => setIsLogin(!isLogin)}
-              variant="outline"
-              className="canadian-button text-white border-white/40 hover:bg-white/20 px-8 py-3 rounded-full font-semibold"
-            >
-              {isLogin ? 'SIGN UP' : 'SIGN IN'}
-            </Button>
           </div>
         </div>
 
@@ -135,7 +130,9 @@ const AuthPage = () => {
       </div>
 
       {/* Right Panel - Form Section */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-white relative">
+      <div className={`flex-1 flex items-center justify-center p-8 bg-white relative transition-all duration-700 ease-in-out ${
+        isLogin ? 'order-2' : 'order-1'
+      }`}>
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-gray-900 mb-2">
@@ -149,9 +146,16 @@ const AuthPage = () => {
                 <Mail className="h-5 w-5 text-red-500" />
               </button>
             </div>
-            <p className="text-gray-600 text-sm">
+            <p className="text-gray-600 text-sm mb-4">
               {isLogin ? 'or use your account' : 'or use your email for registration'}
             </p>
+            <Button
+              onClick={() => setIsLogin(!isLogin)}
+              variant="outline"
+              className="text-gray-600 border-gray-300 hover:bg-gray-50 px-6 py-2 rounded-full font-semibold transition-all duration-300"
+            >
+              {isLogin ? 'Need an account? Sign Up' : 'Already have an account? Sign In'}
+            </Button>
           </div>
 
           <Form {...form}>
