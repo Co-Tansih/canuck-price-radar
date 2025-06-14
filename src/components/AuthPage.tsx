@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useToast } from '@/hooks/use-toast';
 import { useForm } from 'react-hook-form';
 import { useAuth } from '@/contexts/AuthContext';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Facebook, Mail } from 'lucide-react';
 
 interface AuthFormData {
   email: string;
@@ -82,51 +82,97 @@ const AuthPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">
-            {isLogin ? 'Sign in to your account' : 'Create your account'}
-          </CardTitle>
-          <CardDescription className="text-center">
-            {isLogin 
-              ? 'Enter your email and password to access your account' 
-              : 'Fill in your details to create a new account'
-            }
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+    <div className="min-h-screen flex bg-gray-50 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 particles pointer-events-none">
+        {[...Array(20)].map((_, i) => (
+          <div
+            key={i}
+            className="particle"
+            style={{
+              left: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 15}s`,
+              animationDuration: `${15 + Math.random() * 10}s`
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Left Panel - Welcome Section */}
+      <div className="flex-1 relative maple-leaf-bg hero-gradient flex items-center justify-center p-8">
+        {/* Floating 3D Shapes */}
+        <div className="absolute top-20 left-20 w-20 h-20 shape-blob floating-element opacity-30"></div>
+        <div className="absolute bottom-32 right-16 w-32 h-32 shape-organic floating-element opacity-20"></div>
+        <div className="absolute top-1/2 left-1/4 w-16 h-16 glass-canadian rounded-full floating-element opacity-40"></div>
+        
+        {/* Main Content */}
+        <div className="relative z-10 text-center max-w-md">
+          <div className="glass-canadian p-8 rounded-3xl backdrop-blur-xl border border-white/30 animate-stagger">
+            <h1 className="text-4xl font-bold text-white mb-4 gradient-text">
+              {isLogin ? 'Welcome Back!' : 'Hello, Friend!'}
+            </h1>
+            <p className="text-white/90 mb-8 text-lg">
+              {isLogin 
+                ? 'To keep connected with us please login with your personal info' 
+                : 'Enter your personal details and start your journey with us'
+              }
+            </p>
+            <Button
+              onClick={() => setIsLogin(!isLogin)}
+              variant="outline"
+              className="canadian-button text-white border-white/40 hover:bg-white/20 px-8 py-3 rounded-full font-semibold"
+            >
+              {isLogin ? 'SIGN UP' : 'SIGN IN'}
+            </Button>
+          </div>
+        </div>
+
+        {/* Decorative Elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-r from-primary/20 to-transparent rounded-full animate-morph"></div>
+          <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-gradient-to-l from-accent/20 to-transparent rounded-full animate-morph" style={{ animationDelay: '5s' }}></div>
+        </div>
+      </div>
+
+      {/* Right Panel - Form Section */}
+      <div className="flex-1 flex items-center justify-center p-8 bg-white relative">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">
+              {isLogin ? 'Sign in' : 'Create Account'}
+            </h2>
+            <div className="flex justify-center space-x-4 mb-4">
+              <button className="p-2 border border-gray-300 rounded-full hover:bg-gray-50 transition-colors">
+                <Facebook className="h-5 w-5 text-blue-600" />
+              </button>
+              <button className="p-2 border border-gray-300 rounded-full hover:bg-gray-50 transition-colors">
+                <Mail className="h-5 w-5 text-red-500" />
+              </button>
+            </div>
+            <p className="text-gray-600 text-sm">
+              {isLogin ? 'or use your account' : 'or use your email for registration'}
+            </p>
+          </div>
+
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               {!isLogin && (
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="firstName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>First Name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="John" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="lastName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Last Name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Doe" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                <FormField
+                  control={form.control}
+                  name="firstName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input 
+                          placeholder="Name" 
+                          {...field} 
+                          className="h-12 bg-gray-100 border-0 rounded-lg placeholder:text-gray-500"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               )}
               
               <FormField
@@ -141,9 +187,13 @@ const AuthPage = () => {
                 }}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input type="email" placeholder="you@example.com" {...field} />
+                      <Input 
+                        type="email" 
+                        placeholder="Email" 
+                        {...field} 
+                        className="h-12 bg-gray-100 border-0 rounded-lg placeholder:text-gray-500"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -162,36 +212,42 @@ const AuthPage = () => {
                 }}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="••••••••" {...field} />
+                      <Input 
+                        type="password" 
+                        placeholder="Password" 
+                        {...field} 
+                        className="h-12 bg-gray-100 border-0 rounded-lg placeholder:text-gray-500"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
-              <Button type="submit" className="w-full" disabled={loading}>
+              {isLogin && (
+                <div className="text-right">
+                  <button
+                    type="button"
+                    className="text-sm text-gray-600 hover:text-primary transition-colors"
+                  >
+                    Forgot your password?
+                  </button>
+                </div>
+              )}
+
+              <Button 
+                type="submit" 
+                className="w-full h-12 bg-gradient-to-r from-primary to-red-600 hover:from-primary/90 hover:to-red-600/90 text-white font-semibold rounded-full transition-all duration-300 transform hover:scale-105 disabled:transform-none" 
+                disabled={loading}
+              >
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {isLogin ? 'Sign In' : 'Sign Up'}
+                {isLogin ? 'SIGN IN' : 'SIGN UP'}
               </Button>
             </form>
           </Form>
-
-          <div className="mt-6 text-center">
-            <button
-              type="button"
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-sm text-primary hover:underline"
-            >
-              {isLogin 
-                ? "Don't have an account? Sign up" 
-                : 'Already have an account? Sign in'
-              }
-            </button>
-          </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };
