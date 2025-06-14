@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -90,7 +91,7 @@ const AuthPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-gray-50 relative overflow-hidden">
+    <div className="min-h-screen flex flex-col lg:flex-row bg-gray-50 relative overflow-hidden">
       {/* Enhanced Animated Background Elements */}
       <div className="absolute inset-0 particles pointer-events-none">
         {[...Array(30)].map((_, i) => (
@@ -107,10 +108,10 @@ const AuthPage = () => {
       </div>
 
       {/* Main Container */}
-      <div className="flex w-full relative">
-        {/* Left Panel - Welcome Section */}
+      <div className="flex flex-col lg:flex-row w-full relative">
+        {/* Left Panel - Welcome Section - Hidden on mobile, shown on desktop */}
         <div 
-          className={`w-1/2 relative maple-leaf-bg hero-gradient flex items-center justify-center p-8 transition-all duration-1000 ease-in-out ${
+          className={`hidden lg:flex lg:w-1/2 relative maple-leaf-bg hero-gradient items-center justify-center p-4 lg:p-8 transition-all duration-1000 ease-in-out ${
             isLogin ? 'translate-x-0' : 'translate-x-full'
           }`}
           style={{
@@ -131,10 +132,10 @@ const AuthPage = () => {
           {/* Fixed Centered Welcome Text with Sturdy Font */}
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center">
-              <h1 className="text-6xl font-black font-sans mb-6 text-white drop-shadow-2xl tracking-tight">
+              <h1 className="text-4xl lg:text-6xl font-black font-sans mb-6 text-white drop-shadow-2xl tracking-tight">
                 {isLogin ? 'Welcome Back!' : 'Hello, Friend!'}
               </h1>
-              <p className="text-xl font-bold font-sans text-white drop-shadow-lg max-w-md mx-auto leading-relaxed tracking-wide">
+              <p className="text-lg lg:text-xl font-bold font-sans text-white drop-shadow-lg max-w-md mx-auto leading-relaxed tracking-wide px-4">
                 {isLogin 
                   ? 'To keep connected with us please login with your personal info' 
                   : 'Enter your personal details and start your journey with us'
@@ -151,11 +152,24 @@ const AuthPage = () => {
           </div>
         </div>
 
+        {/* Mobile Header - Only shown on mobile */}
+        <div className="lg:hidden w-full bg-gradient-to-r from-primary to-red-600 p-6 text-center">
+          <h1 className="text-3xl font-black text-white mb-2">
+            {isLogin ? 'Welcome Back!' : 'Hello, Friend!'}
+          </h1>
+          <p className="text-white/90 font-semibold">
+            {isLogin 
+              ? 'Please sign in to continue' 
+              : 'Create your account to get started'
+            }
+          </p>
+        </div>
+
         {/* Right Panel - Enhanced Form Section */}
         <div 
-          className={`w-1/2 flex items-center justify-center p-8 relative transition-all duration-1000 ease-in-out ${
-            isLogin ? 'translate-x-0' : '-translate-x-full'
-          }`}
+          className={`w-full lg:w-1/2 flex items-center justify-center p-4 lg:p-8 relative transition-all duration-1000 ease-in-out ${
+            isLogin ? 'translate-x-0' : 'lg:-translate-x-full'
+          } min-h-screen lg:min-h-auto`}
           style={{
             background: `
               linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.98) 100%),
@@ -166,27 +180,27 @@ const AuthPage = () => {
             `
           }}
         >
-          {/* Enhanced animated background shapes for form section */}
+          {/* Enhanced animated background shapes for form section - reduced on mobile */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute top-20 right-20 w-32 h-32 bg-gradient-to-br from-blue-200/40 to-purple-200/20 rounded-full animate-pulse blur-sm"></div>
-            <div className="absolute bottom-20 left-20 w-24 h-24 bg-gradient-to-tr from-red-200/40 to-pink-200/20 rounded-full animate-bounce blur-sm" style={{ animationDelay: '2s' }}></div>
-            <div className="absolute top-1/2 right-10 w-16 h-16 bg-gradient-to-bl from-green-200/40 to-emerald-200/20 rounded-lg animate-spin blur-sm" style={{ animationDuration: '8s' }}></div>
-            <div className="absolute bottom-32 right-1/3 w-20 h-20 bg-gradient-to-tl from-purple-200/30 to-indigo-200/20 rounded-2xl animate-pulse blur-sm" style={{ animationDelay: '1.5s' }}></div>
-            <div className="absolute top-10 left-1/4 w-28 h-28 bg-gradient-to-br from-yellow-200/20 to-orange-200/15 rounded-full animate-bounce blur-sm" style={{ animationDelay: '3s' }}></div>
-            <div className="absolute bottom-10 right-10 w-14 h-14 bg-gradient-to-tl from-teal-200/30 to-cyan-200/20 rounded-lg animate-pulse blur-sm" style={{ animationDelay: '4s' }}></div>
+            <div className="absolute top-20 right-20 w-16 lg:w-32 h-16 lg:h-32 bg-gradient-to-br from-blue-200/40 to-purple-200/20 rounded-full animate-pulse blur-sm"></div>
+            <div className="absolute bottom-20 left-20 w-12 lg:w-24 h-12 lg:h-24 bg-gradient-to-tr from-red-200/40 to-pink-200/20 rounded-full animate-bounce blur-sm" style={{ animationDelay: '2s' }}></div>
+            <div className="absolute top-1/2 right-10 w-8 lg:w-16 h-8 lg:h-16 bg-gradient-to-bl from-green-200/40 to-emerald-200/20 rounded-lg animate-spin blur-sm" style={{ animationDuration: '8s' }}></div>
+            <div className="absolute bottom-32 right-1/3 w-10 lg:w-20 h-10 lg:h-20 bg-gradient-to-tl from-purple-200/30 to-indigo-200/20 rounded-2xl animate-pulse blur-sm" style={{ animationDelay: '1.5s' }}></div>
+            <div className="absolute top-10 left-1/4 w-14 lg:w-28 h-14 lg:h-28 bg-gradient-to-br from-yellow-200/20 to-orange-200/15 rounded-full animate-bounce blur-sm" style={{ animationDelay: '3s' }}></div>
+            <div className="absolute bottom-10 right-10 w-7 lg:w-14 h-7 lg:h-14 bg-gradient-to-tl from-teal-200/30 to-cyan-200/20 rounded-lg animate-pulse blur-sm" style={{ animationDelay: '4s' }}></div>
           </div>
 
           <div className="w-full max-w-md relative z-10">
-            <div className="text-center mb-8 bg-white/70 backdrop-blur-md rounded-2xl p-6 border border-white/50 shadow-xl">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4 animate-fade-in">
+            <div className="text-center mb-6 lg:mb-8 bg-white/70 backdrop-blur-md rounded-2xl p-4 lg:p-6 border border-white/50 shadow-xl">
+              <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-4 animate-fade-in">
                 {isLogin ? 'Sign in' : 'Create Account'}
               </h2>
               <div className="flex justify-center space-x-4 mb-4">
-                <button className="p-3 border border-gray-200 rounded-full hover:bg-white/90 hover:shadow-lg transition-all duration-300 hover:scale-110 backdrop-blur-sm">
-                  <Facebook className="h-5 w-5 text-blue-600" />
+                <button className="p-2 lg:p-3 border border-gray-200 rounded-full hover:bg-white/90 hover:shadow-lg transition-all duration-300 hover:scale-110 backdrop-blur-sm">
+                  <Facebook className="h-4 lg:h-5 w-4 lg:w-5 text-blue-600" />
                 </button>
-                <button className="p-3 border border-gray-200 rounded-full hover:bg-white/90 hover:shadow-lg transition-all duration-300 hover:scale-110 backdrop-blur-sm">
-                  <Mail className="h-5 w-5 text-red-500" />
+                <button className="p-2 lg:p-3 border border-gray-200 rounded-full hover:bg-white/90 hover:shadow-lg transition-all duration-300 hover:scale-110 backdrop-blur-sm">
+                  <Mail className="h-4 lg:h-5 w-4 lg:w-5 text-red-500" />
                 </button>
               </div>
               <p className="text-gray-600 text-sm mb-4">
@@ -199,13 +213,13 @@ const AuthPage = () => {
                   form.reset();
                 }}
                 variant="outline"
-                className="text-gray-600 border-gray-300 hover:bg-white/90 hover:shadow-lg px-6 py-2 rounded-full font-semibold transition-all duration-300 hover:scale-105 backdrop-blur-sm"
+                className="text-gray-600 border-gray-300 hover:bg-white/90 hover:shadow-lg px-4 lg:px-6 py-2 rounded-full font-semibold transition-all duration-300 hover:scale-105 backdrop-blur-sm text-sm lg:text-base"
               >
                 {isLogin ? 'Need an account? Sign Up' : 'Already have an account? Sign In'}
               </Button>
             </div>
 
-            <div className="bg-white/80 backdrop-blur-md rounded-2xl p-8 border border-white/60 shadow-2xl">
+            <div className="bg-white/80 backdrop-blur-md rounded-2xl p-6 lg:p-8 border border-white/60 shadow-2xl">
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                   {!isLogin && (
@@ -218,7 +232,7 @@ const AuthPage = () => {
                             <Input 
                               placeholder="Name" 
                               {...field} 
-                              className="h-12 bg-white/80 border border-gray-200 rounded-lg placeholder:text-gray-500 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300 backdrop-blur-sm"
+                              className="h-11 lg:h-12 bg-white/80 border border-gray-200 rounded-lg placeholder:text-gray-500 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300 backdrop-blur-sm text-base"
                             />
                           </FormControl>
                           <FormMessage />
@@ -244,7 +258,7 @@ const AuthPage = () => {
                             type="email" 
                             placeholder="Email" 
                             {...field} 
-                            className="h-12 bg-white/80 border border-gray-200 rounded-lg placeholder:text-gray-500 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300 backdrop-blur-sm"
+                            className="h-11 lg:h-12 bg-white/80 border border-gray-200 rounded-lg placeholder:text-gray-500 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300 backdrop-blur-sm text-base"
                           />
                         </FormControl>
                         <FormMessage />
@@ -270,12 +284,12 @@ const AuthPage = () => {
                               type={showPassword ? "text" : "password"}
                               placeholder="Password" 
                               {...field} 
-                              className="h-12 bg-white/80 border border-gray-200 rounded-lg placeholder:text-gray-500 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300 backdrop-blur-sm pr-12"
+                              className="h-11 lg:h-12 bg-white/80 border border-gray-200 rounded-lg placeholder:text-gray-500 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300 backdrop-blur-sm pr-12 text-base"
                             />
                             <button
                               type="button"
                               onClick={() => setShowPassword(!showPassword)}
-                              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors p-1"
                             >
                               {showPassword ? (
                                 <EyeOff className="h-5 w-5" />
@@ -303,7 +317,7 @@ const AuthPage = () => {
 
                   <Button 
                     type="submit" 
-                    className="w-full h-12 bg-gradient-to-r from-primary to-red-600 hover:from-primary/90 hover:to-red-600/90 text-white font-semibold rounded-full transition-all duration-300 transform hover:scale-105 disabled:transform-none shadow-lg hover:shadow-xl" 
+                    className="w-full h-11 lg:h-12 bg-gradient-to-r from-primary to-red-600 hover:from-primary/90 hover:to-red-600/90 text-white font-semibold rounded-full transition-all duration-300 transform hover:scale-105 disabled:transform-none shadow-lg hover:shadow-xl text-base" 
                     disabled={loading}
                   >
                     {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
