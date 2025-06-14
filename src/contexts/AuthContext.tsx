@@ -58,21 +58,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           data: {
             first_name: firstName,
             last_name: lastName,
-          }
+          },
+          emailRedirectTo: `${window.location.origin}/`
         }
       });
 
       console.log('SignUp result:', { data, error });
-      
-      // If signup is successful but user needs email confirmation
-      if (!error && data.user && !data.session) {
-        return { 
-          error: { 
-            message: "Please check your email and click the confirmation link before signing in.",
-            code: "email_confirmation_required"
-          } 
-        };
-      }
       
       return { error };
     } catch (error) {
@@ -89,16 +80,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       console.log('SignIn result:', { data, error });
-      
-      // Handle email not confirmed error with clearer message
-      if (error && error.message === "Email not confirmed") {
-        return { 
-          error: { 
-            ...error,
-            message: "Please check your email and click the confirmation link to verify your account before signing in."
-          } 
-        };
-      }
       
       return { error };
     } catch (error) {

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -8,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useToast } from '@/hooks/use-toast';
 import { useForm } from 'react-hook-form';
 import { useAuth } from '@/contexts/AuthContext';
-import { Loader2, Facebook, Mail, Eye, EyeOff, CheckCircle, AlertCircle } from 'lucide-react';
+import { Loader2, Facebook, Mail, Eye, EyeOff } from 'lucide-react';
 
 interface AuthFormData {
   email: string;
@@ -21,7 +20,6 @@ const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [emailConfirmationSent, setEmailConfirmationSent] = useState(false);
   const { signIn, signUp, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -44,7 +42,6 @@ const AuthPage = () => {
 
   const onSubmit = async (data: AuthFormData) => {
     setLoading(true);
-    setEmailConfirmationSent(false);
     
     try {
       let result;
@@ -55,41 +52,29 @@ const AuthPage = () => {
           toast({
             variant: "destructive",
             title: "Sign In Error",
-            description: result.error.message,
+            description: result.error.message || "Invalid email or password",
           });
         } else {
           toast({
             title: "Welcome back!",
             description: "You have successfully signed in.",
           });
-          navigate('/');
+          // Navigation will happen automatically via useEffect when user state changes
         }
       } else {
         result = await signUp(data.email, data.password, data.firstName, data.lastName);
         if (result.error) {
-          if (result.error.code === "email_confirmation_required") {
-            setEmailConfirmationSent(true);
-            toast({
-              title: "Account created!",
-              description: result.error.message,
-              duration: 10000,
-            });
-            // Don't clear form or switch to login yet - let user see the confirmation message
-          } else {
-            toast({
-              variant: "destructive",
-              title: "Sign Up Error",
-              description: result.error.message,
-            });
-          }
+          toast({
+            variant: "destructive",
+            title: "Sign Up Error",
+            description: result.error.message || "Failed to create account",
+          });
         } else {
           toast({
             title: "Account created successfully!",
-            description: "You can now sign in with your credentials.",
+            description: "You are now signed in.",
           });
-          // Clear form and switch to login
-          form.reset();
-          setIsLogin(true);
+          // Navigation will happen automatically via useEffect when user state changes
         }
       }
     } catch (error) {
@@ -208,23 +193,9 @@ const AuthPage = () => {
                 {isLogin ? 'or use your account' : 'or use your email for registration'}
               </p>
               
-              {/* Email Confirmation Notice */}
-              {emailConfirmationSent && !isLogin && (
-                <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                  <div className="flex items-center space-x-2 text-blue-700">
-                    <CheckCircle className="h-5 w-5" />
-                    <p className="text-sm font-medium">Check your email!</p>
-                  </div>
-                  <p className="text-xs text-blue-600 mt-1">
-                    We've sent you a confirmation link. Click it to verify your account, then return here to sign in.
-                  </p>
-                </div>
-              )}
-              
               <Button
                 onClick={() => {
                   setIsLogin(!isLogin);
-                  setEmailConfirmationSent(false);
                   form.reset();
                 }}
                 variant="outline"
