@@ -119,13 +119,13 @@ const AuthPage = () => {
           <div className="absolute top-1/4 right-1/3 w-12 h-12 bg-gradient-to-r from-red-400 to-red-600 rounded-lg floating-element opacity-30 animate-bounce" style={{ animationDelay: '1s' }}></div>
           <div className="absolute bottom-1/4 left-1/3 w-24 h-24 bg-gradient-to-br from-white/20 to-white/5 rounded-2xl floating-element opacity-50 animate-pulse" style={{ animationDelay: '2s' }}></div>
           
-          {/* Fixed Centered Welcome Text */}
+          {/* Fixed Centered Welcome Text with Sturdy Font */}
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center">
-              <h1 className="text-6xl font-wonktown font-bold mb-6 text-white drop-shadow-2xl">
+              <h1 className="text-6xl font-black font-sans mb-6 text-white drop-shadow-2xl tracking-tight">
                 {isLogin ? 'Welcome Back!' : 'Hello, Friend!'}
               </h1>
-              <p className="text-xl font-wonktown font-medium text-white drop-shadow-lg max-w-md mx-auto leading-relaxed">
+              <p className="text-xl font-bold font-sans text-white drop-shadow-lg max-w-md mx-auto leading-relaxed tracking-wide">
                 {isLogin 
                   ? 'To keep connected with us please login with your personal info' 
                   : 'Enter your personal details and start your journey with us'
