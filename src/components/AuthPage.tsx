@@ -98,11 +98,11 @@ const AuthPage = () => {
         ))}
       </div>
 
-      {/* Container for smooth sliding animation */}
+      {/* Main Container */}
       <div className="flex w-full relative">
         {/* Left Panel - Welcome Section */}
         <div 
-          className={`w-1/2 relative maple-leaf-bg hero-gradient flex items-center justify-center p-8 transition-transform duration-1000 ease-in-out ${
+          className={`w-1/2 relative maple-leaf-bg hero-gradient flex items-center justify-center p-8 transition-all duration-1000 ease-in-out ${
             isLogin ? 'translate-x-0' : 'translate-x-full'
           }`}
           style={{
@@ -120,19 +120,38 @@ const AuthPage = () => {
           <div className="absolute top-1/4 right-1/3 w-12 h-12 bg-gradient-to-r from-red-400 to-red-600 rounded-lg floating-element opacity-30 animate-bounce" style={{ animationDelay: '1s' }}></div>
           <div className="absolute bottom-1/4 left-1/3 w-24 h-24 bg-gradient-to-br from-white/20 to-white/5 rounded-2xl floating-element opacity-50 animate-pulse" style={{ animationDelay: '2s' }}></div>
           
-          {/* Main Content */}
-          <div className="relative z-10 text-center max-w-md transform transition-all duration-500">
-            <div className="glass-canadian p-8 rounded-3xl backdrop-blur-xl border border-white/30 animate-stagger shadow-2xl">
-              <h1 className="text-4xl font-bold text-white mb-4 gradient-text animate-fade-in drop-shadow-lg">
-                {isLogin ? 'Welcome Back!' : 'Hello, Friend!'}
-              </h1>
-              <p className="text-white/90 mb-8 text-lg font-medium animate-fade-in drop-shadow-md" style={{ animationDelay: '0.2s' }}>
-                {isLogin 
-                  ? 'To keep connected with us please login with your personal info' 
-                  : 'Enter your personal details and start your journey with us'
-                }
-              </p>
-            </div>
+          {/* Floating Text Content */}
+          <div className="relative z-10 text-center max-w-md transform transition-all duration-700">
+            <h1 className="text-5xl font-bold mb-6 animate-fade-in floating-element" 
+                style={{
+                  background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 25%, #fef3c7 50%, #fbbf24 75%, #ffffff 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  textShadow: '0 4px 8px rgba(0,0,0,0.3)',
+                  filter: 'drop-shadow(0 2px 4px rgba(255,255,255,0.2))'
+                }}>
+              {isLogin ? 'Welcome Back!' : 'Hello, Friend!'}
+            </h1>
+            <p className="text-xl font-medium animate-fade-in floating-element mb-4" 
+               style={{ 
+                 animationDelay: '0.3s',
+                 color: '#fef3c7',
+                 textShadow: '0 2px 4px rgba(0,0,0,0.4)',
+                 filter: 'drop-shadow(0 1px 2px rgba(255,255,255,0.1))'
+               }}>
+              {isLogin 
+                ? 'To keep connected with us please login with your personal info' 
+                : 'Enter your personal details and start your journey with us'
+              }
+            </p>
+            
+            {/* Floating decorative elements around text */}
+            <div className="absolute -top-8 -left-8 w-3 h-3 bg-gradient-to-r from-yellow-300 to-amber-400 rounded-full floating-element opacity-80 animate-pulse" style={{ animationDelay: '1s' }}></div>
+            <div className="absolute -top-4 right-12 w-2 h-2 bg-gradient-to-r from-white to-yellow-200 rounded-full floating-element opacity-90 animate-bounce" style={{ animationDelay: '2s' }}></div>
+            <div className="absolute -bottom-6 -right-6 w-4 h-4 bg-gradient-to-r from-amber-300 to-yellow-400 rounded-full floating-element opacity-70 animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+            <div className="absolute bottom-0 left-8 w-2.5 h-2.5 bg-gradient-to-r from-white/80 to-yellow-200/80 rounded-full floating-element opacity-85 animate-bounce" style={{ animationDelay: '1.5s' }}></div>
+            <div className="absolute top-1/2 -left-12 w-1.5 h-1.5 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-full floating-element opacity-75 animate-pulse" style={{ animationDelay: '2.5s' }}></div>
           </div>
 
           {/* Enhanced Decorative Elements */}
@@ -145,7 +164,7 @@ const AuthPage = () => {
 
         {/* Right Panel - Enhanced Form Section */}
         <div 
-          className={`w-1/2 flex items-center justify-center p-8 relative transition-transform duration-1000 ease-in-out ${
+          className={`w-1/2 flex items-center justify-center p-8 relative transition-all duration-1000 ease-in-out ${
             isLogin ? 'translate-x-0' : '-translate-x-full'
           }`}
           style={{
