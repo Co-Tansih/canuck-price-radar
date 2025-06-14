@@ -51,13 +51,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signUp = async (email: string, password: string, firstName?: string, lastName?: string) => {
     try {
-      const redirectUrl = `${window.location.origin}/`;
-      
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: redirectUrl,
           data: {
             first_name: firstName,
             last_name: lastName,
@@ -66,6 +63,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       console.log('SignUp result:', { data, error });
+      
+      // If signup is successful but user needs email confirmation
+      if (!error && data.user && !data.session) {
+        return { 
+          error: { 
+            message: "Please check your email and click the confirmation link before signing in.",
+            code: "email_confirmation_required"
+          } 
+        };
+      }
+      
       return { error };
     } catch (error) {
       console.error('SignUp error:', error);
@@ -81,6 +89,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       console.log('SignIn result:', { data, error });
+      
+      // Handle email not confirmed error with clearer message
+      if (error && error.message === "Email not confirmed") {
+        return { 
+          error: { 
+            ...error,
+            message: "Please check your email and click the confirmation link to verify your account before signing in."
+          } 
+        };
+      }
+      
       return { error };
     } catch (error) {
       console.error('SignIn error:', error);
