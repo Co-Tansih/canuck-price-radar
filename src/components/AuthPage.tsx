@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -120,38 +119,19 @@ const AuthPage = () => {
           <div className="absolute top-1/4 right-1/3 w-12 h-12 bg-gradient-to-r from-red-400 to-red-600 rounded-lg floating-element opacity-30 animate-bounce" style={{ animationDelay: '1s' }}></div>
           <div className="absolute bottom-1/4 left-1/3 w-24 h-24 bg-gradient-to-br from-white/20 to-white/5 rounded-2xl floating-element opacity-50 animate-pulse" style={{ animationDelay: '2s' }}></div>
           
-          {/* Floating Text Content */}
-          <div className="relative z-10 text-center max-w-md transform transition-all duration-700">
-            <h1 className="text-5xl font-bold mb-6 animate-fade-in floating-element" 
-                style={{
-                  background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 25%, #fef3c7 50%, #fbbf24 75%, #ffffff 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text',
-                  textShadow: '0 4px 8px rgba(0,0,0,0.3)',
-                  filter: 'drop-shadow(0 2px 4px rgba(255,255,255,0.2))'
-                }}>
-              {isLogin ? 'Welcome Back!' : 'Hello, Friend!'}
-            </h1>
-            <p className="text-xl font-medium animate-fade-in floating-element mb-4" 
-               style={{ 
-                 animationDelay: '0.3s',
-                 color: '#fef3c7',
-                 textShadow: '0 2px 4px rgba(0,0,0,0.4)',
-                 filter: 'drop-shadow(0 1px 2px rgba(255,255,255,0.1))'
-               }}>
-              {isLogin 
-                ? 'To keep connected with us please login with your personal info' 
-                : 'Enter your personal details and start your journey with us'
-              }
-            </p>
-            
-            {/* Floating decorative elements around text */}
-            <div className="absolute -top-8 -left-8 w-3 h-3 bg-gradient-to-r from-yellow-300 to-amber-400 rounded-full floating-element opacity-80 animate-pulse" style={{ animationDelay: '1s' }}></div>
-            <div className="absolute -top-4 right-12 w-2 h-2 bg-gradient-to-r from-white to-yellow-200 rounded-full floating-element opacity-90 animate-bounce" style={{ animationDelay: '2s' }}></div>
-            <div className="absolute -bottom-6 -right-6 w-4 h-4 bg-gradient-to-r from-amber-300 to-yellow-400 rounded-full floating-element opacity-70 animate-pulse" style={{ animationDelay: '0.5s' }}></div>
-            <div className="absolute bottom-0 left-8 w-2.5 h-2.5 bg-gradient-to-r from-white/80 to-yellow-200/80 rounded-full floating-element opacity-85 animate-bounce" style={{ animationDelay: '1.5s' }}></div>
-            <div className="absolute top-1/2 -left-12 w-1.5 h-1.5 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-full floating-element opacity-75 animate-pulse" style={{ animationDelay: '2.5s' }}></div>
+          {/* Fixed Centered Welcome Text */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-center">
+              <h1 className="text-6xl font-wonktown font-bold mb-6 text-white drop-shadow-2xl">
+                {isLogin ? 'Welcome Back!' : 'Hello, Friend!'}
+              </h1>
+              <p className="text-xl font-wonktown font-medium text-white drop-shadow-lg max-w-md mx-auto leading-relaxed">
+                {isLogin 
+                  ? 'To keep connected with us please login with your personal info' 
+                  : 'Enter your personal details and start your journey with us'
+                }
+              </p>
+            </div>
           </div>
 
           {/* Enhanced Decorative Elements */}
