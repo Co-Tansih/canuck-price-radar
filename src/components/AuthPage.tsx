@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -7,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useToast } from '@/hooks/use-toast';
 import { useForm } from 'react-hook-form';
 import { useAuth } from '@/contexts/AuthContext';
-import { Loader2, Facebook, Mail } from 'lucide-react';
+import { Loader2, Facebook, Mail, Eye, EyeOff } from 'lucide-react';
 
 interface AuthFormData {
   email: string;
@@ -19,6 +20,7 @@ interface AuthFormData {
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { signIn, signUp, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -46,30 +48,39 @@ const AuthPage = () => {
       
       if (isLogin) {
         result = await signIn(data.email, data.password);
-      } else {
-        result = await signUp(data.email, data.password, data.firstName, data.lastName);
-      }
-
-      if (result.error) {
-        toast({
-          variant: "destructive",
-          title: "Authentication Error",
-          description: result.error.message,
-        });
-      } else {
-        if (isLogin) {
+        if (result.error) {
+          toast({
+            variant: "destructive",
+            title: "Sign In Error",
+            description: result.error.message,
+          });
+        } else {
           toast({
             title: "Welcome back!",
             description: "You have successfully signed in.",
           });
+          navigate('/');
+        }
+      } else {
+        result = await signUp(data.email, data.password, data.firstName, data.lastName);
+        if (result.error) {
+          toast({
+            variant: "destructive",
+            title: "Sign Up Error",
+            description: result.error.message,
+          });
         } else {
           toast({
             title: "Account created!",
-            description: "Please check your email to confirm your account.",
+            description: "Please check your email to confirm your account before signing in.",
           });
+          // Clear form and switch to login
+          form.reset();
+          setIsLogin(true);
         }
       }
     } catch (error) {
+      console.error('Authentication error:', error);
       toast({
         variant: "destructive",
         title: "Error",
@@ -252,12 +263,25 @@ const AuthPage = () => {
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <Input 
-                            type="password" 
-                            placeholder="Password" 
-                            {...field} 
-                            className="h-12 bg-white/80 border border-gray-200 rounded-lg placeholder:text-gray-500 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300 backdrop-blur-sm"
-                          />
+                          <div className="relative">
+                            <Input 
+                              type={showPassword ? "text" : "password"}
+                              placeholder="Password" 
+                              {...field} 
+                              className="h-12 bg-white/80 border border-gray-200 rounded-lg placeholder:text-gray-500 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300 backdrop-blur-sm pr-12"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowPassword(!showPassword)}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+                            >
+                              {showPassword ? (
+                                <EyeOff className="h-5 w-5" />
+                              ) : (
+                                <Eye className="h-5 w-5" />
+                              )}
+                            </button>
+                          </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
