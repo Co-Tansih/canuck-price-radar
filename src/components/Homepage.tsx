@@ -209,11 +209,11 @@ const Homepage = () => {
           className="absolute inset-0 pointer-events-none"
           style={{ transform: `translateY(${scrollY * 0.3}px)` }}
         >
-          <Leaf className="absolute top-20 left-10 h-12 w-12 text-primary/30 floating-element" />
+          <div className="absolute top-20 left-10 maple-leaf floating-element" />
           <Heart className="absolute top-40 right-20 h-8 w-8 text-accent/40 floating-element" />
           <Sparkles className="absolute bottom-20 left-1/4 h-10 w-10 text-primary/25 floating-element" />
           <Zap className="absolute top-60 right-1/3 h-6 w-6 text-accent/35 floating-element" />
-          <Leaf className="absolute bottom-40 right-10 h-14 w-14 text-primary/20 floating-element animate-morph" />
+          <div className="absolute bottom-40 right-10 maple-leaf-large maple-leaf-accent floating-element animate-morph" />
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -347,7 +347,7 @@ const Homepage = () => {
                     </div>
                   </div>
                   <div className="text-sm text-white/80 mb-4 flex items-center">
-                    <Leaf className="h-4 w-4 text-accent mr-1" />
+                    <div className="maple-leaf-small maple-leaf-accent mr-2" />
                     Available at {deal.store}
                   </div>
                   {expandedSections.deals && (
@@ -432,7 +432,7 @@ const Homepage = () => {
         >
           <div className="shape-blob absolute top-10 left-10 w-40 h-40 opacity-20" />
           <div className="shape-organic absolute bottom-20 right-20 w-32 h-32 opacity-15" />
-          <Leaf className="absolute top-1/2 left-1/4 h-24 w-24 text-white/10 floating-element animate-morph" />
+          <div className="absolute top-1/2 left-1/4 maple-leaf-large maple-leaf-white floating-element animate-morph" />
         </div>
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
