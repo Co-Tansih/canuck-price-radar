@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -8,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useToast } from '@/hooks/use-toast';
 import { useForm } from 'react-hook-form';
 import { useAuth } from '@/contexts/AuthContext';
+import { checkAdminCredentials } from '@/contexts/AdminContext';
 import { Loader2, Facebook, Mail, Eye, EyeOff } from 'lucide-react';
 
 interface AuthFormData {
@@ -37,7 +37,12 @@ const AuthPage = () => {
   // Redirect if already authenticated
   useEffect(() => {
     if (user) {
-      navigate('/');
+      // Check if user is admin and redirect accordingly
+      if (checkAdminCredentials(user.email || '', '')) {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
     }
   }, [user, navigate]);
 
@@ -48,19 +53,39 @@ const AuthPage = () => {
       let result;
       
       if (isLogin) {
-        result = await signIn(data.email, data.password);
-        if (result.error) {
-          toast({
-            variant: "destructive",
-            title: "Sign In Error",
-            description: result.error.message || "Invalid email or password",
-          });
+        // Check if admin credentials
+        if (checkAdminCredentials(data.email, data.password)) {
+          // Sign in as admin
+          result = await signIn(data.email, data.password);
+          if (result.error) {
+            toast({
+              variant: "destructive",
+              title: "Sign In Error",
+              description: result.error.message || "Invalid admin credentials",
+            });
+          } else {
+            toast({
+              title: "Admin Access Granted",
+              description: "Welcome to the admin dashboard.",
+            });
+            navigate('/admin');
+          }
         } else {
-          toast({
-            title: "Welcome back!",
-            description: "You have successfully signed in.",
-          });
-          // Navigation will happen automatically via useEffect when user state changes
+          // Regular user sign in
+          result = await signIn(data.email, data.password);
+          if (result.error) {
+            toast({
+              variant: "destructive",
+              title: "Sign In Error",
+              description: result.error.message || "Invalid email or password",
+            });
+          } else {
+            toast({
+              title: "Welcome back!",
+              description: "You have successfully signed in.",
+            });
+            navigate('/');
+          }
         }
       } else {
         result = await signUp(data.email, data.password, data.firstName, data.lastName);
@@ -75,7 +100,7 @@ const AuthPage = () => {
             title: "Account created successfully!",
             description: "You are now signed in.",
           });
-          // Navigation will happen automatically via useEffect when user state changes
+          navigate('/');
         }
       }
     } catch (error) {
