@@ -4,22 +4,64 @@ import { useParams, Link } from 'react-router-dom';
 import { Star, MapPin, Clock, ExternalLink, TrendingUp, ArrowLeft } from 'lucide-react';
 import PriceTrendChart from './PriceTrendChart';
 import StoreMap from './StoreMap';
-import { mockProducts, mockPriceHistory, mockNearbyStores } from '../data/mockData';
+import { mockPriceHistory, mockNearbyStores } from '../data/mockData';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [postalCode, setPostalCode] = useState('');
+  const { toast } = useToast();
 
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      const foundProduct = mockProducts.find(p => p.id === id);
-      setProduct(foundProduct);
-      setLoading(false);
-    }, 500);
+    loadProduct();
   }, [id]);
+
+  const loadProduct = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('id', id)
+        .eq('status', 'active')
+        .single();
+
+      if (error) {
+        console.error('Error loading product:', error);
+        setProduct(null);
+      } else if (data) {
+        // Convert database format to component format
+        const formattedProduct = {
+          id: data.id,
+          name: data.name,
+          description: data.description || '',
+          image: data.image_url || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e',
+          category: data.category || 'General',
+          rating: 4.5, // Default rating
+          reviews: 100, // Default reviews
+          prices: [{
+            store: 'Multiple Stores',
+            price: data.price || 0,
+            shipping: 'Free shipping',
+            availability: 'In stock',
+            link: data.affiliate_url || '#'
+          }]
+        };
+        setProduct(formattedProduct);
+      }
+    } catch (error) {
+      console.error('Error loading product:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to load product details.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -45,6 +87,7 @@ const ProductDetail = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Product Not Found</h2>
+          <p className="text-gray-600 mb-4">The product you're looking for doesn't exist or has been removed.</p>
           <Link to="/search" className="text-primary hover:underline">
             Back to Search
           </Link>

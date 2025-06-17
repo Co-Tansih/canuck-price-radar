@@ -19,7 +19,6 @@ const SearchResults = () => {
 
   useEffect(() => {
     searchProducts();
-    // Log search query if user is logged in
     if (user && query) {
       logSearch();
     }
@@ -33,7 +32,6 @@ const SearchResults = () => {
         .select('*')
         .eq('status', 'active');
 
-      // Apply search filters
       if (query) {
         supabaseQuery = supabaseQuery.or(`name.ilike.%${query}%,description.ilike.%${query}%`);
       }
@@ -48,14 +46,12 @@ const SearchResults = () => {
 
       if (error) throw error;
 
-      // If no products found in database, trigger scraping
       if (!dbProducts || dbProducts.length === 0) {
         console.log('No products found, triggering scraping...');
         await triggerScraping();
         return;
       }
 
-      // Convert to expected format
       const formattedProducts = dbProducts.map(product => ({
         id: product.id,
         name: product.name,
@@ -97,11 +93,9 @@ const SearchResults = () => {
 
       if (error) {
         console.error('Scraping error:', error);
-        // Show fallback message
         setProducts([]);
       } else {
         console.log('Scraping completed:', data);
-        // Reload search after scraping
         setTimeout(() => {
           searchProducts();
         }, 2000);

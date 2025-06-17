@@ -15,13 +15,14 @@ const Homepage = () => {
 
   useEffect(() => {
     loadProducts();
-    // Trigger scraping on component mount
-    triggerScraping();
+    // Trigger initial scraping
+    setTimeout(() => {
+      triggerScraping();
+    }, 1000);
   }, []);
 
   const loadProducts = async () => {
     try {
-      // Fetch products from database
       const { data: products, error } = await supabase
         .from('products')
         .select('*')
@@ -32,15 +33,14 @@ const Homepage = () => {
       if (error) throw error;
 
       if (products && products.length > 0) {
-        // Convert to the expected format
         const formattedProducts = products.map(product => ({
           id: product.id,
           name: product.name,
           description: product.description || '',
           image: product.image_url || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e',
           category: product.category || 'General',
-          rating: 4.5, // Default rating
-          reviews: 100, // Default reviews
+          rating: 4.5,
+          reviews: 100,
           prices: [{
             store: 'Multiple Stores',
             price: product.price || 0,
@@ -55,11 +55,6 @@ const Homepage = () => {
       }
     } catch (error) {
       console.error('Error loading products:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to load products. Please try again.",
-      });
     } finally {
       setLoading(false);
     }
@@ -79,7 +74,6 @@ const Homepage = () => {
         console.error('Scraping error:', error);
       } else {
         console.log('Scraping completed:', data);
-        // Reload products after scraping
         setTimeout(() => {
           loadProducts();
         }, 2000);
@@ -190,7 +184,7 @@ const Homepage = () => {
               ))
             ) : (
               <div className="col-span-full text-center py-12">
-                <p className="text-gray-500 mb-4">No featured products available yet.</p>
+                <p className="text-gray-500 mb-4">Loading featured products...</p>
                 <button
                   onClick={triggerScraping}
                   className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
@@ -230,7 +224,7 @@ const Homepage = () => {
               ))
             ) : (
               <div className="col-span-full text-center py-12">
-                <p className="text-gray-500">No trending products available yet.</p>
+                <p className="text-gray-500">Loading trending products...</p>
               </div>
             )}
           </div>
