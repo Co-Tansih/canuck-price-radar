@@ -15,10 +15,12 @@ const Homepage = () => {
 
   useEffect(() => {
     loadProducts();
-    // Trigger initial scraping
-    setTimeout(() => {
+    // Trigger initial scraping with delay to avoid blocking UI
+    const scrapingTimer = setTimeout(() => {
       triggerScraping();
-    }, 1000);
+    }, 2000);
+    
+    return () => clearTimeout(scrapingTimer);
   }, []);
 
   const loadProducts = async () => {
@@ -62,7 +64,6 @@ const Homepage = () => {
 
   const triggerScraping = async () => {
     try {
-      console.log('Triggering product scraping...');
       const { data, error } = await supabase.functions.invoke('scrape-products', {
         body: { 
           query: 'popular products',
@@ -70,13 +71,10 @@ const Homepage = () => {
         }
       });
 
-      if (error) {
-        console.error('Scraping error:', error);
-      } else {
-        console.log('Scraping completed:', data);
+      if (!error && data) {
         setTimeout(() => {
           loadProducts();
-        }, 2000);
+        }, 3000);
       }
     } catch (error) {
       console.error('Error triggering scraping:', error);
@@ -93,43 +91,55 @@ const Homepage = () => {
   ];
 
   const SkeletonCard = () => (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden animate-pulse">
-      <div className="aspect-square bg-gray-200" />
-      <div className="p-4">
-        <div className="h-4 bg-gray-200 rounded mb-2" />
-        <div className="h-4 bg-gray-200 rounded w-3/4 mb-3" />
-        <div className="h-6 bg-gray-200 rounded w-1/2" />
-      </div>
+    <div className="glass-card rounded-2xl p-6 animate-pulse">
+      <div className="aspect-square bg-gradient-to-br from-gray-200 to-gray-300 rounded-xl mb-4" />
+      <div className="h-4 bg-gradient-to-r from-gray-200 to-gray-300 rounded-full mb-2" />
+      <div className="h-4 bg-gradient-to-r from-gray-200 to-gray-300 rounded-full w-3/4 mb-3" />
+      <div className="h-6 bg-gradient-to-r from-gray-200 to-gray-300 rounded-full w-1/2" />
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary/10 to-secondary/10 py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-            Find the Best Deals
-            <span className="text-primary block">Across Canada</span>
+    <div className="min-h-screen bg-background maple-leaf-bg">
+      {/* Floating maple leaves */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div className="maple-leaf-small floating-element absolute top-20 left-10 opacity-60" />
+        <div className="maple-leaf floating-element absolute top-40 right-20 opacity-40" />
+        <div className="maple-leaf-large floating-element absolute bottom-40 left-1/4 opacity-30" />
+        <div className="maple-leaf-small floating-element absolute bottom-20 right-1/3 opacity-50" />
+      </div>
+
+      {/* Hero Section with Enhanced Canadian Design */}
+      <section className="relative py-20 overflow-hidden">
+        <div className="absolute inset-0 gradient-canadian opacity-20" />
+        <div className="shape-blob absolute top-10 left-10 w-64 h-64 opacity-30" />
+        <div className="shape-organic absolute bottom-10 right-10 w-48 h-48 opacity-20" />
+        
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center z-10">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-stagger">
+            <span className="gradient-text">Find the Best Deals</span>
+            <span className="block text-primary animate-stagger-delay-1">Across Canada</span>
           </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto animate-stagger-delay-2">
             Compare prices from Amazon, Walmart, Home Depot and more. Get real-time pricing data and never overpay again.
           </p>
           
-          <div className="max-w-2xl mx-auto mb-8">
-            <SearchBar />
+          <div className="max-w-2xl mx-auto mb-8 animate-stagger-delay-3">
+            <div className="glass-card rounded-2xl p-2">
+              <SearchBar />
+            </div>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-600">
-            <div className="flex items-center space-x-1">
+          <div className="flex flex-wrap justify-center gap-6 text-sm text-gray-600 animate-stagger-delay-3">
+            <div className="flex items-center space-x-2 glass-card rounded-full px-4 py-2">
               <Zap className="h-4 w-4 text-yellow-500" />
               <span>Real-time pricing</span>
             </div>
-            <div className="flex items-center space-x-1">
+            <div className="flex items-center space-x-2 glass-card rounded-full px-4 py-2">
               <MapPin className="h-4 w-4 text-green-500" />
               <span>Canadian stores</span>
             </div>
-            <div className="flex items-center space-x-1">
+            <div className="flex items-center space-x-2 glass-card rounded-full px-4 py-2">
               <TrendingUp className="h-4 w-4 text-blue-500" />
               <span>Price history tracking</span>
             </div>
@@ -137,21 +147,23 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* Categories Section */}
-      <section className="py-16 bg-white">
+      {/* Categories Section with Claymorphism */}
+      <section className="py-16 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">
+          <h2 className="text-3xl font-bold text-gray-900 text-center mb-12 gradient-text">
             Shop by Category
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-            {categories.map((category) => (
+            {categories.map((category, index) => (
               <Link
                 key={category.name}
                 to={category.link}
-                className="group bg-gray-50 rounded-xl p-6 text-center hover:bg-primary/5 transition-colors"
+                className={`group clay-card p-6 text-center hover-lift animate-stagger-delay-${index % 3 + 1}`}
               >
-                <div className="text-4xl mb-3">{category.icon}</div>
-                <h3 className="font-medium text-gray-900 group-hover:text-primary">
+                <div className="text-4xl mb-3 transform group-hover:scale-110 transition-transform duration-300">
+                  {category.icon}
+                </div>
+                <h3 className="font-medium text-gray-900 group-hover:text-primary transition-colors">
                   {category.name}
                 </h3>
               </Link>
@@ -160,14 +172,15 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* Featured Deals */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Featured Deals with Glass Morphism */}
+      <section className="py-16 relative">
+        <div className="absolute inset-0 gradient-aurora opacity-10" />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-12">
-            <h2 className="text-3xl font-bold text-gray-900">Featured Deals</h2>
+            <h2 className="text-3xl font-bold text-gray-900 gradient-text">Featured Deals</h2>
             <Link
               to="/search"
-              className="text-primary hover:text-primary/80 font-medium"
+              className="text-primary hover:text-primary/80 font-medium story-link"
             >
               View all deals →
             </Link>
@@ -179,35 +192,41 @@ const Homepage = () => {
                 <SkeletonCard key={index} />
               ))
             ) : featuredProducts.length > 0 ? (
-              featuredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
+              featuredProducts.map((product, index) => (
+                <div key={product.id} className={`animate-stagger-delay-${index % 3 + 1}`}>
+                  <ProductCard product={product} />
+                </div>
               ))
             ) : (
               <div className="col-span-full text-center py-12">
-                <p className="text-gray-500 mb-4">Loading featured products...</p>
-                <button
-                  onClick={triggerScraping}
-                  className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
-                >
-                  Load Products
-                </button>
+                <div className="glass-card rounded-2xl p-8 max-w-md mx-auto">
+                  <p className="text-gray-500 mb-4">Loading featured products...</p>
+                  <button
+                    onClick={triggerScraping}
+                    className="canadian-button text-white px-6 py-3 rounded-full font-medium"
+                  >
+                    Load Products
+                  </button>
+                </div>
               </div>
             )}
           </div>
         </div>
       </section>
 
-      {/* Trending Now */}
-      <section className="py-16 bg-white">
+      {/* Trending Now with Neomorphism */}
+      <section className="py-16 bg-gray-50 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-12">
-            <div className="flex items-center space-x-2">
-              <TrendingUp className="h-6 w-6 text-primary" />
-              <h2 className="text-3xl font-bold text-gray-900">Trending Now</h2>
+            <div className="flex items-center space-x-3">
+              <div className="neomorphism-canadian p-3 rounded-2xl">
+                <TrendingUp className="h-6 w-6 text-primary" />
+              </div>
+              <h2 className="text-3xl font-bold text-gray-900 gradient-text">Trending Now</h2>
             </div>
             <Link
               to="/search"
-              className="text-primary hover:text-primary/80 font-medium"
+              className="text-primary hover:text-primary/80 font-medium story-link"
             >
               View all trending →
             </Link>
@@ -219,48 +238,53 @@ const Homepage = () => {
                 <SkeletonCard key={index} />
               ))
             ) : trendingProducts.length > 0 ? (
-              trendingProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
+              trendingProducts.map((product, index) => (
+                <div key={product.id} className={`animate-stagger-delay-${index % 3 + 1}`}>
+                  <ProductCard product={product} />
+                </div>
               ))
             ) : (
               <div className="col-span-full text-center py-12">
-                <p className="text-gray-500">Loading trending products...</p>
+                <div className="neomorphism rounded-2xl p-8 max-w-md mx-auto">
+                  <p className="text-gray-500">Loading trending products...</p>
+                </div>
               </div>
             )}
           </div>
         </div>
       </section>
 
-      {/* How It Works */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">
+      {/* How It Works with Canadian Theme */}
+      <section className="py-16 relative overflow-hidden">
+        <div className="absolute inset-0 maple-leaf-bg" />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold text-gray-900 text-center mb-12 gradient-text">
             How PriceTrackr Works
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Search className="h-8 w-8 text-primary" />
+            <div className="text-center animate-stagger">
+              <div className="glass-canadian w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 hover-lift">
+                <Search className="h-10 w-10 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Search Products</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">Search Products</h3>
               <p className="text-gray-600">
                 Search for any product across multiple Canadian retailers
               </p>
             </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <TrendingUp className="h-8 w-8 text-primary" />
+            <div className="text-center animate-stagger-delay-1">
+              <div className="glass-canadian w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 hover-lift">
+                <TrendingUp className="h-10 w-10 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Compare Prices</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">Compare Prices</h3>
               <p className="text-gray-600">
                 See real-time prices from Amazon, Walmart, Home Depot and more
               </p>
             </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Zap className="h-8 w-8 text-primary" />
+            <div className="text-center animate-stagger-delay-2">
+              <div className="glass-canadian w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 hover-lift">
+                <Zap className="h-10 w-10 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Save Money</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">Save Money</h3>
               <p className="text-gray-600">
                 Get the best deals and track price history to buy at the right time
               </p>
