@@ -3,38 +3,128 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import ProductCard from './ProductCard';
 import FilterPanel from './FilterPanel';
-import { mockProducts } from '../data/mockData';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 
 const SearchResults = () => {
   const [searchParams] = useSearchParams();
   const query = searchParams.get('q') || '';
   const category = searchParams.get('category') || '';
-  const [products, setProducts] = useState(mockProducts);
+  const [products, setProducts] = useState([]);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+  const { toast } = useToast();
 
   useEffect(() => {
-    // Simulate loading
+    searchProducts();
+    // Log search query if user is logged in
+    if (user && query) {
+      logSearch();
+    }
+  }, [query, category, user]);
+
+  const searchProducts = async () => {
     setLoading(true);
-    setTimeout(() => {
-      // Filter products based on query and category
-      let filtered = mockProducts;
-      
+    try {
+      let supabaseQuery = supabase
+        .from('products')
+        .select('*')
+        .eq('status', 'active');
+
+      // Apply search filters
       if (query) {
-        filtered = filtered.filter(product =>
-          product.name.toLowerCase().includes(query.toLowerCase()) ||
-          product.description.toLowerCase().includes(query.toLowerCase())
-        );
+        supabaseQuery = supabaseQuery.or(`name.ilike.%${query}%,description.ilike.%${query}%`);
       }
-      
+
       if (category && category !== 'All Categories') {
-        filtered = filtered.filter(product => product.category === category);
+        supabaseQuery = supabaseQuery.eq('category', category);
       }
-      
-      setProducts(filtered);
+
+      const { data: dbProducts, error } = await supabaseQuery
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (error) throw error;
+
+      // If no products found in database, trigger scraping
+      if (!dbProducts || dbProducts.length === 0) {
+        console.log('No products found, triggering scraping...');
+        await triggerScraping();
+        return;
+      }
+
+      // Convert to expected format
+      const formattedProducts = dbProducts.map(product => ({
+        id: product.id,
+        name: product.name,
+        description: product.description || '',
+        image: product.image_url || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e',
+        category: product.category || 'General',
+        rating: 4.5,
+        reviews: 100,
+        prices: [{
+          store: 'Multiple Stores',
+          price: product.price || 0,
+          shipping: 'Free shipping',
+          availability: 'In stock',
+          link: product.affiliate_url || '#'
+        }]
+      }));
+
+      setProducts(formattedProducts);
+    } catch (error) {
+      console.error('Error searching products:', error);
+      toast({
+        variant: "destructive",
+        title: "Search Error",
+        description: "Failed to search products. Please try again.",
+      });
+    } finally {
       setLoading(false);
-    }, 1000);
-  }, [query, category]);
+    }
+  };
+
+  const triggerScraping = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('scrape-products', {
+        body: { 
+          query: query || category || 'products',
+          category: category || 'general'
+        }
+      });
+
+      if (error) {
+        console.error('Scraping error:', error);
+        // Show fallback message
+        setProducts([]);
+      } else {
+        console.log('Scraping completed:', data);
+        // Reload search after scraping
+        setTimeout(() => {
+          searchProducts();
+        }, 2000);
+      }
+    } catch (error) {
+      console.error('Error triggering scraping:', error);
+      setProducts([]);
+    }
+  };
+
+  const logSearch = async () => {
+    try {
+      await supabase
+        .from('search_logs')
+        .insert({
+          user_id: user.id,
+          search_query: query,
+          results_count: products.length
+        });
+    } catch (error) {
+      console.error('Error logging search:', error);
+    }
+  };
 
   const SkeletonCard = () => (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 animate-pulse">
@@ -117,14 +207,22 @@ const SearchResults = () => {
                 No products found
               </h3>
               <p className="text-gray-600 mb-4">
-                Try adjusting your search terms or filters to find what you're looking for.
+                We're searching for products that match your criteria. This may take a moment.
               </p>
-              <Link
-                to="/"
-                className="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
-              >
-                Back to Home
-              </Link>
+              <div className="space-y-2">
+                <button
+                  onClick={triggerScraping}
+                  className="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors mr-2"
+                >
+                  Search Again
+                </button>
+                <Link
+                  to="/"
+                  className="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
+                >
+                  Back to Home
+                </Link>
+              </div>
             </div>
           </div>
         )}
