@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { 
   Users, 
@@ -11,12 +12,15 @@ import {
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const DashboardOverview = () => {
+  const { t } = useLanguage();
+
   // Mock data - replace with real data from your API
   const stats = [
     {
-      title: 'Total Users',
+      title: t('totalUsers') || 'Total Users',
       value: '2,847',
       change: '+12.5%',
       icon: Users,
@@ -24,7 +28,7 @@ const DashboardOverview = () => {
       bgColor: 'bg-blue-100'
     },
     {
-      title: 'Products Tracked',
+      title: t('productsTracked') || 'Products Tracked',
       value: '15,432',
       change: '+8.2%',
       icon: Package,
@@ -32,7 +36,7 @@ const DashboardOverview = () => {
       bgColor: 'bg-green-100'
     },
     {
-      title: 'Daily Searches',
+      title: t('dailySearches') || 'Daily Searches',
       value: '8,921',
       change: '+23.1%',
       icon: Eye,
@@ -40,7 +44,7 @@ const DashboardOverview = () => {
       bgColor: 'bg-purple-100'
     },
     {
-      title: 'Revenue',
+      title: t('revenue') || 'Revenue',
       value: '$12,847',
       change: '+15.3%',
       icon: DollarSign,
@@ -67,36 +71,38 @@ const DashboardOverview = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6 p-4 md:p-0">
       {/* Page Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard Overview</h1>
-        <p className="text-gray-600 mt-2">
-          Monitor your platform's performance and key metrics
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+          {t('dashboardOverview') || 'Dashboard Overview'}
+        </h1>
+        <p className="text-gray-600 mt-2 text-sm md:text-base">
+          {t('monitorPlatformPerformance') || 'Monitor your platform\'s performance and key metrics'}
         </p>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Stats Grid - Mobile Responsive */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {stats.map((stat, index) => {
           const Icon = stat.icon;
           return (
-            <Card key={index} className="hover:shadow-lg transition-shadow">
-              <CardContent className="p-6">
+            <Card key={index} className="hover:shadow-lg transition-shadow glass-card">
+              <CardContent className="p-4 md:p-6">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs md:text-sm font-medium text-gray-600 truncate">
                       {stat.title}
                     </p>
-                    <p className="text-2xl font-bold text-gray-900 mt-2">
+                    <p className="text-xl md:text-2xl font-bold text-gray-900 mt-1 md:mt-2">
                       {stat.value}
                     </p>
-                    <p className="text-sm text-green-600 mt-1">
+                    <p className="text-xs md:text-sm text-green-600 mt-1">
                       {stat.change} from last month
                     </p>
                   </div>
-                  <div className={`p-3 rounded-full ${stat.bgColor}`}>
-                    <Icon className={`h-6 w-6 ${stat.color}`} />
+                  <div className={`p-2 md:p-3 rounded-full ${stat.bgColor} flex-shrink-0 ml-2`}>
+                    <Icon className={`h-4 w-4 md:h-6 md:w-6 ${stat.color}`} />
                   </div>
                 </div>
               </CardContent>
@@ -105,28 +111,32 @@ const DashboardOverview = () => {
         })}
       </div>
 
-      {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Charts Section - Mobile Responsive */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6">
         {/* User Growth Chart */}
-        <Card>
-          <CardHeader>
-            <CardTitle>User Growth</CardTitle>
-            <CardDescription>Monthly user registration trends</CardDescription>
+        <Card className="glass-card">
+          <CardHeader className="pb-2 md:pb-4">
+            <CardTitle className="text-lg md:text-xl">
+              {t('userGrowth') || 'User Growth'}
+            </CardTitle>
+            <CardDescription className="text-sm">
+              {t('monthlyUserRegistration') || 'Monthly user registration trends'}
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-80">
+            <div className="h-64 md:h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
+                  <XAxis dataKey="name" fontSize={12} />
+                  <YAxis fontSize={12} />
                   <Tooltip />
                   <Line 
                     type="monotone" 
                     dataKey="users" 
                     stroke="#3B82F6" 
                     strokeWidth={2}
-                    dot={{ fill: '#3B82F6' }}
+                    dot={{ fill: '#3B82F6', strokeWidth: 2, r: 4 }}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -135,20 +145,24 @@ const DashboardOverview = () => {
         </Card>
 
         {/* Search Volume Chart */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Search Volume</CardTitle>
-            <CardDescription>Daily search activity</CardDescription>
+        <Card className="glass-card">
+          <CardHeader className="pb-2 md:pb-4">
+            <CardTitle className="text-lg md:text-xl">
+              {t('searchVolume') || 'Search Volume'}
+            </CardTitle>
+            <CardDescription className="text-sm">
+              {t('dailySearchActivity') || 'Daily search activity'}
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-80">
+            <div className="h-64 md:h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
+                  <XAxis dataKey="name" fontSize={12} />
+                  <YAxis fontSize={12} />
                   <Tooltip />
-                  <Bar dataKey="searches" fill="#10B981" />
+                  <Bar dataKey="searches" fill="#10B981" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -156,32 +170,34 @@ const DashboardOverview = () => {
         </Card>
       </div>
 
-      {/* Scraper Status */}
-      <Card>
+      {/* Scraper Status - Mobile Responsive */}
+      <Card className="glass-card">
         <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Activity className="h-5 w-5" />
-            <span>Scraper Status</span>
+          <CardTitle className="flex items-center space-x-2 text-lg md:text-xl">
+            <Activity className="h-4 w-4 md:h-5 md:w-5" />
+            <span>{t('scraperStatus') || 'Scraper Status'}</span>
           </CardTitle>
-          <CardDescription>Real-time status of all price scrapers</CardDescription>
+          <CardDescription className="text-sm">
+            {t('realTimeScraperStatus') || 'Real-time status of all price scrapers'}
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <div className="space-y-3 md:space-y-4">
             {scraperStatus.map((scraper, index) => (
-              <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                <div className="flex items-center space-x-4">
-                  <div className={`w-3 h-3 rounded-full ${
+              <div key={index} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 md:p-4 bg-gray-50 rounded-lg space-y-2 sm:space-y-0">
+                <div className="flex items-center space-x-3 md:space-x-4 min-w-0 flex-1">
+                  <div className={`w-3 h-3 rounded-full flex-shrink-0 ${
                     scraper.status === 'active' ? 'bg-green-500' :
                     scraper.status === 'warning' ? 'bg-yellow-500' : 'bg-red-500'
                   }`} />
-                  <div>
-                    <p className="font-medium text-gray-900">{scraper.name}</p>
-                    <p className="text-sm text-gray-500">Last run: {scraper.lastRun}</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-gray-900 text-sm md:text-base truncate">{scraper.name}</p>
+                    <p className="text-xs md:text-sm text-gray-500">Last run: {scraper.lastRun}</p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="font-medium text-gray-900">{scraper.products.toLocaleString()}</p>
-                  <p className="text-sm text-gray-500">products</p>
+                <div className="text-right flex-shrink-0">
+                  <p className="font-medium text-gray-900 text-sm md:text-base">{scraper.products.toLocaleString()}</p>
+                  <p className="text-xs md:text-sm text-gray-500">products</p>
                 </div>
               </div>
             ))}
@@ -189,14 +205,18 @@ const DashboardOverview = () => {
         </CardContent>
       </Card>
 
-      {/* Recent Activity */}
-      <Card>
+      {/* Recent Activity - Mobile Responsive */}
+      <Card className="glass-card">
         <CardHeader>
-          <CardTitle>Recent Activity</CardTitle>
-          <CardDescription>Latest system events and user actions</CardDescription>
+          <CardTitle className="text-lg md:text-xl">
+            {t('recentActivity') || 'Recent Activity'}
+          </CardTitle>
+          <CardDescription className="text-sm">
+            {t('latestSystemEvents') || 'Latest system events and user actions'}
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <div className="space-y-3 md:space-y-4">
             {[
               { action: 'New user registered', user: 'john.doe@email.com', time: '2 minutes ago' },
               { action: 'Price alert triggered', product: 'iPhone 15 Pro', time: '5 minutes ago' },
@@ -204,14 +224,14 @@ const DashboardOverview = () => {
               { action: 'Admin login', user: 'admin@pricetrackr.ca', time: '15 minutes ago' },
               { action: 'Product added', product: 'Samsung Galaxy S24', time: '23 minutes ago' },
             ].map((activity, index) => (
-              <div key={index} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
-                <div>
-                  <p className="font-medium text-gray-900">{activity.action}</p>
-                  <p className="text-sm text-gray-500">
+              <div key={index} className="flex flex-col sm:flex-row sm:items-center justify-between py-2 border-b border-gray-100 last:border-0 space-y-1 sm:space-y-0">
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium text-gray-900 text-sm md:text-base">{activity.action}</p>
+                  <p className="text-xs md:text-sm text-gray-500 truncate">
                     {activity.user || activity.product || activity.store}
                   </p>
                 </div>
-                <p className="text-sm text-gray-400">{activity.time}</p>
+                <p className="text-xs md:text-sm text-gray-400 flex-shrink-0">{activity.time}</p>
               </div>
             ))}
           </div>

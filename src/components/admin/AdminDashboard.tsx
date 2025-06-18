@@ -18,13 +18,15 @@ const AdminDashboard = () => {
     <div className="min-h-screen bg-gray-50 flex">
       <AdminSidebar isOpen={sidebarOpen} />
       
-      <div className={`flex-1 transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-16'}`}>
+      <div className={`flex-1 transition-all duration-300 ${
+        sidebarOpen ? 'lg:ml-64' : 'lg:ml-16'
+      } ml-0`}>
         <AdminHeader 
           sidebarOpen={sidebarOpen} 
           setSidebarOpen={setSidebarOpen} 
         />
         
-        <main className="p-6">
+        <main className="lg:p-6 p-0">
           <Routes>
             <Route path="/" element={<DashboardOverview />} />
             <Route path="/products" element={<ProductsManagement />} />

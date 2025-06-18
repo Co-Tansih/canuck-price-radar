@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { 
   Play, 
@@ -13,8 +14,11 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const ScraperControl = () => {
+  const { t } = useLanguage();
+  
   const [scrapers, setScrapers] = useState([
     {
       id: 1,
@@ -121,35 +125,39 @@ const ScraperControl = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6 p-4 md:p-0">
       {/* Page Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-4 sm:space-y-0">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Scraper Control Panel</h1>
-          <p className="text-gray-600 mt-2">
-            Monitor and control your price scraping operations
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+            {t('scraperControlPanel') || 'Scraper Control Panel'}
+          </h1>
+          <p className="text-gray-600 mt-2 text-sm md:text-base">
+            {t('monitorScrapingOperations') || 'Monitor and control your price scraping operations'}
           </p>
         </div>
-        <div className="flex space-x-2">
-          <Button variant="outline" className="flex items-center space-x-2">
+        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+          <Button variant="outline" className="flex items-center space-x-2 text-sm">
             <Download className="h-4 w-4" />
-            <span>Export Logs</span>
+            <span>{t('exportLogs') || 'Export Logs'}</span>
           </Button>
-          <Button className="flex items-center space-x-2">
+          <Button className="flex items-center space-x-2 text-sm">
             <RefreshCw className="h-4 w-4" />
-            <span>Run All Scrapers</span>
+            <span>{t('runAllScrapers') || 'Run All Scrapers'}</span>
           </Button>
         </div>
       </div>
 
-      {/* Overview Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card>
-          <CardContent className="p-6">
+      {/* Overview Stats - Mobile Responsive */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        <Card className="glass-card">
+          <CardContent className="p-4 md:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Active Scrapers</p>
-                <p className="text-2xl font-bold text-gray-900 mt-2">
+                <p className="text-xs md:text-sm font-medium text-gray-600">
+                  {t('activeScrapers') || 'Active Scrapers'}
+                </p>
+                <p className="text-xl md:text-2xl font-bold text-gray-900 mt-2">
                   {scrapers.filter(s => s.status === 'running').length}
                 </p>
               </div>
@@ -158,67 +166,79 @@ const ScraperControl = () => {
           </CardContent>
         </Card>
         
-        <Card>
-          <CardContent className="p-6">
+        <Card className="glass-card">
+          <CardContent className="p-4 md:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Products Scraped</p>
-                <p className="text-2xl font-bold text-gray-900 mt-2">
+                <p className="text-xs md:text-sm font-medium text-gray-600">
+                  {t('productsScraped') || 'Products Scraped'}
+                </p>
+                <p className="text-xl md:text-2xl font-bold text-gray-900 mt-2">
                   {scrapers.reduce((sum, s) => sum + s.productsScraped, 0).toLocaleString()}
                 </p>
-                <p className="text-sm text-green-600">Today</p>
+                <p className="text-xs md:text-sm text-green-600">
+                  {t('today') || 'Today'}
+                </p>
               </div>
-              <Activity className="h-8 w-8 text-blue-600" />
+              <Activity className="h-6 w-6 md:h-8 md:w-8 text-blue-600" />
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-6">
+        <Card className="glass-card">
+          <CardContent className="p-4 md:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Success Rate</p>
-                <p className="text-2xl font-bold text-gray-900 mt-2">
+                <p className="text-xs md:text-sm font-medium text-gray-600">
+                  {t('successRate') || 'Success Rate'}
+                </p>
+                <p className="text-xl md:text-2xl font-bold text-gray-900 mt-2">
                   {(scrapers.reduce((sum, s) => sum + s.successRate, 0) / scrapers.length).toFixed(1)}%
                 </p>
               </div>
-              <CheckCircle className="h-8 w-8 text-green-600" />
+              <CheckCircle className="h-6 w-6 md:h-8 md:w-8 text-green-600" />
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-6">
+        <Card className="glass-card">
+          <CardContent className="p-4 md:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Errors</p>
-                <p className="text-2xl font-bold text-gray-900 mt-2">
+                <p className="text-xs md:text-sm font-medium text-gray-600">
+                  {t('totalErrors') || 'Total Errors'}
+                </p>
+                <p className="text-xl md:text-2xl font-bold text-gray-900 mt-2">
                   {scrapers.reduce((sum, s) => sum + s.errors, 0)}
                 </p>
-                <p className="text-sm text-red-600">Last 24h</p>
+                <p className="text-xs md:text-sm text-red-600">
+                  {t('last24h') || 'Last 24h'}
+                </p>
               </div>
-              <AlertTriangle className="h-8 w-8 text-red-600" />
+              <AlertTriangle className="h-6 w-6 md:h-8 md:w-8 text-red-600" />
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Scrapers List */}
-      <Card>
+      {/* Scrapers List - Mobile Responsive */}
+      <Card className="glass-card">
         <CardHeader>
-          <CardTitle>Scraper Status</CardTitle>
-          <CardDescription>
-            Monitor and control individual scraper instances
+          <CardTitle className="text-lg md:text-xl">
+            {t('scraperStatus') || 'Scraper Status'}
+          </CardTitle>
+          <CardDescription className="text-sm">
+            {t('monitorIndividualScrapers') || 'Monitor and control individual scraper instances'}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             {scrapers.map((scraper) => (
-              <div key={scraper.id} className="border border-gray-200 rounded-lg p-6">
-                <div className="flex items-center justify-between mb-4">
+              <div key={scraper.id} className="border border-gray-200 rounded-lg p-4 md:p-6 glass-card">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 space-y-3 sm:space-y-0">
                   <div className="flex items-center space-x-3">
                     {getStatusIcon(scraper.status)}
-                    <h3 className="text-lg font-semibold text-gray-900">
+                    <h3 className="text-base md:text-lg font-semibold text-gray-900">
                       {scraper.name}
                     </h3>
                     {getStatusBadge(scraper.status)}
@@ -230,46 +250,48 @@ const ScraperControl = () => {
                       size="sm"
                       onClick={() => handleScraperAction(scraper.id, 'start')}
                       disabled={scraper.status === 'running'}
+                      className="text-xs"
                     >
-                      <Play className="h-4 w-4" />
+                      <Play className="h-3 w-3 md:h-4 md:w-4" />
                     </Button>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => handleScraperAction(scraper.id, 'pause')}
                       disabled={scraper.status !== 'running'}
+                      className="text-xs"
                     >
-                      <Pause className="h-4 w-4" />
+                      <Pause className="h-3 w-3 md:h-4 md:w-4" />
                     </Button>
-                    <Button variant="outline" size="sm">
-                      <Settings className="h-4 w-4" />
+                    <Button variant="outline" size="sm" className="text-xs">
+                      <Settings className="h-3 w-3 md:h-4 md:w-4" />
                     </Button>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-6 gap-4 text-sm">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4 text-xs md:text-sm">
                   <div>
-                    <p className="text-gray-500">Last Run</p>
+                    <p className="text-gray-500">{t('lastRun') || 'Last Run'}</p>
                     <p className="font-medium">{scraper.lastRun}</p>
                   </div>
                   <div>
-                    <p className="text-gray-500">Next Run</p>
+                    <p className="text-gray-500">{t('nextRun') || 'Next Run'}</p>
                     <p className="font-medium">{scraper.nextRun}</p>
                   </div>
                   <div>
-                    <p className="text-gray-500">Products</p>
+                    <p className="text-gray-500">{t('products') || 'Products'}</p>
                     <p className="font-medium">{scraper.productsScraped.toLocaleString()}</p>
                   </div>
                   <div>
-                    <p className="text-gray-500">Success Rate</p>
+                    <p className="text-gray-500">{t('successRate') || 'Success Rate'}</p>
                     <p className="font-medium">{scraper.successRate}%</p>
                   </div>
                   <div>
-                    <p className="text-gray-500">Avg Response</p>
+                    <p className="text-gray-500">{t('avgResponse') || 'Avg Response'}</p>
                     <p className="font-medium">{scraper.avgResponseTime}</p>
                   </div>
                   <div>
-                    <p className="text-gray-500">Errors</p>
+                    <p className="text-gray-500">{t('errors') || 'Errors'}</p>
                     <p className={`font-medium ${scraper.errors > 0 ? 'text-red-600' : 'text-green-600'}`}>
                       {scraper.errors}
                     </p>
@@ -281,28 +303,30 @@ const ScraperControl = () => {
         </CardContent>
       </Card>
 
-      {/* Live Logs */}
-      <Card>
+      {/* Live Logs - Mobile Responsive */}
+      <Card className="glass-card">
         <CardHeader>
-          <CardTitle>Live Scraper Logs</CardTitle>
-          <CardDescription>
-            Real-time activity from all scrapers
+          <CardTitle className="text-lg md:text-xl">
+            {t('liveScraperLogs') || 'Live Scraper Logs'}
+          </CardTitle>
+          <CardDescription className="text-sm">
+            {t('realTimeActivity') || 'Real-time activity from all scrapers'}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="bg-gray-900 rounded-lg p-4 max-h-96 overflow-y-auto">
-            <div className="space-y-2 font-mono text-sm">
+          <div className="bg-gray-900 rounded-lg p-3 md:p-4 max-h-64 md:max-h-96 overflow-y-auto">
+            <div className="space-y-2 font-mono text-xs md:text-sm">
               {logs.map((log, index) => (
-                <div key={index} className="flex items-start space-x-3">
-                  <span className="text-gray-400 flex-shrink-0">{log.time}</span>
-                  <span className={`flex-shrink-0 ${
+                <div key={index} className="flex flex-col sm:flex-row sm:items-start space-y-1 sm:space-y-0 sm:space-x-3">
+                  <span className="text-gray-400 flex-shrink-0 text-xs">{log.time}</span>
+                  <span className={`flex-shrink-0 text-xs ${
                     log.level === 'error' ? 'text-red-400' :
                     log.level === 'warning' ? 'text-yellow-400' : 'text-green-400'
                   }`}>
                     [{log.level.toUpperCase()}]
                   </span>
-                  <span className="text-blue-400 flex-shrink-0">{log.scraper}:</span>
-                  <span className="text-gray-300">{log.message}</span>
+                  <span className="text-blue-400 flex-shrink-0 text-xs">{log.scraper}:</span>
+                  <span className="text-gray-300 text-xs break-words">{log.message}</span>
                 </div>
               ))}
             </div>
