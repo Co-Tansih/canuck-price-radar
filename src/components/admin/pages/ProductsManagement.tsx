@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Plus, 
   Search, 
@@ -14,16 +14,100 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { mockProducts } from '@/data/mockData';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { supabase } from '@/integrations/supabase/client';
 
 const ProductsManagement = () => {
   const { t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [products] = useState(mockProducts);
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState(['All']);
+  const [stats, setStats] = useState({
+    totalProducts: 0,
+    activeScrapers: 0,
+    priceUpdates: 0,
+    avgPriceDrop: 0
+  });
+  const [loading, setLoading] = useState(true);
 
-  const categories = ['All', 'Hardware Tools', 'Clothing', 'Building Materials', 'Electronics', 'Accessories'];
+  useEffect(() => {
+    fetchProducts();
+    fetchStats();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const processedProducts = data?.map(product => ({
+        id: product.id,
+        name: product.name || 'Unnamed Product',
+        description: product.description || 'No description available',
+        category: product.category || 'Uncategorized',
+        image: product.image_url || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e',
+        prices: [{
+          store: 'Store',
+          price: parseFloat(product.price) || 0,
+          affiliate_url: product.affiliate_url
+        }],
+        rating: (Math.random() * 2 + 3).toFixed(1), // Mock rating between 3-5
+        reviews: Math.floor(Math.random() * 1000) + 10, // Mock review count
+        created_at: product.created_at,
+        status: product.status || 'active'
+      })) || [];
+
+      // Extract unique categories
+      const uniqueCategories = ['All', ...new Set(processedProducts.map(p => p.category))];
+      
+      setProducts(processedProducts);
+      setCategories(uniqueCategories);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      setLoading(false);
+    }
+  };
+
+  const fetchStats = async () => {
+    try {
+      // Total products count
+      const { count: productCount } = await supabase
+        .from('products')
+        .select('*', { count: 'exact', head: true });
+
+      // Active scrapers count (from scraper logs)
+      const { data: scraperLogs } = await supabase
+        .from('scraper_logs')
+        .select('scraper_name')
+        .order('created_at', { ascending: false })
+        .limit(100);
+
+      const uniqueScrapers = new Set(scraperLogs?.map(log => log.scraper_name) || []);
+      const activeScrapers = uniqueScrapers.size;
+
+      // Price updates today
+      const today = new Date().toISOString().split('T')[0];
+      const { count: updatesCount } = await supabase
+        .from('scraper_logs')
+        .select('*', { count: 'exact', head: true })
+        .gte('created_at', today);
+
+      setStats({
+        totalProducts: productCount || 0,
+        activeScrapers,
+        priceUpdates: updatesCount || 0,
+        avgPriceDrop: 8.5 // Mock average price drop
+      });
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+    }
+  };
 
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -31,6 +115,14 @@ const ProductsManagement = () => {
     const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-red-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4 md:space-y-6 p-4 md:p-0">
@@ -60,7 +152,7 @@ const ProductsManagement = () => {
                   {t('totalProducts') || 'Total Products'}
                 </p>
                 <p className="text-xl md:text-2xl font-bold text-gray-900 mt-2">
-                  {products.length.toLocaleString()}
+                  {stats.totalProducts.toLocaleString()}
                 </p>
               </div>
               <Package className="h-6 w-6 md:h-8 md:w-8 text-blue-600" />
@@ -75,7 +167,7 @@ const ProductsManagement = () => {
                 <p className="text-xs md:text-sm font-medium text-gray-600">
                   {t('activeScrapers') || 'Active Scrapers'}
                 </p>
-                <p className="text-xl md:text-2xl font-bold text-gray-900 mt-2">12</p>
+                <p className="text-xl md:text-2xl font-bold text-gray-900 mt-2">{stats.activeScrapers}</p>
               </div>
               <div className="w-3 h-3 bg-green-500 rounded-full" />
             </div>
@@ -89,7 +181,7 @@ const ProductsManagement = () => {
                 <p className="text-xs md:text-sm font-medium text-gray-600">
                   {t('priceUpdates') || 'Price Updates'}
                 </p>
-                <p className="text-xl md:text-2xl font-bold text-gray-900 mt-2">1,247</p>
+                <p className="text-xl md:text-2xl font-bold text-gray-900 mt-2">{stats.priceUpdates}</p>
                 <p className="text-xs md:text-sm text-green-600">
                   {t('today') || 'Today'}
                 </p>
@@ -108,7 +200,7 @@ const ProductsManagement = () => {
                 <p className="text-xs md:text-sm font-medium text-gray-600">
                   {t('avgPriceDrop') || 'Avg. Price Drop'}
                 </p>
-                <p className="text-xl md:text-2xl font-bold text-gray-900 mt-2">8.5%</p>
+                <p className="text-xl md:text-2xl font-bold text-gray-900 mt-2">{stats.avgPriceDrop}%</p>
                 <p className="text-xs md:text-sm text-green-600">
                   {t('thisWeek') || 'This week'}
                 </p>
@@ -157,7 +249,7 @@ const ProductsManagement = () => {
         </CardContent>
       </Card>
 
-      {/* Products Table - Mobile Responsive */}
+      {/* Products Display - Mobile Responsive */}
       <Card className="glass-card">
         <CardHeader>
           <CardTitle className="text-lg md:text-xl">
@@ -168,133 +260,49 @@ const ProductsManagement = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {/* Mobile Cards View */}
-          <div className="block lg:hidden space-y-4">
-            {filteredProducts.map((product) => {
-              const minPrice = Math.min(...product.prices.map(p => p.price));
-              const maxPrice = Math.max(...product.prices.map(p => p.price));
-              
-              return (
-                <div key={product.id} className="border border-gray-200 rounded-lg p-4 space-y-3">
-                  <div className="flex items-start space-x-3">
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
-                    />
-                    <div className="min-w-0 flex-1">
-                      <h3 className="font-medium text-gray-900 text-sm line-clamp-2">
-                        {product.name}
-                      </h3>
-                      <p className="text-xs text-gray-500 mt-1 line-clamp-2">
-                        {product.description}
-                      </p>
-                      <Badge variant="secondary" className="mt-2 text-xs">
-                        {product.category}
-                      </Badge>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium text-gray-900 text-sm">
-                        ${minPrice} - ${maxPrice}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {product.prices.length} stores
-                      </p>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Button variant="ghost" size="sm">
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Desktop Table View */}
-          <div className="hidden lg:block overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-200">
-                  <th className="text-left py-3 px-4 font-medium text-gray-900">
-                    {t('product') || 'Product'}
-                  </th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-900">
-                    {t('category') || 'Category'}
-                  </th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-900">
-                    {t('priceRange') || 'Price Range'}
-                  </th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-900">
-                    {t('stores') || 'Stores'}
-                  </th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-900">
-                    {t('rating') || 'Rating'}
-                  </th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-900">
-                    {t('actions') || 'Actions'}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
+          {filteredProducts.length === 0 ? (
+            <div className="text-center py-12">
+              <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-500">No products found</p>
+            </div>
+          ) : (
+            <>
+              {/* Mobile Cards View */}
+              <div className="block lg:hidden space-y-4">
                 {filteredProducts.map((product) => {
-                  const minPrice = Math.min(...product.prices.map(p => p.price));
-                  const maxPrice = Math.max(...product.prices.map(p => p.price));
+                  const price = product.prices[0]?.price || 0;
                   
                   return (
-                    <tr key={product.id} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="py-4 px-4">
-                        <div className="flex items-center space-x-3">
-                          <img
-                            src={product.image}
-                            alt={product.name}
-                            className="w-12 h-12 object-cover rounded-lg"
-                          />
-                          <div>
-                            <p className="font-medium text-gray-900 line-clamp-1">
-                              {product.name}
-                            </p>
-                            <p className="text-sm text-gray-500 line-clamp-1">
-                              {product.description}
-                            </p>
-                          </div>
+                    <div key={product.id} className="border border-gray-200 rounded-lg p-4 space-y-3">
+                      <div className="flex items-start space-x-3">
+                        <img
+                          src={product.image}
+                          alt={product.name}
+                          className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
+                        />
+                        <div className="min-w-0 flex-1">
+                          <h3 className="font-medium text-gray-900 text-sm line-clamp-2">
+                            {product.name}
+                          </h3>
+                          <p className="text-xs text-gray-500 mt-1 line-clamp-2">
+                            {product.description}
+                          </p>
+                          <Badge variant="secondary" className="mt-2 text-xs">
+                            {product.category}
+                          </Badge>
                         </div>
-                      </td>
-                      <td className="py-4 px-4">
-                        <Badge variant="secondary">{product.category}</Badge>
-                      </td>
-                      <td className="py-4 px-4">
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-medium text-gray-900">
-                            ${minPrice} - ${maxPrice}
+                          <p className="font-medium text-gray-900 text-sm">
+                            ${price.toFixed(2)}
                           </p>
-                          <p className="text-sm text-gray-500">
-                            ${(maxPrice - minPrice).toFixed(2)} spread
+                          <p className="text-xs text-gray-500">
+                            1 store
                           </p>
                         </div>
-                      </td>
-                      <td className="py-4 px-4">
-                        <p className="text-gray-900">{product.prices.length} stores</p>
-                      </td>
-                      <td className="py-4 px-4">
-                        <div className="flex items-center space-x-1">
-                          <span className="text-yellow-400">★</span>
-                          <span className="font-medium">{product.rating}</span>
-                          <span className="text-gray-500">({product.reviews})</span>
-                        </div>
-                      </td>
-                      <td className="py-4 px-4">
+                        
                         <div className="flex items-center space-x-2">
                           <Button variant="ghost" size="sm">
                             <Eye className="h-4 w-4" />
@@ -306,13 +314,101 @@ const ProductsManagement = () => {
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
-                      </td>
-                    </tr>
+                      </div>
+                    </div>
                   );
                 })}
-              </tbody>
-            </table>
-          </div>
+              </div>
+
+              {/* Desktop Table View */}
+              <div className="hidden lg:block overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-gray-200">
+                      <th className="text-left py-3 px-4 font-medium text-gray-900">
+                        {t('product') || 'Product'}
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-900">
+                        {t('category') || 'Category'}
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-900">
+                        {t('price') || 'Price'}
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-900">
+                        {t('status') || 'Status'}
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-900">
+                        {t('rating') || 'Rating'}
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-900">
+                        {t('actions') || 'Actions'}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredProducts.map((product) => {
+                      const price = product.prices[0]?.price || 0;
+                      
+                      return (
+                        <tr key={product.id} className="border-b border-gray-100 hover:bg-gray-50">
+                          <td className="py-4 px-4">
+                            <div className="flex items-center space-x-3">
+                              <img
+                                src={product.image}
+                                alt={product.name}
+                                className="w-12 h-12 object-cover rounded-lg"
+                              />
+                              <div>
+                                <p className="font-medium text-gray-900 line-clamp-1">
+                                  {product.name}
+                                </p>
+                                <p className="text-sm text-gray-500 line-clamp-1">
+                                  {product.description}
+                                </p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="py-4 px-4">
+                            <Badge variant="secondary">{product.category}</Badge>
+                          </td>
+                          <td className="py-4 px-4">
+                            <p className="font-medium text-gray-900">
+                              ${price.toFixed(2)}
+                            </p>
+                          </td>
+                          <td className="py-4 px-4">
+                            <Badge className={product.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}>
+                              {product.status}
+                            </Badge>
+                          </td>
+                          <td className="py-4 px-4">
+                            <div className="flex items-center space-x-1">
+                              <span className="text-yellow-400">★</span>
+                              <span className="font-medium">{product.rating}</span>
+                              <span className="text-gray-500">({product.reviews})</span>
+                            </div>
+                          </td>
+                          <td className="py-4 px-4">
+                            <div className="flex items-center space-x-2">
+                              <Button variant="ghost" size="sm">
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                              <Button variant="ghost" size="sm">
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700">
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
     </div>
