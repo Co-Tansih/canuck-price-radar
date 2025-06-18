@@ -3,16 +3,14 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. */
+/* Modern Design System - Inspired by vishnunarayan.in, balajingo.in, saralclasses.in */
 
 @layer base {
   :root {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
-
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
-
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
@@ -33,11 +31,9 @@
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 0 85% 50%;
-
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
@@ -53,32 +49,23 @@
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
-
     --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
-
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
-
     --primary: 0 85% 55%;
     --primary-foreground: 222.2 47.4% 11.2%;
-
     --secondary: 0 75% 40%;
     --secondary-foreground: 210 40% 98%;
-
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
-
     --accent: 45 100% 70%;
     --accent-foreground: 222.2 47.4% 11.2%;
-
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 0 85% 55%;
-    
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 0 85% 55%;
@@ -97,393 +84,246 @@
 
   body {
     @apply bg-background text-foreground;
-    background: 
-      radial-gradient(ellipse at top left, hsl(0 85% 50% / 0.03) 0%, transparent 40%),
-      radial-gradient(ellipse at bottom right, hsl(45 100% 65% / 0.04) 0%, transparent 40%),
-      radial-gradient(ellipse at center, hsl(0 0% 100%) 0%, hsl(0 0% 98%) 100%);
-    background-attachment: fixed;
-    /* Optimize scrolling performance */
-    overscroll-behavior: none;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    /* Modern font optimizations */
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Performance optimizations */
+  html {
     scroll-behavior: smooth;
   }
 
-  /* Optimize animations for better performance */
   * {
+    /* Hardware acceleration for smooth animations */
+    will-change: auto;
     transform: translateZ(0);
-    backface-visibility: hidden;
-    perspective: 1000px;
   }
 }
 
-/* Optimized Animation Keyframes */
-@keyframes float-bubbles {
-  0% {
-    transform: translate3d(0, 100vh, 0) rotate(0deg) scale(0);
+/* Modern Animation System */
+@keyframes slideUp {
+  from {
     opacity: 0;
+    transform: translateY(30px);
   }
-  10% {
+  to {
     opacity: 1;
-    transform: translate3d(0, 90vh, 0) rotate(36deg) scale(0.1);
+    transform: translateY(0);
   }
-  90% {
-    opacity: 1;
-    transform: translate3d(0, -10vh, 0) rotate(324deg) scale(1);
-  }
-  100% {
-    transform: translate3d(0, -20vh, 0) rotate(360deg) scale(0);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from {
     opacity: 0;
+    transform: scale(0.9);
   }
-}
-
-@keyframes morphing {
-  0%, 100% {
-    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
-    transform: rotate(0deg);
-  }
-  50% {
-    border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
-    transform: rotate(180deg);
-  }
-}
-
-@keyframes gradient-shift {
-  0%, 100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-}
-
-@keyframes particle-float {
-  0% {
-    transform: translate3d(0, 0, 0) rotateZ(0deg);
+  to {
     opacity: 1;
-  }
-  100% {
-    transform: translate3d(0, -1000px, 0) rotateZ(720deg);
-    opacity: 0;
-  }
-}
-
-@keyframes slide-in-stagger {
-  0% {
-    transform: translate3d(0, 50px, 0) scale(0.8);
-    opacity: 0;
-  }
-  100% {
-    transform: translate3d(0, 0, 0) scale(1);
-    opacity: 1;
+    transform: scale(1);
   }
 }
 
 @keyframes float {
-  0%, 100% {
-    transform: translate3d(0, 0, 0) rotate(0deg);
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { 
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
   }
-  33% {
-    transform: translate3d(0, -20px, 0) rotate(120deg);
-  }
-  66% {
-    transform: translate3d(0, -10px, 0) rotate(240deg);
+  50% { 
+    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
   }
 }
 
-/* Design System Utilities */
+/* Modern Utility Classes */
 @layer utilities {
-  /* Glassmorphism Effects */
+  /* Modern Cards */
+  .modern-card {
+    @apply bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl transition-all duration-300;
+  }
+
+  .modern-card-elevated {
+    @apply bg-white rounded-3xl shadow-lg border border-gray-100 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300;
+  }
+
+  /* Glass Effects - Enhanced */
   .glass-card {
-    background: rgba(255, 255, 255, 0.25);
-    backdrop-filter: blur(20px) saturate(150%);
-    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(20px) saturate(120%);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    will-change: transform;
   }
 
   .glass-intense {
-    background: rgba(255, 255, 255, 0.35);
-    backdrop-filter: blur(40px) saturate(200%);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 16px 64px rgba(0, 0, 0, 0.15);
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(40px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
   }
 
-  .glass-canadian {
-    background: linear-gradient(135deg, 
-      rgba(255, 0, 0, 0.15) 0%, 
-      rgba(255, 255, 255, 0.25) 50%,
-      rgba(255, 193, 7, 0.15) 100%);
-    backdrop-filter: blur(25px) saturate(150%);
-    border: 1px solid rgba(255, 0, 0, 0.2);
-  }
-
-  /* Neumorphism Effects */
-  .neomorphism {
-    background: linear-gradient(145deg, #f0f0f0, #ffffff);
-    box-shadow: 12px 12px 24px #d1d1d1,
-                -12px -12px 24px #ffffff;
-    border-radius: 20px;
-  }
-
-  .neomorphism-inset {
-    background: linear-gradient(145deg, #f0f0f0, #ffffff);
-    box-shadow: inset 8px 8px 16px #d1d1d1,
-                inset -8px -8px 16px #ffffff;
-    border-radius: 15px;
-  }
-
-  .neomorphism-canadian {
-    background: linear-gradient(145deg, #ffeaea, #ffcccc);
-    box-shadow: 15px 15px 30px #e6c5c5,
-                -15px -15px 30px #ffffff;
-  }
-
-  /* Claymorphism Effects */
-  .clay-card {
-    background: linear-gradient(135deg, 
-      rgba(255, 255, 255, 0.4) 0%, 
-      rgba(255, 255, 255, 0.2) 100%);
-    backdrop-filter: blur(15px) saturate(120%);
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-radius: 30px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-  }
-
-  .clay-button {
-    background: linear-gradient(145deg, 
-      rgba(255, 0, 0, 0.8) 0%, 
-      rgba(220, 0, 0, 0.9) 100%);
-    border: 3px solid rgba(255, 255, 255, 0.3);
-    border-radius: 25px;
-    box-shadow: 0 15px 35px rgba(255, 0, 0, 0.3),
-                inset 0 2px 5px rgba(255, 255, 255, 0.2);
-  }
-
-  /* Gradient Utilities */
+  /* Modern Gradients */
   .gradient-canadian {
     background: linear-gradient(135deg, 
       hsl(0 85% 50%) 0%,
-      hsl(0 100% 60%) 25%,
-      hsl(45 100% 65%)  50%,
-      hsl(0 100% 60%) 75%,
-      hsl(0 85% 50%) 100%);
-    background-size: 300% 300%;
-    animation: gradient-shift 8s ease infinite;
+      hsl(0 100% 60%) 50%,
+      hsl(45 100% 65%) 100%);
   }
 
-  .gradient-aurora {
-    background: linear-gradient(-45deg, 
-      #ff0000, #ff6b6b, #ffd93d, #ff6b6b, #ff0000);
-    background-size: 400% 400%;
-    animation: gradient-shift 15s ease infinite;
+  .gradient-modern {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   }
 
-  .gradient-text {
-    background: linear-gradient(
-      90deg,
-      hsl(0 85% 50%) 0%,
-      hsl(45 100% 65%) 50%,
-      hsl(0 85% 50%) 100%
-    );
-    background-size: 200% auto;
-    color: transparent;
-    -webkit-background-clip: text;
-    background-clip: text;
+  .gradient-card {
+    background: linear-gradient(135deg, 
+      rgba(255, 255, 255, 0.9) 0%, 
+      rgba(255, 255, 255, 0.7) 100%);
   }
 
-  /* Optimized Animations */
-  .animate-morph {
-    animation: morphing 10s ease-in-out infinite;
-    will-change: border-radius, transform;
+  /* Animations */
+  .animate-slide-up {
+    animation: slideUp 0.6s ease-out;
   }
 
-  .animate-stagger {
-    animation: slide-in-stagger 0.8s ease-out;
-    will-change: transform, opacity;
+  .animate-fade-in {
+    animation: fadeIn 0.8s ease-out;
   }
 
-  .animate-stagger-delay-1 {
-    animation: slide-in-stagger 0.8s ease-out 0.1s both;
+  .animate-scale-in {
+    animation: scaleIn 0.5s ease-out;
   }
 
-  .animate-stagger-delay-2 {
-    animation: slide-in-stagger 0.8s ease-out 0.2s both;
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
   }
 
-  .animate-stagger-delay-3 {
-    animation: slide-in-stagger 0.8s ease-out 0.3s both;
+  .animate-pulse-glow {
+    animation: pulse-glow 2s infinite;
   }
 
-  /* Canadian Maple Leaf Shapes */
-  .maple-leaf {
-    width: 48px;
-    height: 48px;
-    background: hsl(0 85% 50% / 0.6);
-    position: relative;
-    -webkit-clip-path: polygon(50% 0%, 57% 15%, 50% 20%, 57% 25%, 50% 30%, 60% 35%, 65% 25%, 75% 30%, 70% 40%, 80% 45%, 75% 55%, 85% 60%, 80% 70%, 60% 75%, 50% 85%, 50% 100%, 50% 85%, 40% 75%, 20% 70%, 15% 60%, 25% 55%, 20% 45%, 30% 40%, 25% 30%, 35% 25%, 40% 35%, 50% 30%, 43% 25%, 50% 20%, 43% 15%);
-    clip-path: polygon(50% 0%, 57% 15%, 50% 20%, 57% 25%, 50% 30%, 60% 35%, 65% 25%, 75% 30%, 70% 40%, 80% 45%, 75% 55%, 85% 60%, 80% 70%, 60% 75%, 50% 85%, 50% 100%, 50% 85%, 40% 75%, 20% 70%, 15% 60%, 25% 55%, 20% 45%, 30% 40%, 25% 30%, 35% 25%, 40% 35%, 50% 30%, 43% 25%, 50% 20%, 43% 15%);
-  }
-
-  .maple-leaf-small {
-    width: 24px;
-    height: 24px;
-    background: hsl(0 85% 50% / 0.4);
-    -webkit-clip-path: polygon(50% 0%, 57% 15%, 50% 20%, 57% 25%, 50% 30%, 60% 35%, 65% 25%, 75% 30%, 70% 40%, 80% 45%, 75% 55%, 85% 60%, 80% 70%, 60% 75%, 50% 85%, 50% 100%, 50% 85%, 40% 75%, 20% 70%, 15% 60%, 25% 55%, 20% 45%, 30% 40%, 25% 30%, 35% 25%, 40% 35%, 50% 30%, 43% 25%, 50% 20%, 43% 15%);
-    clip-path: polygon(50% 0%, 57% 15%, 50% 20%, 57% 25%, 50% 30%, 60% 35%, 65% 25%, 75% 30%, 70% 40%, 80% 45%, 75% 55%, 85% 60%, 80% 70%, 60% 75%, 50% 85%, 50% 100%, 50% 85%, 40% 75%, 20% 70%, 15% 60%, 25% 55%, 20% 45%, 30% 40%, 25% 30%, 35% 25%, 40% 35%, 50% 30%, 43% 25%, 50% 20%, 43% 15%);
-  }
-
-  .maple-leaf-large {
-    width: 64px;
-    height: 64px;
-    background: hsl(0 85% 50% / 0.3);
-    -webkit-clip-path: polygon(50% 0%, 57% 15%, 50% 20%, 57% 25%, 50% 30%, 60% 35%, 65% 25%, 75% 30%, 70% 40%, 80% 45%, 75% 55%, 85% 60%, 80% 70%, 60% 75%, 50% 85%, 50% 100%, 50% 85%, 40% 75%, 20% 70%, 15% 60%, 25% 55%, 20% 45%, 30% 40%, 25% 30%, 35% 25%, 40% 35%, 50% 30%, 43% 25%, 50% 20%, 43% 15%);
-    clip-path: polygon(50% 0%, 57% 15%, 50% 20%, 57% 25%, 50% 30%, 60% 35%, 65% 25%, 75% 30%, 70% 40%, 80% 45%, 75% 55%, 85% 60%, 80% 70%, 60% 75%, 50% 85%, 50% 100%, 50% 85%, 40% 75%, 20% 70%, 15% 60%, 25% 55%, 20% 45%, 30% 40%, 25% 30%, 35% 25%, 40% 35%, 50% 30%, 43% 25%, 50% 20%, 43% 15%);
-  }
-
-  /* Interactive Elements */
-  .canadian-button {
-    @apply relative overflow-hidden clay-button;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    transform-style: preserve-3d;
-  }
-
-  .canadian-button::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-    transition: left 0.5s ease;
-  }
-
-  .canadian-button:hover {
-    transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 20px 40px rgba(255, 0, 0, 0.4);
-  }
-
-  .canadian-button:hover::before {
-    left: 100%;
-  }
-
-  .floating-element {
-    animation: float 6s ease-in-out infinite;
-    will-change: transform;
-  }
-
-  .floating-element:nth-child(2n) {
-    animation-delay: -2s;
-  }
-
-  .floating-element:nth-child(3n) {
-    animation-delay: -4s;
-  }
-
-  /* Custom Illustration Shapes */
-  .shape-blob {
-    background: linear-gradient(45deg, hsl(0 85% 50% / 0.3), hsl(45 100% 65% / 0.3));
-    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
-    animation: morphing 8s ease-in-out infinite;
-  }
-
-  .shape-organic {
-    background: radial-gradient(ellipse at center, 
-      hsl(0 85% 50% / 0.2) 0%, 
-      hsl(45 100% 65% / 0.1) 70%, 
-      transparent 100%);
-    border-radius: 63% 37% 54% 46% / 55% 48% 52% 45%;
-    animation: morphing 12s ease-in-out infinite reverse;
-  }
-
-  /* Story Link Animation */
-  .story-link {
-    @apply relative inline-block;
-  }
-
-  .story-link::after {
-    content: '';
-    position: absolute;
-    width: 100%;
-    transform: scaleX(0);
-    height: 2px;
-    bottom: -2px;
-    left: 0;
-    background-color: hsl(var(--primary));
-    transform-origin: bottom right;
-    transition: transform 0.3s ease-out;
-  }
-
-  .story-link:hover::after {
-    transform: scaleX(1);
-    transform-origin: bottom left;
-  }
-
-  /* Hover Effects */
+  /* Modern Hover Effects */
   .hover-lift {
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    will-change: transform;
+    @apply transition-all duration-300 ease-out;
   }
 
   .hover-lift:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+    @apply -translate-y-2 shadow-xl;
   }
 
-  /* Background Effects */
+  .hover-scale {
+    @apply transition-transform duration-300 ease-out;
+  }
+
+  .hover-scale:hover {
+    @apply scale-105;
+  }
+
+  /* Modern Typography */
+  .text-gradient {
+    @apply bg-gradient-to-r from-red-600 via-red-500 to-yellow-500 bg-clip-text text-transparent;
+  }
+
+  .text-shadow {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Modern Buttons */
+  .btn-modern {
+    @apply px-6 py-3 rounded-full font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg;
+  }
+
+  .btn-primary {
+    @apply bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800;
+  }
+
+  .btn-secondary {
+    @apply bg-white text-gray-900 border border-gray-200 hover:bg-gray-50 hover:shadow-md;
+  }
+
+  /* Canadian Theme Elements */
+  .canadian-accent {
+    @apply border-l-4 border-red-500;
+  }
+
   .maple-leaf-bg {
-    position: relative;
-    overflow: hidden;
+    background-image: 
+      radial-gradient(circle at 20% 30%, rgba(239, 68, 68, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(251, 191, 36, 0.1) 0%, transparent 50%);
   }
 
-  .maple-leaf-bg::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: 
-      radial-gradient(circle at 20% 30%, hsl(0 85% 50% / 0.05) 0%, transparent 50%),
-      radial-gradient(circle at 80% 70%, hsl(45 100% 65% / 0.05) 0%, transparent 50%),
-      radial-gradient(circle at 40% 90%, hsl(0 85% 50% / 0.03) 0%, transparent 50%);
-    animation: float-bubbles 20s linear infinite;
-    pointer-events: none;
+  /* Modern Spacing */
+  .section-padding {
+    @apply py-16 lg:py-24;
+  }
+
+  .container-padding {
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Responsive Design */
+  .responsive-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6;
+  }
+
+  /* Loading States */
+  .skeleton {
+    @apply animate-pulse bg-gray-200 rounded;
+  }
+
+  .skeleton-text {
+    @apply h-4 bg-gray-200 rounded-full;
+  }
+
+  .skeleton-avatar {
+    @apply w-12 h-12 bg-gray-200 rounded-full;
+  }
+}
+
+/* Modern Focus States */
+@layer components {
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2;
+  }
+
+  .input-modern {
+    @apply w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 transition-all duration-200;
   }
 }
 
 /* Performance Optimizations */
 @media (max-width: 768px) {
   .glass-card {
-    backdrop-filter: blur(15px);
+    backdrop-filter: blur(10px);
   }
   
-  .neomorphism {
-    box-shadow: 8px 8px 16px #d1d1d1,
-                -8px -8px 16px #ffffff;
-  }
-  
-  /* Reduce animations on mobile for better performance */
-  .floating-element {
-    animation-duration: 8s;
+  .modern-card-elevated {
+    @apply hover:shadow-lg hover:translate-y-0;
   }
 }
 
-/* Respect user's motion preferences */
+/* Accessibility */
 @media (prefers-reduced-motion: reduce) {
-  .floating-element,
-  .animate-morph,
-  * {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
 }
 
-/* Force hardware acceleration for smooth scrolling */
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  -webkit-overflow-scrolling: touch;
+/* Print Styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
 }
