@@ -1,0 +1,135 @@
+
+import React, { createContext, useContext, useState, useEffect } from 'react';
+
+interface LanguageContextType {
+  language: 'en' | 'fr';
+  setLanguage: (lang: 'en' | 'fr') => void;
+  t: (key: string) => string;
+}
+
+const translations = {
+  en: {
+    // Navigation
+    home: 'Home',
+    search: 'Search',
+    storeLocator: 'Store Locator',
+    signOut: 'Sign Out',
+    
+    // Homepage
+    heroTitle: 'Find the Best Deals',
+    heroSubtitle: 'Across Canada',
+    heroDescription: 'Compare prices from Amazon, Walmart, Home Depot and more. Get real-time pricing data and never overpay again.',
+    realTimePricing: 'Real-time pricing',
+    canadianStores: 'Canadian stores',
+    priceHistoryTracking: 'Price history tracking',
+    
+    // Categories
+    shopByCategory: 'Shop by Category',
+    electronics: 'Electronics',
+    homeGarden: 'Home & Garden',
+    tools: 'Tools',
+    clothing: 'Clothing',
+    sports: 'Sports',
+    automotive: 'Automotive',
+    
+    // Sections
+    featuredDeals: 'Featured Deals',
+    trendingNow: 'Trending Now',
+    howItWorks: 'How PriceTrackr Works',
+    searchProducts: 'Search Products',
+    comparePrice: 'Compare Prices',
+    saveMoney: 'Save Money',
+    
+    // Descriptions
+    searchProductsDesc: 'Search for any product across multiple Canadian retailers',
+    comparePricesDesc: 'See real-time prices from Amazon, Walmart, Home Depot and more',
+    saveMoneyDesc: 'Get the best deals and track price history to buy at the right time',
+    
+    // Actions
+    viewAllDeals: 'View all deals →',
+    viewAllTrending: 'View all trending →',
+    loadProducts: 'Load Products',
+    searchAgain: 'Search Again',
+    backToHome: 'Back to Home'
+  },
+  fr: {
+    // Navigation
+    home: 'Accueil',
+    search: 'Rechercher',
+    storeLocator: 'Localisateur de Magasins',
+    signOut: 'Se Déconnecter',
+    
+    // Homepage
+    heroTitle: 'Trouvez les Meilleures Offres',
+    heroSubtitle: 'À Travers le Canada',
+    heroDescription: 'Comparez les prix d\'Amazon, Walmart, Home Depot et plus encore. Obtenez des données de prix en temps réel et ne payez plus jamais trop cher.',
+    realTimePricing: 'Tarification en temps réel',
+    canadianStores: 'Magasins canadiens',
+    priceHistoryTracking: 'Suivi de l\'historique des prix',
+    
+    // Categories
+    shopByCategory: 'Magasiner par Catégorie',
+    electronics: 'Électronique',
+    homeGarden: 'Maison et Jardin',
+    tools: 'Outils',
+    clothing: 'Vêtements',
+    sports: 'Sports',
+    automotive: 'Automobile',
+    
+    // Sections
+    featuredDeals: 'Offres en Vedette',
+    trendingNow: 'Tendances Actuelles',
+    howItWorks: 'Comment Fonctionne PriceTrackr',
+    searchProducts: 'Rechercher des Produits',
+    comparePrice: 'Comparer les Prix',
+    saveMoney: 'Économiser de l\'Argent',
+    
+    // Descriptions
+    searchProductsDesc: 'Recherchez n\'importe quel produit dans plusieurs détaillants canadiens',
+    comparePricesDesc: 'Voyez les prix en temps réel d\'Amazon, Walmart, Home Depot et plus encore',
+    saveMoneyDesc: 'Obtenez les meilleures offres et suivez l\'historique des prix pour acheter au bon moment',
+    
+    // Actions
+    viewAllDeals: 'Voir toutes les offres →',
+    viewAllTrending: 'Voir toutes les tendances →',
+    loadProducts: 'Charger les Produits',
+    searchAgain: 'Rechercher à Nouveau',
+    backToHome: 'Retour à l\'Accueil'
+  }
+};
+
+const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+
+export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [language, setLanguage] = useState<'en' | 'fr'>('en');
+
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem('preferred-language') as 'en' | 'fr';
+    if (savedLanguage && (savedLanguage === 'en' || savedLanguage === 'fr')) {
+      setLanguage(savedLanguage);
+    }
+  }, []);
+
+  const handleSetLanguage = (lang: 'en' | 'fr') => {
+    setLanguage(lang);
+    localStorage.setItem('preferred-language', lang);
+  };
+
+  const t = (key: string): string => {
+    return translations[language][key as keyof typeof translations['en']] || key;
+  };
+
+  return (
+    <LanguageContext.Provider value={{ language, setLanguage: handleSetLanguage, t }}>
+      {children}
+    </LanguageContext.Provider>
+  );
+};
+
+export const useLanguage = () => {
+  const context = useContext(LanguageContext);
+  if (context === undefined) {
+    throw new Error('useLanguage must be used within a LanguageProvider');
+  }
+  return context;
+};

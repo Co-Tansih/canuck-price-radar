@@ -5,17 +5,18 @@ import { Search, TrendingUp, Zap, MapPin } from 'lucide-react';
 import SearchBar from './SearchBar';
 import ProductCard from './ProductCard';
 import { supabase } from '@/integrations/supabase/client';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
 
 const Homepage = () => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [trendingProducts, setTrendingProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { t } = useLanguage();
   const { toast } = useToast();
 
   useEffect(() => {
     loadProducts();
-    // Trigger initial scraping with delay to avoid blocking UI
     const scrapingTimer = setTimeout(() => {
       triggerScraping();
     }, 2000);
@@ -82,16 +83,16 @@ const Homepage = () => {
   };
 
   const categories = [
-    { name: 'Electronics', icon: '📱', link: '/search?category=Electronics' },
-    { name: 'Home & Garden', icon: '🏠', link: '/search?category=Home & Garden' },
-    { name: 'Tools', icon: '🔧', link: '/search?category=Tools' },
-    { name: 'Clothing', icon: '👕', link: '/search?category=Clothing' },
-    { name: 'Sports', icon: '⚽', link: '/search?category=Sports' },
-    { name: 'Automotive', icon: '🚗', link: '/search?category=Automotive' }
+    { name: t('electronics'), icon: '📱', link: '/search?category=Electronics' },
+    { name: t('homeGarden'), icon: '🏠', link: '/search?category=Home & Garden' },
+    { name: t('tools'), icon: '🔧', link: '/search?category=Tools' },
+    { name: t('clothing'), icon: '👕', link: '/search?category=Clothing' },
+    { name: t('sports'), icon: '⚽', link: '/search?category=Sports' },
+    { name: t('automotive'), icon: '🚗', link: '/search?category=Automotive' }
   ];
 
   const SkeletonCard = () => (
-    <div className="glass-card rounded-2xl p-6 animate-pulse">
+    <div className="glass-card rounded-2xl p-6 animate-pulse hover-lift">
       <div className="aspect-square bg-gradient-to-br from-gray-200 to-gray-300 rounded-xl mb-4" />
       <div className="h-4 bg-gradient-to-r from-gray-200 to-gray-300 rounded-full mb-2" />
       <div className="h-4 bg-gradient-to-r from-gray-200 to-gray-300 rounded-full w-3/4 mb-3" />
@@ -109,7 +110,7 @@ const Homepage = () => {
         <div className="maple-leaf-small floating-element absolute bottom-20 right-1/3 opacity-50" />
       </div>
 
-      {/* Hero Section with Enhanced Canadian Design */}
+      {/* Hero Section */}
       <section className="relative py-20 overflow-hidden">
         <div className="absolute inset-0 gradient-canadian opacity-20" />
         <div className="shape-blob absolute top-10 left-10 w-64 h-64 opacity-30" />
@@ -117,11 +118,11 @@ const Homepage = () => {
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center z-10">
           <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-stagger">
-            <span className="gradient-text">Find the Best Deals</span>
-            <span className="block text-primary animate-stagger-delay-1">Across Canada</span>
+            <span className="gradient-text">{t('heroTitle')}</span>
+            <span className="block text-primary animate-stagger-delay-1">{t('heroSubtitle')}</span>
           </h1>
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto animate-stagger-delay-2">
-            Compare prices from Amazon, Walmart, Home Depot and more. Get real-time pricing data and never overpay again.
+            {t('heroDescription')}
           </p>
           
           <div className="max-w-2xl mx-auto mb-8 animate-stagger-delay-3">
@@ -133,25 +134,25 @@ const Homepage = () => {
           <div className="flex flex-wrap justify-center gap-6 text-sm text-gray-600 animate-stagger-delay-3">
             <div className="flex items-center space-x-2 glass-card rounded-full px-4 py-2">
               <Zap className="h-4 w-4 text-yellow-500" />
-              <span>Real-time pricing</span>
+              <span>{t('realTimePricing')}</span>
             </div>
             <div className="flex items-center space-x-2 glass-card rounded-full px-4 py-2">
               <MapPin className="h-4 w-4 text-green-500" />
-              <span>Canadian stores</span>
+              <span>{t('canadianStores')}</span>
             </div>
             <div className="flex items-center space-x-2 glass-card rounded-full px-4 py-2">
               <TrendingUp className="h-4 w-4 text-blue-500" />
-              <span>Price history tracking</span>
+              <span>{t('priceHistoryTracking')}</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Categories Section with Claymorphism */}
+      {/* Categories Section */}
       <section className="py-16 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-gray-900 text-center mb-12 gradient-text">
-            Shop by Category
+            {t('shopByCategory')}
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
             {categories.map((category, index) => (
@@ -172,17 +173,17 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* Featured Deals with Glass Morphism */}
+      {/* Featured Deals */}
       <section className="py-16 relative">
         <div className="absolute inset-0 gradient-aurora opacity-10" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 gradient-text">Featured Deals</h2>
+            <h2 className="text-3xl font-bold text-gray-900 gradient-text">{t('featuredDeals')}</h2>
             <Link
               to="/search"
               className="text-primary hover:text-primary/80 font-medium story-link"
             >
-              View all deals →
+              {t('viewAllDeals')}
             </Link>
           </div>
           
@@ -205,7 +206,7 @@ const Homepage = () => {
                     onClick={triggerScraping}
                     className="canadian-button text-white px-6 py-3 rounded-full font-medium"
                   >
-                    Load Products
+                    {t('loadProducts')}
                   </button>
                 </div>
               </div>
@@ -214,7 +215,7 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* Trending Now with Neomorphism */}
+      {/* Trending Now */}
       <section className="py-16 bg-gray-50 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-12">
@@ -222,13 +223,13 @@ const Homepage = () => {
               <div className="neomorphism-canadian p-3 rounded-2xl">
                 <TrendingUp className="h-6 w-6 text-primary" />
               </div>
-              <h2 className="text-3xl font-bold text-gray-900 gradient-text">Trending Now</h2>
+              <h2 className="text-3xl font-bold text-gray-900 gradient-text">{t('trendingNow')}</h2>
             </div>
             <Link
               to="/search"
               className="text-primary hover:text-primary/80 font-medium story-link"
             >
-              View all trending →
+              {t('viewAllTrending')}
             </Link>
           </div>
           
@@ -254,39 +255,39 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* How It Works with Canadian Theme */}
+      {/* How It Works */}
       <section className="py-16 relative overflow-hidden">
         <div className="absolute inset-0 maple-leaf-bg" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-gray-900 text-center mb-12 gradient-text">
-            How PriceTrackr Works
+            {t('howItWorks')}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center animate-stagger">
               <div className="glass-canadian w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 hover-lift">
                 <Search className="h-10 w-10 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Search Products</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">{t('searchProducts')}</h3>
               <p className="text-gray-600">
-                Search for any product across multiple Canadian retailers
+                {t('searchProductsDesc')}
               </p>
             </div>
             <div className="text-center animate-stagger-delay-1">
               <div className="glass-canadian w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 hover-lift">
                 <TrendingUp className="h-10 w-10 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Compare Prices</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">{t('comparePrice')}</h3>
               <p className="text-gray-600">
-                See real-time prices from Amazon, Walmart, Home Depot and more
+                {t('comparePricesDesc')}
               </p>
             </div>
             <div className="text-center animate-stagger-delay-2">
               <div className="glass-canadian w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 hover-lift">
                 <Zap className="h-10 w-10 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Save Money</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">{t('saveMoney')}</h3>
               <p className="text-gray-600">
-                Get the best deals and track price history to buy at the right time
+                {t('saveMoneyDesc')}
               </p>
             </div>
           </div>
