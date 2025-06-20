@@ -22,6 +22,20 @@ interface AdminHeaderProps {
 const AdminHeader = ({ sidebarOpen, setSidebarOpen, isMobile = false }: AdminHeaderProps) => {
   const { user, signOut } = useAuth();
 
+  const handleSignOut = async () => {
+    console.log('Sign out clicked');
+    try {
+      const { error } = await signOut();
+      if (error) {
+        console.error('Sign out error:', error);
+      } else {
+        console.log('Sign out successful');
+      }
+    } catch (error) {
+      console.error('Sign out exception:', error);
+    }
+  };
+
   return (
     <header className="bg-white border-b border-gray-200 px-4 py-3 md:px-6 md:py-4 sticky top-0 z-40">
       <div className="flex items-center justify-between">
@@ -61,7 +75,10 @@ const AdminHeader = ({ sidebarOpen, setSidebarOpen, isMobile = false }: AdminHea
                 {user?.email || 'Admin User'}
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={signOut} className="text-sm">
+              <DropdownMenuItem 
+                onClick={handleSignOut} 
+                className="text-sm cursor-pointer"
+              >
                 <LogOut className="mr-2 h-4 w-4" />
                 Sign out
               </DropdownMenuItem>
