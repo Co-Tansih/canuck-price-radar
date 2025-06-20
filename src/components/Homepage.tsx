@@ -1,342 +1,224 @@
 
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Search, TrendingUp, Zap, MapPin, ArrowRight, Star, Shield, Users } from 'lucide-react';
-import SearchBar from './SearchBar';
-import ProductCard from './ProductCard';
-import { supabase } from '@/integrations/supabase/client';
+import React from 'react';
+import { Search, ShoppingCart, TrendingUp, Shield, Clock, MapPin, Star, ChevronRight, CheckCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useToast } from '@/hooks/use-toast';
 
 const Homepage = () => {
-  const [featuredProducts, setFeaturedProducts] = useState([]);
-  const [trendingProducts, setTrendingProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
   const { t } = useLanguage();
-  const { toast } = useToast();
 
-  useEffect(() => {
-    loadProducts();
-    const scrapingTimer = setTimeout(() => {
-      triggerScraping();
-    }, 2000);
-    
-    return () => clearTimeout(scrapingTimer);
-  }, []);
-
-  const loadProducts = async () => {
-    try {
-      const { data: products, error } = await supabase
-        .from('products')
-        .select('*')
-        .eq('status', 'active')
-        .order('created_at', { ascending: false })
-        .limit(20);
-
-      if (error) throw error;
-
-      if (products && products.length > 0) {
-        const formattedProducts = products.map(product => ({
-          id: product.id,
-          name: product.name,
-          description: product.description || '',
-          image: product.image_url || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e',
-          category: product.category || 'General',
-          rating: 4.5,
-          reviews: 100,
-          prices: [{
-            store: 'Multiple Stores',
-            price: product.price || 0,
-            shipping: 'Free shipping',
-            availability: 'In stock',
-            link: product.affiliate_url || '#'
-          }]
-        }));
-
-        setFeaturedProducts(formattedProducts.slice(0, 8));
-        setTrendingProducts(formattedProducts.slice(8, 16));
-      }
-    } catch (error) {
-      console.error('Error loading products:', error);
-    } finally {
-      setLoading(false);
+  const features = [
+    {
+      icon: Clock,
+      title: t('realTimePricing'),
+      description: t('realTimePricing')
+    },
+    {
+      icon: MapPin,
+      title: t('canadianStores'),
+      description: t('canadianStores')
+    },
+    {
+      icon: TrendingUp,
+      title: t('priceHistoryTracking'),
+      description: t('priceHistoryTracking')
     }
-  };
-
-  const triggerScraping = async () => {
-    try {
-      const { data, error } = await supabase.functions.invoke('scrape-products', {
-        body: { 
-          query: 'popular products',
-          category: 'electronics' 
-        }
-      });
-
-      if (!error && data) {
-        setTimeout(() => {
-          loadProducts();
-        }, 3000);
-      }
-    } catch (error) {
-      console.error('Error triggering scraping:', error);
-    }
-  };
+  ];
 
   const categories = [
-    { name: t('electronics'), icon: '📱', link: '/search?category=Electronics', color: 'from-blue-500 to-cyan-500' },
-    { name: t('homeGarden'), icon: '🏠', link: '/search?category=Home & Garden', color: 'from-green-500 to-emerald-500' },
-    { name: t('tools'), icon: '🔧', link: '/search?category=Tools', color: 'from-orange-500 to-red-500' },
-    { name: t('clothing'), icon: '👕', link: '/search?category=Clothing', color: 'from-purple-500 to-pink-500' },
-    { name: t('sports'), icon: '⚽', link: '/search?category=Sports', color: 'from-indigo-500 to-blue-500' },
-    { name: t('automotive'), icon: '🚗', link: '/search?category=Automotive', color: 'from-gray-500 to-slate-500' }
+    { name: t('electronics'), icon: '📱', color: 'bg-blue-50 text-blue-600' },
+    { name: t('homeGarden'), icon: '🏠', color: 'bg-green-50 text-green-600' },
+    { name: t('tools'), icon: '🔧', color: 'bg-yellow-50 text-yellow-600' },
+    { name: t('clothing'), icon: '👕', color: 'bg-purple-50 text-purple-600' },
+    { name: t('sports'), icon: '⚽', color: 'bg-red-50 text-red-600' },
+    { name: t('automotive'), icon: '🚗', color: 'bg-gray-50 text-gray-600' }
   ];
 
-  const stats = [
-    { label: 'Happy Customers', value: '50K+', icon: Users },
-    { label: 'Products Tracked', value: '1M+', icon: Search },
-    { label: 'Daily Savings', value: '$2M+', icon: TrendingUp },
-    { label: 'Trust Rating', value: '4.9★', icon: Star }
+  const steps = [
+    {
+      icon: Search,
+      title: t('searchProducts'),
+      description: t('searchProductsDesc')
+    },
+    {
+      icon: ShoppingCart,
+      title: t('comparePrice'),
+      description: t('comparePricesDesc')
+    },
+    {
+      icon: TrendingUp,
+      title: t('saveMoney'),
+      description: t('saveMoneyDesc')
+    }
   ];
-
-  const SkeletonCard = () => (
-    <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 animate-pulse">
-      <div className="aspect-square bg-gray-200 rounded-2xl mb-4" />
-      <div className="h-4 bg-gray-200 rounded-full mb-3" />
-      <div className="h-4 bg-gray-200 rounded-full w-3/4 mb-4" />
-      <div className="h-6 bg-gray-200 rounded-full w-1/2" />
-    </div>
-  );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
-      {/* Hero Section - Modern Clean Design */}
-      <section className="relative pt-20 pb-16 overflow-hidden">
-        {/* Background Elements */}
-        <div className="absolute inset-0">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-br from-red-100 to-red-50 rounded-full blur-3xl opacity-60" />
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-br from-yellow-100 to-yellow-50 rounded-full blur-3xl opacity-60" />
-        </div>
-
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center space-x-2 bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 border border-red-100 mb-8">
-              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-              <span className="text-sm font-medium text-gray-700">🇨🇦 Proudly Canadian</span>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-red-50">
+      {/* Hero Section */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-white via-red-50 to-yellow-50">
+        <div className="absolute inset-0 bg-gradient-to-br from-red-600/5 via-transparent to-yellow-600/5" />
+        
+        <div className="relative max-w-7xl mx-auto px-6 lg:px-8 pt-20 pb-24">
+          <div className="text-center max-w-4xl mx-auto">
+            {/* Trust Badge */}
+            <div className="inline-flex items-center px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full text-sm text-gray-600 mb-8 border border-red-100 shadow-sm">
+              <Shield className="h-4 w-4 text-red-500 mr-2" />
+              {t('trustedBy')} <span className="font-semibold text-red-600 ml-1">100K+ {t('canadians')}</span>
             </div>
-            
-            <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-              <span className="bg-gradient-to-r from-red-600 via-red-500 to-yellow-500 bg-clip-text text-transparent">
-                {t('heroTitle')}
-              </span>
+
+            <h1 className="text-5xl lg:text-7xl font-bold text-gray-900 mb-6 tracking-tight">
+              {t('heroTitle')}
               <br />
-              <span className="text-gray-900">{t('heroSubtitle')}</span>
+              <span className="bg-gradient-to-r from-red-600 via-red-500 to-yellow-500 bg-clip-text text-transparent">
+                {t('heroSubtitle')}
+              </span>
             </h1>
             
-            <p className="text-xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl lg:text-2xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
               {t('heroDescription')}
             </p>
 
-            {/* Search Bar - Enhanced */}
-            <div className="max-w-2xl mx-auto mb-12">
-              <div className="bg-white rounded-2xl shadow-2xl shadow-red-500/10 border border-gray-100 p-3">
-                <SearchBar />
-              </div>
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
+              <Button 
+                size="lg" 
+                className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-8 py-4 rounded-xl text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+              >
+                <Search className="mr-2 h-5 w-5" />
+                {t('getStarted')}
+              </Button>
+              <Button 
+                variant="outline" 
+                size="lg"
+                className="border-2 border-red-200 text-red-700 hover:bg-red-50 px-8 py-4 rounded-xl text-lg font-semibold transition-all duration-300 hover:border-red-300"
+              >
+                {t('learnMore')}
+                <ChevronRight className="ml-2 h-5 w-5" />
+              </Button>
             </div>
 
-            {/* Trust Indicators */}
-            <div className="flex flex-wrap justify-center gap-8 text-sm text-gray-600">
-              <div className="flex items-center space-x-2 bg-white/60 backdrop-blur-sm rounded-full px-4 py-2">
-                <Zap className="h-4 w-4 text-yellow-500" />
-                <span className="font-medium">{t('realTimePricing')}</span>
-              </div>
-              <div className="flex items-center space-x-2 bg-white/60 backdrop-blur-sm rounded-full px-4 py-2">
-                <MapPin className="h-4 w-4 text-green-500" />
-                <span className="font-medium">{t('canadianStores')}</span>
-              </div>
-              <div className="flex items-center space-x-2 bg-white/60 backdrop-blur-sm rounded-full px-4 py-2">
-                <Shield className="h-4 w-4 text-blue-500" />
-                <span className="font-medium">{t('priceHistoryTracking')}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Stats Section */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-            {stats.map((stat, index) => {
-              const Icon = stat.icon;
-              return (
-                <div key={index} className="text-center">
-                  <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-                    <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-yellow-500 rounded-xl flex items-center justify-center mx-auto mb-4">
-                      <Icon className="h-6 w-6 text-white" />
+            {/* Key Features */}
+            <div className="grid md:grid-cols-3 gap-8 mb-16">
+              {features.map((feature, index) => {
+                const Icon = feature.icon;
+                return (
+                  <div key={index} className="text-center group">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-red-100 to-yellow-100 rounded-2xl mb-4 group-hover:scale-110 transition-transform duration-300">
+                      <Icon className="h-8 w-8 text-red-600" />
                     </div>
-                    <div className="text-2xl font-bold text-gray-900 mb-1">{stat.value}</div>
-                    <div className="text-sm text-gray-600">{stat.label}</div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">{feature.title}</h3>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Categories - Modern Grid */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              {t('shopByCategory')}
-            </h2>
-            <p className="text-gray-600 text-lg">Discover products across all major categories</p>
-          </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {categories.map((category, index) => (
-              <Link
-                key={category.name}
-                to={category.link}
-                className="group bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 border border-gray-100 hover:shadow-xl hover:-translate-y-2 transition-all duration-300"
-              >
-                <div className={`w-16 h-16 bg-gradient-to-br ${category.color} rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300`}>
-                  <span className="text-2xl filter brightness-0 invert">{category.icon}</span>
+      {/* Stats Section */}
+      <section className="py-16 bg-white border-y border-gray-100">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { number: "500", suffix: "K+", label: t('productsTracked') },
+              { number: "2", suffix: "M+", label: t('priceComparisons') },
+              { number: "$15", suffix: "M+", label: t('moneySaved') }
+            ].map((stat, index) => (
+              <div key={index} className="text-center group">
+                <div className="text-4xl lg:text-5xl font-bold text-gray-900 mb-2">
+                  <span className="bg-gradient-to-r from-red-600 to-yellow-500 bg-clip-text text-transparent">
+                    {stat.number}
+                  </span>
+                  <span className="text-gray-700">{stat.suffix}</span>
                 </div>
-                <h3 className="font-semibold text-gray-900 text-center group-hover:text-red-600 transition-colors">
-                  {category.name}
-                </h3>
-              </Link>
+                <p className="text-gray-600 text-lg font-medium">{stat.label}</p>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Featured Deals - Modern Cards */}
-      <section className="py-16 bg-gradient-to-br from-gray-50 to-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between mb-12">
-            <div>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-                {t('featuredDeals')}
-              </h2>
-              <p className="text-gray-600">Handpicked deals just for you</p>
-            </div>
-            <Link
-              to="/search"
-              className="group flex items-center space-x-2 bg-red-600 text-white px-6 py-3 rounded-full hover:bg-red-700 transition-all duration-300 hover:scale-105"
-            >
-              <span className="font-medium">{t('viewAllDeals')}</span>
-              <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-            </Link>
+      {/* Categories Section */}
+      <section className="py-20 bg-gradient-to-br from-gray-50 to-white">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">{t('shopByCategory')}</h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              {t('searchProductsDesc')}
+            </p>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {loading ? (
-              Array.from({ length: 8 }).map((_, index) => <SkeletonCard key={index} />)
-            ) : featuredProducts.length > 0 ? (
-              featuredProducts.map((product) => (
-                <div key={product.id} className="transform hover:scale-105 transition-transform duration-300">
-                  <ProductCard product={product} />
-                </div>
-              ))
-            ) : (
-              <div className="col-span-full text-center py-16">
-                <div className="bg-white rounded-3xl p-12 shadow-sm border border-gray-100 max-w-md mx-auto">
-                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <Search className="h-8 w-8 text-gray-400" />
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+            {categories.map((category, index) => (
+              <Card key={index} className="group hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer border-0 bg-white/80 backdrop-blur-sm">
+                <CardContent className="p-6 text-center">
+                  <div className={`w-16 h-16 rounded-2xl ${category.color} flex items-center justify-center text-2xl mb-4 mx-auto group-hover:scale-110 transition-transform duration-300`}>
+                    {category.icon}
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">Loading Products</h3>
-                  <p className="text-gray-600 mb-6">We're fetching the latest deals for you...</p>
-                  <button
-                    onClick={triggerScraping}
-                    className="bg-gradient-to-r from-red-600 to-yellow-500 text-white px-8 py-3 rounded-full font-medium hover:shadow-lg transition-all duration-300 hover:scale-105"
-                  >
-                    {t('loadProducts')}
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* Trending Products */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between mb-12">
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-yellow-500 rounded-xl flex items-center justify-center">
-                <TrendingUp className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
-                  {t('trendingNow')}
-                </h2>
-                <p className="text-gray-600">What's popular right now</p>
-              </div>
-            </div>
-            <Link
-              to="/search"
-              className="group flex items-center space-x-2 text-red-600 hover:text-red-700 font-medium"
-            >
-              <span>{t('viewAllTrending')}</span>
-              <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-            </Link>
+                  <h3 className="font-semibold text-gray-900 text-sm">{category.name}</h3>
+                </CardContent>
+              </Card>
+            ))}
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {loading ? (
-              Array.from({ length: 8 }).map((_, index) => <SkeletonCard key={index} />)
-            ) : trendingProducts.length > 0 ? (
-              trendingProducts.map((product) => (
-                <div key={product.id} className="transform hover:scale-105 transition-transform duration-300">
-                  <ProductCard product={product} />
-                </div>
-              ))
-            ) : (
-              <div className="col-span-full text-center py-16">
-                <div className="bg-gray-50 rounded-3xl p-12 max-w-md mx-auto">
-                  <TrendingUp className="h-16 w-16 text-gray-400 mx-auto mb-6" />
-                  <h3 className="text-xl font-semibold text-gray-700 mb-2">Loading Trending Products</h3>
-                  <p className="text-gray-500">Discovering what's hot right now...</p>
-                </div>
-              </div>
-            )}
+          <div className="text-center mt-12">
+            <Button variant="outline" className="border-red-200 text-red-600 hover:bg-red-50 px-8 py-3 rounded-xl font-semibold">
+              {t('viewMore')}
+              <ChevronRight className="ml-2 h-4 w-4" />
+            </Button>
           </div>
         </div>
       </section>
 
-      {/* How It Works - Clean Modern */}
-      <section className="py-20 bg-gradient-to-br from-red-50 via-white to-yellow-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* How It Works Section */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              {t('howItWorks')}
-            </h2>
-            <p className="text-gray-600 text-lg">Simple steps to save money</p>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">{t('howItWorks')}</h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              {t('saveMoneyDesc')}
+            </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              { icon: Search, title: t('searchProducts'), desc: t('searchProductsDesc') },
-              { icon: TrendingUp, title: t('comparePrice'), desc: t('comparePricesDesc') },
-              { icon: Zap, title: t('saveMoney'), desc: t('saveMoneyDesc') }
-            ].map((step, index) => {
+          <div className="grid md:grid-cols-3 gap-12">
+            {steps.map((step, index) => {
               const Icon = step.icon;
               return (
                 <div key={index} className="text-center group">
                   <div className="relative mb-8">
-                    <div className="w-20 h-20 bg-gradient-to-br from-red-500 to-yellow-500 rounded-2xl flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                      <Icon className="h-10 w-10 text-white" />
+                    <div className="w-20 h-20 bg-gradient-to-br from-red-100 to-yellow-100 rounded-3xl flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                      <Icon className="h-10 w-10 text-red-600" />
                     </div>
-                    <div className="absolute top-2 right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center text-sm font-bold text-red-600 shadow-md">
+                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-r from-red-500 to-yellow-500 text-white rounded-full flex items-center justify-center text-sm font-bold shadow-lg">
                       {index + 1}
                     </div>
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-4">{step.title}</h3>
-                  <p className="text-gray-600 leading-relaxed">{step.desc}</p>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-4">{step.title}</h3>
+                  <p className="text-gray-600 text-lg leading-relaxed">{step.description}</p>
                 </div>
               );
             })}
           </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 bg-gradient-to-r from-red-600 via-red-700 to-yellow-600">
+        <div className="max-w-4xl mx-auto text-center px-6 lg:px-8">
+          <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">
+            {t('getStarted')}
+          </h2>
+          <p className="text-xl text-red-100 mb-12 max-w-2xl mx-auto">
+            {t('heroDescription')}
+          </p>
+          <Button 
+            size="lg" 
+            className="bg-white text-red-600 hover:bg-gray-50 px-12 py-6 rounded-2xl text-xl font-bold shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105"
+          >
+            <Search className="mr-3 h-6 w-6" />
+            {t('search')}
+          </Button>
         </div>
       </section>
     </div>

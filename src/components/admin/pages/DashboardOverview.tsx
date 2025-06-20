@@ -53,7 +53,7 @@ const DashboardOverview = () => {
       const { count: searchCount } = await supabase
         .from('search_logs')
         .select('*', { count: 'exact', head: true })
-        .gte('created_at', today);
+        .gte('created_at', today + 'T00:00:00.000Z');
 
       // Fetch scraper status
       const { data: scraperLogs } = await supabase
@@ -68,7 +68,8 @@ const DashboardOverview = () => {
         .select('price');
       
       const totalRevenue = products?.reduce((sum, product) => {
-        return sum + (parseFloat(product.price) || 0);
+        const price = parseFloat(product.price?.toString() || '0');
+        return sum + (isNaN(price) ? 0 : price);
       }, 0) || 0;
 
       // Fetch chart data for the last 6 months
@@ -133,7 +134,7 @@ const DashboardOverview = () => {
     return chartData;
   };
 
-  const processScraperStatus = (logs) => {
+  const processScraperStatus = (logs: any[]) => {
     const scrapers = [
       { name: 'Amazon Canada', id: 'amazon' },
       { name: 'Walmart Canada', id: 'walmart' },
@@ -142,11 +143,14 @@ const DashboardOverview = () => {
 
     return scrapers.map(scraper => {
       const recentLogs = logs.filter(log => 
-        log.scraper_name.toLowerCase().includes(scraper.id)
+        log.scraper_name?.toLowerCase().includes(scraper.id)
       ).slice(0, 5);
 
       const lastLog = recentLogs[0];
-      const totalProducts = recentLogs.reduce((sum, log) => sum + (log.products_scraped || 0), 0);
+      const totalProducts = recentLogs.reduce((sum, log) => {
+        const products = parseInt(log.products_scraped?.toString() || '0');
+        return sum + (isNaN(products) ? 0 : products);
+      }, 0);
       const successRate = recentLogs.length > 0 ? 
         (recentLogs.filter(log => log.status === 'success').length / recentLogs.length) * 100 : 0;
 

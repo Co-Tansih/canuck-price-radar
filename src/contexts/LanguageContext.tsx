@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 interface LanguageContextType {
@@ -22,6 +21,15 @@ const translations = {
     realTimePricing: 'Real-time pricing',
     canadianStores: 'Canadian stores',
     priceHistoryTracking: 'Price history tracking',
+    getStarted: 'Get Started',
+    learnMore: 'Learn More',
+    trustedBy: 'Trusted by',
+    canadians: 'Canadians',
+    
+    // Stats
+    productsTracked: 'Products Tracked',
+    priceComparisons: 'Price Comparisons',
+    moneySaved: 'Money Saved',
     
     // Categories
     shopByCategory: 'Shop by Category',
@@ -31,6 +39,7 @@ const translations = {
     clothing: 'Clothing',
     sports: 'Sports',
     automotive: 'Automotive',
+    viewMore: 'View More',
     
     // Sections
     featuredDeals: 'Featured Deals',
@@ -52,11 +61,15 @@ const translations = {
     searchAgain: 'Search Again',
     backToHome: 'Back to Home',
 
+    // Trust indicators
+    over: 'Over',
+    thousand: 'K+',
+    million: 'M+',
+
     // Admin Dashboard
     dashboardOverview: 'Dashboard Overview',
     monitorPlatformPerformance: 'Monitor your platform\'s performance and key metrics',
     totalUsers: 'Total Users',
-    productsTracked: 'Products Tracked',
     dailySearches: 'Daily Searches',
     revenue: 'Revenue',
     userGrowth: 'User Growth',
@@ -92,7 +105,6 @@ const translations = {
     productsManagement: 'Products Management',
     manageProductCatalog: 'Manage your product catalog and pricing data',
     addProduct: 'Add Product',
-    totalProducts: 'Total Products',
     priceUpdates: 'Price Updates',
     avgPriceDrop: 'Avg. Price Drop',
     thisWeek: 'This week',
@@ -119,6 +131,15 @@ const translations = {
     realTimePricing: 'Tarification en temps réel',
     canadianStores: 'Magasins canadiens',
     priceHistoryTracking: 'Suivi de l\'historique des prix',
+    getStarted: 'Commencer',
+    learnMore: 'En Savoir Plus',
+    trustedBy: 'Approuvé par',
+    canadians: 'Canadiens',
+    
+    // Stats
+    productsTracked: 'Produits Suivis',
+    priceComparisons: 'Comparaisons de Prix',
+    moneySaved: 'Argent Économisé',
     
     // Categories
     shopByCategory: 'Magasiner par Catégorie',
@@ -128,6 +149,7 @@ const translations = {
     clothing: 'Vêtements',
     sports: 'Sports',
     automotive: 'Automobile',
+    viewMore: 'Voir Plus',
     
     // Sections
     featuredDeals: 'Offres en Vedette',
@@ -149,11 +171,15 @@ const translations = {
     searchAgain: 'Rechercher à Nouveau',
     backToHome: 'Retour à l\'Accueil',
 
+    // Trust indicators
+    over: 'Plus de',
+    thousand: 'K+',
+    million: 'M+',
+
     // Admin Dashboard
     dashboardOverview: 'Aperçu du Tableau de Bord',
     monitorPlatformPerformance: 'Surveillez les performances de votre plateforme et les métriques clés',
     totalUsers: 'Total des Utilisateurs',
-    productsTracked: 'Produits Suivis',
     dailySearches: 'Recherches Quotidiennes',
     revenue: 'Revenus',
     userGrowth: 'Croissance des Utilisateurs',
@@ -189,7 +215,6 @@ const translations = {
     productsManagement: 'Gestion des Produits',
     manageProductCatalog: 'Gérez votre catalogue de produits et les données de prix',
     addProduct: 'Ajouter un Produit',
-    totalProducts: 'Total des Produits',
     priceUpdates: 'Mises à Jour des Prix',
     avgPriceDrop: 'Baisse Moy. des Prix',
     thisWeek: 'cette semaine',
