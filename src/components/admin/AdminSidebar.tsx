@@ -17,9 +17,10 @@ import { cn } from '@/lib/utils';
 interface AdminSidebarProps {
   isOpen: boolean;
   isMobile?: boolean;
+  onClose?: () => void;
 }
 
-const AdminSidebar = ({ isOpen, isMobile = false }: AdminSidebarProps) => {
+const AdminSidebar = ({ isOpen, isMobile = false, onClose }: AdminSidebarProps) => {
   const location = useLocation();
   
   const menuItems = [
@@ -67,34 +68,42 @@ const AdminSidebar = ({ isOpen, isMobile = false }: AdminSidebarProps) => {
     }
   ];
 
+  const handleLinkClick = () => {
+    if (isMobile && onClose) {
+      onClose();
+    }
+  };
+
   return (
     <div className={cn(
-      "fixed left-0 top-0 h-full bg-white border-r border-gray-200 shadow-lg transition-all duration-300",
-      isMobile ? "z-50" : "z-30",
+      "fixed left-0 top-0 h-full bg-white border-r border-gray-200 shadow-lg transition-all duration-300 z-50",
       isMobile 
         ? isOpen 
           ? "w-72 translate-x-0" 
           : "w-72 -translate-x-full"
         : isOpen 
-          ? "w-64" 
-          : "w-16"
+          ? "w-64 z-30" 
+          : "w-16 z-30"
     )}>
       {/* Header */}
       <div className="p-4 border-b border-gray-200">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="bg-primary rounded-lg p-2">
+            <div className="bg-primary rounded-lg p-2 flex-shrink-0">
               <Search className="h-6 w-6 text-white" />
             </div>
             {(isOpen || isMobile) && (
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">PriceTrackr</h1>
-                <p className="text-sm text-gray-500">Admin Panel</p>
+              <div className="min-w-0">
+                <h1 className="text-xl font-bold text-gray-900 truncate">PriceTrackr</h1>
+                <p className="text-sm text-gray-500 truncate">Admin Panel</p>
               </div>
             )}
           </div>
-          {isMobile && isOpen && (
-            <button className="p-1 rounded-md hover:bg-gray-100">
+          {isMobile && isOpen && onClose && (
+            <button 
+              onClick={onClose}
+              className="p-1 rounded-md hover:bg-gray-100 flex-shrink-0"
+            >
               <X className="h-5 w-5 text-gray-500" />
             </button>
           )}
@@ -102,8 +111,8 @@ const AdminSidebar = ({ isOpen, isMobile = false }: AdminSidebarProps) => {
       </div>
 
       {/* Navigation */}
-      <nav className="mt-6 px-3 pb-20 overflow-y-auto h-full">
-        <div className="space-y-2">
+      <nav className="mt-4 px-3 pb-20 overflow-y-auto h-full">
+        <div className="space-y-1">
           {menuItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
@@ -112,6 +121,7 @@ const AdminSidebar = ({ isOpen, isMobile = false }: AdminSidebarProps) => {
               <Link
                 key={item.path}
                 to={item.path}
+                onClick={handleLinkClick}
                 className={cn(
                   "flex items-center px-3 py-3 rounded-lg transition-all duration-200 group",
                   isActive 
