@@ -10,16 +10,16 @@ import {
   Users, 
   Settings,
   Search,
-  ChevronLeft,
-  ChevronRight
+  X
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface AdminSidebarProps {
   isOpen: boolean;
+  isMobile?: boolean;
 }
 
-const AdminSidebar = ({ isOpen }: AdminSidebarProps) => {
+const AdminSidebar = ({ isOpen, isMobile = false }: AdminSidebarProps) => {
   const location = useLocation();
   
   const menuItems = [
@@ -69,26 +69,40 @@ const AdminSidebar = ({ isOpen }: AdminSidebarProps) => {
 
   return (
     <div className={cn(
-      "fixed left-0 top-0 h-full bg-white border-r border-gray-200 shadow-lg transition-all duration-300 z-50",
-      isOpen ? "w-64" : "w-16"
+      "fixed left-0 top-0 h-full bg-white border-r border-gray-200 shadow-lg transition-all duration-300",
+      isMobile ? "z-50" : "z-30",
+      isMobile 
+        ? isOpen 
+          ? "w-72 translate-x-0" 
+          : "w-72 -translate-x-full"
+        : isOpen 
+          ? "w-64" 
+          : "w-16"
     )}>
       {/* Header */}
       <div className="p-4 border-b border-gray-200">
-        <div className="flex items-center space-x-3">
-          <div className="bg-primary rounded-lg p-2">
-            <Search className="h-6 w-6 text-white" />
-          </div>
-          {isOpen && (
-            <div>
-              <h1 className="text-xl font-bold text-gray-900">PriceTrackr</h1>
-              <p className="text-sm text-gray-500">Admin Panel</p>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="bg-primary rounded-lg p-2">
+              <Search className="h-6 w-6 text-white" />
             </div>
+            {(isOpen || isMobile) && (
+              <div>
+                <h1 className="text-xl font-bold text-gray-900">PriceTrackr</h1>
+                <p className="text-sm text-gray-500">Admin Panel</p>
+              </div>
+            )}
+          </div>
+          {isMobile && isOpen && (
+            <button className="p-1 rounded-md hover:bg-gray-100">
+              <X className="h-5 w-5 text-gray-500" />
+            </button>
           )}
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="mt-6 px-3">
+      <nav className="mt-6 px-3 pb-20 overflow-y-auto h-full">
         <div className="space-y-2">
           {menuItems.map((item) => {
             const Icon = item.icon;
@@ -110,7 +124,7 @@ const AdminSidebar = ({ isOpen }: AdminSidebarProps) => {
                   isActive ? "text-white" : "text-gray-400 group-hover:text-gray-600"
                 )} />
                 
-                {isOpen && (
+                {(isOpen || isMobile) && (
                   <div className="ml-3 flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">
                       {item.title}
@@ -133,9 +147,9 @@ const AdminSidebar = ({ isOpen }: AdminSidebarProps) => {
       <div className="absolute bottom-4 left-0 right-0 px-3">
         <div className={cn(
           "bg-gray-50 rounded-lg p-3",
-          !isOpen && "px-2"
+          !isOpen && !isMobile && "px-2"
         )}>
-          {isOpen ? (
+          {(isOpen || isMobile) ? (
             <div>
               <p className="text-xs font-medium text-gray-900">Admin Access</p>
               <p className="text-xs text-gray-500">Full System Control</p>

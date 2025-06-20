@@ -1,41 +1,31 @@
 
 import React from 'react';
-import { Bell, Menu, LogOut, User } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
-import { useAdmin } from '@/contexts/AdminContext';
+import { Menu, Bell, User, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { useAuth } from '@/contexts/AuthContext';
+import { LanguageToggle } from '@/components/LanguageToggle';
 
 interface AdminHeaderProps {
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
+  isMobile?: boolean;
 }
 
-const AdminHeader = ({ sidebarOpen, setSidebarOpen }: AdminHeaderProps) => {
-  const { signOut } = useAuth();
-  const { adminData } = useAdmin();
-  const { toast } = useToast();
-
-  const handleSignOut = async () => {
-    const { error } = await signOut();
-    if (error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to sign out. Please try again.",
-      });
-    } else {
-      toast({
-        title: "Signed out",
-        description: "You have been successfully signed out.",
-      });
-    }
-  };
+const AdminHeader = ({ sidebarOpen, setSidebarOpen, isMobile = false }: AdminHeaderProps) => {
+  const { user, signOut } = useAuth();
 
   return (
-    <header className="bg-white border-b border-gray-200 px-6 py-4">
+    <header className="bg-white border-b border-gray-200 px-4 py-3 md:px-6 md:py-4">
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-3 md:space-x-4">
           <Button
             variant="ghost"
             size="sm"
@@ -45,50 +35,38 @@ const AdminHeader = ({ sidebarOpen, setSidebarOpen }: AdminHeaderProps) => {
             <Menu className="h-5 w-5" />
           </Button>
           
-          <div>
-            <h2 className="text-lg font-semibold text-gray-900">
-              Admin Dashboard
-            </h2>
-            <p className="text-sm text-gray-500">
-              Manage your PriceTrackr platform
-            </p>
-          </div>
+          {isMobile && (
+            <div className="flex items-center space-x-2">
+              <h1 className="text-lg font-semibold text-gray-900">Admin</h1>
+            </div>
+          )}
         </div>
 
-        <div className="flex items-center space-x-4">
-          {/* Notifications */}
+        <div className="flex items-center space-x-2 md:space-x-4">
+          <LanguageToggle />
+          
           <Button variant="ghost" size="sm" className="relative p-2">
-            <Bell className="h-5 w-5" />
-            <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">
-              3
-            </span>
+            <Bell className="h-4 w-4 md:h-5 md:w-5" />
+            <span className="absolute -top-1 -right-1 h-2 w-2 bg-red-500 rounded-full"></span>
           </Button>
 
-          {/* Admin Profile */}
-          <div className="flex items-center space-x-3 px-3 py-2 bg-gray-50 rounded-lg">
-            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-              <User className="h-4 w-4 text-white" />
-            </div>
-            <div className="hidden md:block">
-              <p className="text-sm font-medium text-gray-900">
-                {adminData?.email}
-              </p>
-              <p className="text-xs text-gray-500 capitalize">
-                {adminData?.role?.replace('_', ' ')}
-              </p>
-            </div>
-          </div>
-
-          {/* Sign Out */}
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={handleSignOut}
-            className="flex items-center space-x-2"
-          >
-            <LogOut className="h-4 w-4" />
-            <span className="hidden md:inline">Sign Out</span>
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="p-2">
+                <User className="h-4 w-4 md:h-5 md:w-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48 md:w-56">
+              <DropdownMenuLabel className="text-sm">
+                {user?.email || 'Admin User'}
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={signOut} className="text-sm">
+                <LogOut className="mr-2 h-4 w-4" />
+                Sign out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </header>
