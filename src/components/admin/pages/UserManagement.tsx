@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { 
   Users, 
@@ -12,7 +13,7 @@ import {
   Edit,
   Trash2
 } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -35,15 +36,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 
 const UserManagement = () => {
   const { t } = useLanguage();
@@ -127,7 +119,7 @@ const UserManagement = () => {
       // Process users data to include subscription status
       const processedUsers = (usersData || []).map(user => ({
         ...user,
-        subscription: user.role === 'admin' ? 'admin' : 'user' // Fix: removed 'premium' comparison
+        subscription: user.role === 'admin' ? 'admin' : 'user'
       }));
 
       setUsers(processedUsers);
@@ -273,7 +265,7 @@ const UserManagement = () => {
         </CardContent>
         <CardFooter className="flex items-center justify-between p-4">
           <div className="text-sm text-gray-500">
-            {t('showing')} {(currentPage - 1) * itemsPerPage + 1} - {Math.min(currentPage * itemsPerPage, stats.totalUsers)} {t('of')} {stats.totalUsers} {t('users')}
+            Showing {(currentPage - 1) * itemsPerPage + 1} - {Math.min(currentPage * itemsPerPage, stats.totalUsers)} of {stats.totalUsers} users
           </div>
           <div className="space-x-2">
             <Button
@@ -282,7 +274,7 @@ const UserManagement = () => {
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
             >
-              {t('previous')}
+              Previous
             </Button>
             <Button
               variant="outline"
@@ -290,7 +282,7 @@ const UserManagement = () => {
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
             >
-              {t('next')}
+              Next
             </Button>
           </div>
         </CardFooter>

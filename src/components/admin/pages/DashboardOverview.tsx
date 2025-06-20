@@ -31,8 +31,7 @@ const DashboardOverview = () => {
 
   useEffect(() => {
     fetchDashboardData();
-    // Set up real-time updates
-    const interval = setInterval(fetchDashboardData, 30000); // Update every 30 seconds
+    const interval = setInterval(fetchDashboardData, 30000);
     return () => clearInterval(interval);
   }, []);
 
@@ -85,7 +84,7 @@ const DashboardOverview = () => {
         totalUsers: userCount || 0,
         totalProducts: productCount || 0,
         dailySearches: searchCount || 0,
-        revenue: Math.round(totalRevenue * 0.1), // 10% commission estimate
+        revenue: Math.round(totalRevenue * 0.1),
         activeScrapers: processedScraperStatus.filter(s => s.status === 'active').length
       });
 
@@ -127,7 +126,7 @@ const DashboardOverview = () => {
         name: months[5 - i],
         users: userCount || 0,
         searches: searchCount || 0,
-        revenue: Math.round((searchCount || 0) * 2.5) // Estimated revenue
+        revenue: Math.round((searchCount || 0) * 2.5)
       });
     }
 
@@ -213,16 +212,15 @@ const DashboardOverview = () => {
       });
     });
 
-    // Sort by time and return latest 8
     return activities
-      .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))
+      .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
       .slice(0, 8);
   };
 
   const formatTimeAgo = (dateString) => {
     const date = new Date(dateString);
     const now = new Date();
-    const diffInMinutes = Math.floor((now - date) / (1000 * 60));
+    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
 
     if (diffInMinutes < 1) return 'Just now';
     if (diffInMinutes < 60) return `${diffInMinutes} minutes ago`;
