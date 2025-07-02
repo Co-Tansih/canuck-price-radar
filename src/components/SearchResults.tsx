@@ -37,6 +37,60 @@ const SearchResults = () => {
   const searchProducts = async () => {
     setLoading(true);
     try {
+      // Try our Express server first
+      const serverUrl = process.env.NODE_ENV === 'production' 
+        ? 'https://your-server-url.com' 
+        : 'http://localhost:3001';
+      
+      const params = new URLSearchParams();
+      if (query) params.append('query', query);
+      if (category && category !== 'All Categories') params.append('category', category);
+
+      console.log('Fetching from server:', `${serverUrl}/api/products?${params}`);
+      
+      const response = await fetch(`${serverUrl}/api/products?${params}`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Server response:', data);
+        
+        if (data.success && data.products) {
+          const formattedProducts = data.products.map(product => ({
+            id: product.id,
+            name: product.name,
+            description: product.description || '',
+            image: product.image_url || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e',
+            category: product.category || 'General',
+            rating: product.rating || 4.5,
+            reviews: 100,
+            prices: [{
+              store: 'Amazon India',
+              price: product.price || 0,
+              shipping: 'Free shipping',
+              availability: 'In stock',
+              link: product.affiliate_url || '#'
+            }]
+          }));
+          
+          setProducts(formattedProducts);
+          setLoading(false);
+          return;
+        }
+      }
+
+      // Fallback to Supabase if server is not available
+      console.log('Falling back to Supabase...');
+      await searchProductsFromSupabase();
+      
+    } catch (error) {
+      console.error('Error fetching from server:', error);
+      // Fallback to Supabase
+      await searchProductsFromSupabase();
+    }
+  };
+
+  const searchProductsFromSupabase = async () => {
+    try {
       let supabaseQuery = supabase
         .from('products')
         .select('*')
@@ -71,7 +125,7 @@ const SearchResults = () => {
         rating: 4.5,
         reviews: 100,
         prices: [{
-          store: 'Multiple Stores',
+          store: 'Amazon India',
           price: product.price || 0,
           shipping: 'Free shipping',
           availability: 'In stock',
@@ -94,6 +148,50 @@ const SearchResults = () => {
 
   const triggerScraping = async () => {
     try {
+      // Try Express server scraping first
+      const serverUrl = process.env.NODE_ENV === 'production' 
+        ? 'https://your-server-url.com' 
+        : 'http://localhost:3001';
+      
+      const response = await fetch(`${serverUrl}/api/scrape`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          query: query || category || 'power drill',
+          category: category || 'power tools'
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Scraping completed:', data);
+        
+        if (data.success && data.products) {
+          const formattedProducts = data.products.map(product => ({
+            id: product.id,
+            name: product.name,
+            description: product.description || '',
+            image: product.image_url || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e',
+            category: product.category || 'General',
+            rating: product.rating || 4.5,
+            reviews: 100,
+            prices: [{
+              store: 'Amazon India',
+              price: product.price || 0,
+              shipping: 'Free shipping',
+              availability: 'In stock',
+              link: product.affiliate_url || '#'
+            }]
+          }));
+          
+          setProducts(formattedProducts);
+          return;
+        }
+      }
+
+      // Fallback to Supabase edge function
       const { data, error } = await supabase.functions.invoke('scrape-products', {
         body: { 
           query: query || category || 'products',
