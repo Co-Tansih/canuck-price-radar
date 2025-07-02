@@ -1,25 +1,27 @@
+import dotenv from 'dotenv';
+import express from 'express';
+import cors from 'cors';
+import cron from 'node-cron';
+import NodeCache from 'node-cache';
+import fetch from 'node-fetch';
+import { createClient } from '@supabase/supabase-js';
 
-const express = require('express');
-const cors = require('cors');
-const cron = require('node-cron');
-const NodeCache = require('node-cache');
-const { createClient } = require('@supabase/supabase-js');
-require('dotenv').config();
+dotenv.config(); // Load environment variables
 
 const app = express();
 const port = process.env.PORT || 3001;
 
-// Initialize cache (24 hours TTL)
+// Initialize cache
 const cache = new NodeCache({ stdTTL: 86400 });
 
-// Initialize Supabase client
+// Initialize Supabase
 const supabase = createClient(
-  process.env.SUPABASE_URL || 'https://nkbnctfqvpjfwlinzcmj.supabase.co',
-  process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rYm5jdGZxdnBqZndsaW56Y21qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk4OTI2MDYsImV4cCI6MjA2NTQ2ODYwNn0.DuU9FMW7aDarUi3HuiHfYLS5UoK7yHeedBo1S1Y5fBs'
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_ANON_KEY
 );
 
-// ZenRows configuration
-const ZENROWS_API_KEY = 'ccb6211bf43ca49d903ad53bd0a80fa9d2be301b';
+// ZenRows config
+const ZENROWS_API_KEY = process.env.ZENROWS_API_KEY;
 const ZENROWS_CONFIG = {
   js_render: true,
   json_response: true,
@@ -29,6 +31,15 @@ const ZENROWS_CONFIG = {
 
 app.use(cors());
 app.use(express.json());
+
+// (Keep all your existing scrape logic and routes here...)
+
+app.listen(port, () => {
+  console.log(`✅ Server running on port ${port}`);
+});
+
+
+
 
 // Helper function to scrape Amazon products
 async function scrapeAmazonProducts(query = 'power drill', category = 'power tools') {
