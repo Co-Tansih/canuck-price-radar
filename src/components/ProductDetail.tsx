@@ -4,7 +4,6 @@ import { useParams, Link } from 'react-router-dom';
 import { Star, MapPin, Clock, ExternalLink, TrendingUp, ArrowLeft } from 'lucide-react';
 import PriceTrendChart from './PriceTrendChart';
 import StoreMap from './StoreMap';
-import { mockPriceHistory, mockNearbyStores } from '../data/mockData';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -240,13 +239,17 @@ const ProductDetail = () => {
             <TrendingUp className="h-6 w-6 text-primary" />
             <h2 className="text-2xl font-bold text-gray-900">Price History</h2>
           </div>
-          <PriceTrendChart data={mockPriceHistory} />
+          <div className="text-center py-8 text-gray-500">
+            <p>Price history data will be available after more data is collected.</p>
+          </div>
         </div>
 
         {/* Store Map */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Nearby Stores</h2>
-          <StoreMap stores={mockNearbyStores} />
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Store Locator</h2>
+          <div className="text-center py-8 text-gray-500">
+            <p>Enter your postal code above to find nearby stores with this product.</p>
+          </div>
         </div>
       </div>
     </div>

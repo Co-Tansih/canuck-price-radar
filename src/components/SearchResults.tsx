@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import ProductCard from './ProductCard';
 import FilterPanel from './FilterPanel';
@@ -6,7 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Grid, List } from 'lucide-react';
+import { Grid, List, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const SearchResults = () => {
@@ -15,10 +15,16 @@ const SearchResults = () => {
   const category = searchParams.get('category') || '';
   const [products, setProducts] = useState([]);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [retrying, setRetrying] = useState(false);
+  const [error, setError] = useState(null);
   const { user } = useAuth();
   const { toast } = useToast();
   const isMobile = useIsMobile();
+
+  // Simple in-memory cache
+  const cache = useMemo(() => new Map(), []);
+  const cacheTimeout = 5 * 60 * 1000; // 5 minutes
 
   // Auto-switch to list view on mobile for better experience
   useEffect(() => {
@@ -27,131 +33,136 @@ const SearchResults = () => {
     }
   }, [isMobile]);
 
+  // Debounced search effect
   useEffect(() => {
-    searchProducts();
-    if (user && query) {
-      logSearch();
-    }
+    const timeoutId = setTimeout(() => {
+      if (query || category) {
+        searchProducts();
+        if (user && query) {
+          logSearch();
+        }
+      }
+    }, 400); // 400ms debounce
+
+    return () => clearTimeout(timeoutId);
   }, [query, category, user]);
 
-  const searchProducts = async () => {
-    setLoading(true);
+  const getCacheKey = (searchQuery, searchCategory) => {
+    return `${searchQuery}-${searchCategory}`;
+  };
+
+  const searchProducts = async (isRetry = false) => {
+    if (isRetry) {
+      setRetrying(true);
+    } else {
+      setLoading(true);
+    }
+    setError(null);
+
     try {
-      // Try our Express server first
+      const cacheKey = getCacheKey(query, category);
+      const cached = cache.get(cacheKey);
+      
+      // Check cache first
+      if (cached && Date.now() - cached.timestamp < cacheTimeout) {
+        setProducts(cached.data);
+        setLoading(false);
+        setRetrying(false);
+        return;
+      }
+
+      // Use localhost for development, update for production
       const serverUrl = process.env.NODE_ENV === 'production' 
-        ? 'https://your-server-url.com' 
+        ? window.location.origin // Use same origin in production
         : 'http://localhost:3001';
       
       const params = new URLSearchParams();
       if (query) params.append('query', query);
       if (category && category !== 'All Categories') params.append('category', category);
 
-      console.log('Fetching from server:', `${serverUrl}/api/products?${params}`);
+      console.log('Fetching live Amazon data from:', `${serverUrl}/api/products?${params}`);
       
-      const response = await fetch(`${serverUrl}/api/products?${params}`);
-      
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Server response:', data);
-        
-        if (data.success && data.products) {
-          const formattedProducts = data.products.map(product => ({
-            id: product.id,
-            name: product.name,
-            description: product.description || '',
-            image: product.image_url || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e',
-            category: product.category || 'General',
-            rating: product.rating || 4.5,
-            reviews: 100,
-            prices: [{
-              store: 'Amazon India',
-              price: product.price || 0,
-              shipping: 'Free shipping',
-              availability: 'In stock',
-              link: product.affiliate_url || '#'
-            }]
-          }));
-          
-          setProducts(formattedProducts);
-          setLoading(false);
+      const response = await fetch(`${serverUrl}/api/products?${params}`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        // Retry once on 5xx errors
+        if (response.status >= 500 && !isRetry) {
+          console.log('Server error, retrying...');
+          setTimeout(() => searchProducts(true), 1000);
           return;
         }
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-      // Fallback to Supabase if server is not available
-      console.log('Falling back to Supabase...');
-      await searchProductsFromSupabase();
+      const data = await response.json();
+      console.log('Live Amazon data received:', data);
       
-    } catch (error) {
-      console.error('Error fetching from server:', error);
-      // Fallback to Supabase
-      await searchProductsFromSupabase();
-    }
-  };
-
-  const searchProductsFromSupabase = async () => {
-    try {
-      let supabaseQuery = supabase
-        .from('products')
-        .select('*')
-        .eq('status', 'active');
-
-      if (query) {
-        supabaseQuery = supabaseQuery.or(`name.ilike.%${query}%,description.ilike.%${query}%`);
+      if (!data.success) {
+        throw new Error(data.message || 'Failed to fetch products');
       }
 
-      if (category && category !== 'All Categories') {
-        supabaseQuery = supabaseQuery.eq('category', category);
-      }
-
-      const { data: dbProducts, error } = await supabaseQuery
-        .order('created_at', { ascending: false })
-        .limit(50);
-
-      if (error) throw error;
-
-      if (!dbProducts || dbProducts.length === 0) {
-        console.log('No products found, triggering scraping...');
-        await triggerScraping();
+      // If no products found, trigger scraping
+      if (!data.products || data.products.length === 0) {
+        console.log('No products found, triggering live scraping...');
+        await triggerLiveScraping();
         return;
       }
 
-      const formattedProducts = dbProducts.map(product => ({
-        id: product.id,
-        name: product.name,
-        description: product.description || '',
-        image: product.image_url || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e',
-        category: product.category || 'General',
-        rating: 4.5,
-        reviews: 100,
+      // Normalize Amazon data to our internal schema
+      const normalizedProducts = data.products.map(product => ({
+        id: product.id || `amazon-${Date.now()}-${Math.random()}`,
+        name: product.name || product.title || 'Unknown Product',
+        description: product.description || product.snippet || '',
+        image: product.image_url || product.image || 'https://via.placeholder.com/400x400?text=No+Image',
+        category: product.category || category || 'General',
+        rating: product.rating || product.stars || 4.0,
+        reviews: product.reviews || product.reviews_count || 0,
         prices: [{
-          store: 'Amazon India',
-          price: product.price || 0,
-          shipping: 'Free shipping',
-          availability: 'In stock',
-          link: product.affiliate_url || '#'
+          store: 'Amazon',
+          price: product.price || product.current_price || 0,
+          shipping: product.shipping || 'Free shipping',
+          availability: product.availability || product.in_stock ? 'In stock' : 'Limited stock',
+          link: product.affiliate_url || product.url || '#'
         }]
       }));
 
-      setProducts(formattedProducts);
+      // Cache the results
+      cache.set(cacheKey, {
+        data: normalizedProducts,
+        timestamp: Date.now()
+      });
+
+      setProducts(normalizedProducts);
+      
     } catch (error) {
-      console.error('Error searching products:', error);
+      console.error('Error fetching live Amazon data:', error);
+      setError(error.message);
+      
       toast({
         variant: "destructive",
         title: "Search Error",
-        description: "Failed to search products. Please try again.",
+        description: "Failed to fetch live Amazon data. Please try again.",
       });
+      
+      setProducts([]);
     } finally {
       setLoading(false);
+      setRetrying(false);
     }
   };
 
-  const triggerScraping = async () => {
+  const triggerLiveScraping = async () => {
     try {
-      // Try Express server scraping first
       const serverUrl = process.env.NODE_ENV === 'production' 
-        ? 'https://your-server-url.com' 
+        ? window.location.origin
         : 'http://localhost:3001';
+      
+      console.log('Triggering live Amazon scraping...');
       
       const response = await fetch(`${serverUrl}/api/scrape`, {
         method: 'POST',
@@ -159,58 +170,57 @@ const SearchResults = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          query: query || category || 'power drill',
-          category: category || 'power tools'
+          query: query || 'electronics',
+          category: category || 'general'
         })
       });
 
       if (response.ok) {
         const data = await response.json();
-        console.log('Scraping completed:', data);
+        console.log('Live scraping completed:', data);
         
-        if (data.success && data.products) {
-          const formattedProducts = data.products.map(product => ({
-            id: product.id,
-            name: product.name,
-            description: product.description || '',
-            image: product.image_url || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e',
-            category: product.category || 'General',
-            rating: product.rating || 4.5,
-            reviews: 100,
+        if (data.success && data.products && data.products.length > 0) {
+          // Normalize and set the scraped products immediately
+          const normalizedProducts = data.products.map(product => ({
+            id: product.id || `scraped-${Date.now()}-${Math.random()}`,
+            name: product.name || product.title || 'Unknown Product',
+            description: product.description || product.snippet || '',
+            image: product.image_url || product.image || 'https://via.placeholder.com/400x400?text=No+Image',
+            category: product.category || category || 'General',
+            rating: product.rating || product.stars || 4.0,
+            reviews: product.reviews || product.reviews_count || 0,
             prices: [{
-              store: 'Amazon India',
-              price: product.price || 0,
-              shipping: 'Free shipping',
-              availability: 'In stock',
-              link: product.affiliate_url || '#'
+              store: 'Amazon',
+              price: product.price || product.current_price || 0,
+              shipping: product.shipping || 'Free shipping',
+              availability: product.availability || product.in_stock ? 'In stock' : 'Limited stock',
+              link: product.affiliate_url || product.url || '#'
             }]
           }));
           
-          setProducts(formattedProducts);
+          setProducts(normalizedProducts);
+          
+          // Cache the fresh results
+          const cacheKey = getCacheKey(query, category);
+          cache.set(cacheKey, {
+            data: normalizedProducts,
+            timestamp: Date.now()
+          });
+          
           return;
         }
       }
 
-      // Fallback to Supabase edge function
-      const { data, error } = await supabase.functions.invoke('scrape-products', {
-        body: { 
-          query: query || category || 'products',
-          category: category || 'general'
-        }
-      });
-
-      if (error) {
-        console.error('Scraping error:', error);
-        setProducts([]);
-      } else {
-        console.log('Scraping completed:', data);
-        setTimeout(() => {
-          searchProducts();
-        }, 2000);
-      }
+      throw new Error('Live scraping failed or returned no results');
+      
     } catch (error) {
-      console.error('Error triggering scraping:', error);
+      console.error('Error in live scraping:', error);
       setProducts([]);
+      toast({
+        variant: "destructive",
+        title: "Scraping Error",
+        description: "Failed to scrape live Amazon data. Please try a different search.",
+      });
     }
   };
 
@@ -353,13 +363,20 @@ const SearchResults = () => {
                 isMobile ? "flex-col" : "flex-row justify-center"
               )}>
                 <button
-                  onClick={triggerScraping}
+                  onClick={triggerLiveScraping}
                   className={cn(
                     "inline-flex items-center justify-center px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors",
                     isMobile ? "w-full text-sm" : "text-base"
                   )}
                 >
-                  Search Again
+                  {retrying ? (
+                    <>
+                      <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                      Searching...
+                    </>
+                  ) : (
+                    'Search Again'
+                  )}
                 </button>
                 <Link
                   to="/"

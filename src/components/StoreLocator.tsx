@@ -2,12 +2,11 @@
 import React, { useState } from 'react';
 import { Search, MapPin, Clock, Phone, Filter } from 'lucide-react';
 import StoreMap from './StoreMap';
-import { mockNearbyStores } from '../data/mockData';
 
 const StoreLocator = () => {
   const [postalCode, setPostalCode] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
-  const [stores, setStores] = useState(mockNearbyStores);
+  const [stores, setStores] = useState([]);
   const [searchRadius, setSearchRadius] = useState(10);
 
   const categories = [
