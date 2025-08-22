@@ -71,23 +71,25 @@ const SearchResults = () => {
         return;
       }
 
-      console.log('Fetching products via Supabase Edge Function...');
+      console.log('Fetching products via Supabase Edge Function...', { query, category });
       
       const { data, error } = await supabase.functions.invoke('scrape-products', {
         body: {
           query: query || 'electronics',
-          category: category || 'general'
+          category: category || 'general',
+          store: 'amazon'
         }
       });
 
       if (error) {
+        console.error('Edge function error:', error);
         throw new Error(error.message || 'Failed to invoke scrape function');
       }
 
       console.log('Scrape function response:', data);
       
       if (!data || !data.success) {
-        throw new Error(data?.message || 'Failed to fetch products');
+        throw new Error(data?.error || data?.message || 'Failed to fetch products');
       }
 
       // If no products found, try again once
@@ -103,21 +105,21 @@ const SearchResults = () => {
         return;
       }
 
-      // Normalize Amazon data to our internal schema
-      const normalizedProducts = data.products.map(product => ({
-        id: product.id || `amazon-${Date.now()}-${Math.random()}`,
-        name: product.name || product.title || 'Unknown Product',
-        description: product.description || product.snippet || '',
-        image: product.image_url || product.image || 'https://via.placeholder.com/400x400?text=No+Image',
+      // Normalize data to our internal schema
+      const normalizedProducts = data.products.map((product, index) => ({
+        id: product.external_id || `product-${Date.now()}-${index}`,
+        name: product.name || 'Unknown Product',
+        description: product.description || '',
+        image: product.image_url || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e',
         category: product.category || category || 'General',
-        rating: product.rating || product.stars || 4.0,
-        reviews: product.reviews || product.reviews_count || 0,
+        rating: product.rating || 4.0,
+        reviews: product.reviews || 0,
         prices: [{
-          store: 'Amazon',
-          price: product.price || product.current_price || 0,
-          shipping: product.shipping || 'Free shipping',
-          availability: product.availability || product.in_stock ? 'In stock' : 'Limited stock',
-          link: product.affiliate_url || product.url || '#'
+          store: product.store || 'Amazon',
+          price: product.price || 0,
+          shipping: 'Free shipping',
+          availability: product.availability || 'In stock',
+          link: product.affiliate_url || '#'
         }]
       }));
 
@@ -129,14 +131,19 @@ const SearchResults = () => {
 
       setProducts(normalizedProducts);
       
+      toast({
+        title: "Success",
+        description: `Found ${normalizedProducts.length} products!`,
+      });
+      
     } catch (error) {
-      console.error('Error fetching live Amazon data:', error);
+      console.error('Error fetching products:', error);
       setError(error.message);
       
       toast({
         variant: "destructive",
         title: "Search Error",
-        description: "Failed to fetch live Amazon data. Please try again.",
+        description: "Failed to fetch products. Please try again.",
       });
       
       setProducts([]);
