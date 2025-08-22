@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import ProductCard from './ProductCard';
 import FilterPanel from './FilterPanel';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Grid, List, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { mockProducts } from '@/data/mockData';
 
 const SearchResults = () => {
   const [searchParams] = useSearchParams();
@@ -16,15 +16,9 @@ const SearchResults = () => {
   const [products, setProducts] = useState([]);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [loading, setLoading] = useState(false);
-  const [retrying, setRetrying] = useState(false);
-  const [error, setError] = useState(null);
   const { user } = useAuth();
   const { toast } = useToast();
   const isMobile = useIsMobile();
-
-  // Simple in-memory cache
-  const cache = useMemo(() => new Map(), []);
-  const cacheTimeout = 5 * 60 * 1000; // 5 minutes
 
   // Auto-switch to list view on mobile for better experience
   useEffect(() => {
@@ -33,206 +27,53 @@ const SearchResults = () => {
     }
   }, [isMobile]);
 
-  // Debounced search effect
+  // Search effect
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (query || category) {
-        searchProducts();
-        if (user && query) {
-          logSearch();
-        }
-      }
-    }, 400); // 400ms debounce
-
-    return () => clearTimeout(timeoutId);
-  }, [query, category, user]);
-
-  const getCacheKey = (searchQuery, searchCategory) => {
-    return `${searchQuery}-${searchCategory}`;
-  };
-
-  const searchProducts = async (isRetry = false) => {
-    if (isRetry) {
-      setRetrying(true);
-    } else {
-      setLoading(true);
+    if (query || category) {
+      searchProducts();
     }
-    setError(null);
+  }, [query, category]);
 
+  const searchProducts = async () => {
+    setLoading(true);
+    
     try {
-      const cacheKey = getCacheKey(query, category);
-      const cached = cache.get(cacheKey);
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Check cache first
-      if (cached && Date.now() - cached.timestamp < cacheTimeout) {
-        setProducts(cached.data);
-        setLoading(false);
-        setRetrying(false);
-        return;
-      }
-
-      console.log('Fetching products via Supabase Edge Function...', { query, category });
+      // Filter mock products based on search query and category
+      let filteredProducts = mockProducts;
       
-      const { data, error } = await supabase.functions.invoke('scrape-products', {
-        body: {
-          query: query || 'electronics',
-          category: category || 'general',
-          store: 'amazon'
-        }
-      });
-
-      if (error) {
-        console.error('Edge function error:', error);
-        throw new Error(error.message || 'Failed to invoke scrape function');
+      if (query) {
+        filteredProducts = filteredProducts.filter(product =>
+          product.name.toLowerCase().includes(query.toLowerCase()) ||
+          product.description.toLowerCase().includes(query.toLowerCase())
+        );
       }
-
-      console.log('Scrape function response:', data);
       
-      if (!data || !data.success) {
-        throw new Error(data?.error || data?.message || 'Failed to fetch products');
+      if (category && category !== 'All Categories') {
+        filteredProducts = filteredProducts.filter(product =>
+          product.category.toLowerCase() === category.toLowerCase()
+        );
       }
-
-      // If no products found, try again once
-      if (!data.products || data.products.length === 0) {
-        if (!isRetry) {
-          console.log('No products found, retrying...');
-          setTimeout(() => searchProducts(true), 1000);
-          return;
-        }
-        setProducts([]);
-        setLoading(false);
-        setRetrying(false);
-        return;
-      }
-
-      // Normalize data to our internal schema
-      const normalizedProducts = data.products.map((product, index) => ({
-        id: product.external_id || `product-${Date.now()}-${index}`,
-        name: product.name || 'Unknown Product',
-        description: product.description || '',
-        image: product.image_url || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e',
-        category: product.category || category || 'General',
-        rating: product.rating || 4.0,
-        reviews: product.reviews || 0,
-        prices: [{
-          store: product.store || 'Amazon',
-          price: product.price || 0,
-          shipping: 'Free shipping',
-          availability: product.availability || 'In stock',
-          link: product.affiliate_url || '#'
-        }]
-      }));
-
-      // Cache the results
-      cache.set(cacheKey, {
-        data: normalizedProducts,
-        timestamp: Date.now()
-      });
-
-      setProducts(normalizedProducts);
+      
+      setProducts(filteredProducts);
       
       toast({
-        title: "Success",
-        description: `Found ${normalizedProducts.length} products!`,
+        title: "Search Complete",
+        description: `Found ${filteredProducts.length} products!`,
       });
       
     } catch (error) {
-      console.error('Error fetching products:', error);
-      setError(error.message);
-      
+      console.error('Error searching products:', error);
       toast({
         variant: "destructive",
         title: "Search Error",
-        description: "Failed to fetch products. Please try again.",
+        description: "Failed to search products. Please try again.",
       });
-      
       setProducts([]);
     } finally {
       setLoading(false);
-      setRetrying(false);
-    }
-  };
-
-  const triggerLiveScraping = async () => {
-    setRetrying(true);
-    try {
-      console.log('Triggering live Amazon scraping via Edge Function...');
-      
-      const { data, error } = await supabase.functions.invoke('scrape-products', {
-        body: {
-          query: query || 'electronics',
-          category: category || 'general'
-        }
-      });
-
-      if (error) {
-        throw new Error(error.message || 'Failed to invoke scrape function');
-      }
-
-      console.log('Live scraping completed:', data);
-      
-      if (data && data.success && data.products && data.products.length > 0) {
-        // Normalize and set the scraped products immediately
-        const normalizedProducts = data.products.map(product => ({
-          id: product.id || `scraped-${Date.now()}-${Math.random()}`,
-          name: product.name || product.title || 'Unknown Product',
-          description: product.description || product.snippet || '',
-          image: product.image_url || product.image || 'https://via.placeholder.com/400x400?text=No+Image',
-          category: product.category || category || 'General',
-          rating: product.rating || product.stars || 4.0,
-          reviews: product.reviews || product.reviews_count || 0,
-          prices: [{
-            store: 'Amazon',
-            price: product.price || product.current_price || 0,
-            shipping: product.shipping || 'Free shipping',
-            availability: product.availability || product.in_stock ? 'In stock' : 'Limited stock',
-            link: product.affiliate_url || product.url || '#'
-          }]
-        }));
-        
-        setProducts(normalizedProducts);
-        
-        // Cache the fresh results
-        const cacheKey = getCacheKey(query, category);
-        cache.set(cacheKey, {
-          data: normalizedProducts,
-          timestamp: Date.now()
-        });
-        
-        toast({
-          title: "Success",
-          description: `Found ${normalizedProducts.length} products!`,
-        });
-        
-        return;
-      }
-
-      throw new Error('Live scraping failed or returned no results');
-      
-    } catch (error) {
-      console.error('Error in live scraping:', error);
-      setProducts([]);
-      toast({
-        variant: "destructive",
-        title: "Scraping Error",
-        description: "Failed to scrape live Amazon data. Please try a different search.",
-      });
-    } finally {
-      setRetrying(false);
-    }
-  };
-
-  const logSearch = async () => {
-    try {
-      await supabase
-        .from('search_logs')
-        .insert({
-          user_id: user.id,
-          search_query: query,
-          results_count: products.length
-        });
-    } catch (error) {
-      console.error('Error logging search:', error);
     }
   };
 
@@ -354,27 +195,21 @@ const SearchResults = () => {
                 "text-gray-600 mb-4",
                 isMobile ? "text-sm" : "text-base"
               )}>
-                We're searching for products that match your criteria. This may take a moment.
+                Try adjusting your search terms or browse our categories.
               </p>
               <div className={cn(
                 "flex gap-2",
                 isMobile ? "flex-col" : "flex-row justify-center"
               )}>
                 <button
-                  onClick={triggerLiveScraping}
+                  onClick={searchProducts}
                   className={cn(
                     "inline-flex items-center justify-center px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors",
                     isMobile ? "w-full text-sm" : "text-base"
                   )}
                 >
-                  {retrying ? (
-                    <>
-                      <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                      Searching...
-                    </>
-                  ) : (
-                    'Search Again'
-                  )}
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Search Again
                 </button>
                 <Link
                   to="/"

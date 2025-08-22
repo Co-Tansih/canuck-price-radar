@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   Package, 
@@ -16,7 +15,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { supabase } from '@/integrations/supabase/client';
 import {
   Table,
   TableBody,
@@ -27,6 +25,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { mockProducts } from '@/data/mockData';
 
 const ProductsManagement = () => {
   const { t } = useLanguage();
@@ -49,35 +48,26 @@ const ProductsManagement = () => {
     try {
       setLoading(true);
       
-      // Get total count
-      const { count: totalCount } = await supabase
-        .from('products')
-        .select('*', { count: 'exact', head: true });
-
-      // Get products with pagination
-      const { data: productsData, error } = await supabase
-        .from('products')
-        .select('*')
-        .range((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage - 1)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Error fetching products:', error);
-        return;
-      }
-
-      // Calculate stats with mock data since we don't have product_prices table
-      const mockPriceUpdates = Math.floor(Math.random() * 100) + 50;
-      const mockAvgPriceDrop = (Math.random() * 10).toFixed(1);
-
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Use mock data
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      const paginatedProducts = mockProducts.slice(startIndex, endIndex);
+      
       setStats({
-        totalProducts: totalCount || 0,
-        priceUpdates: mockPriceUpdates,
-        avgPriceDrop: parseFloat(mockAvgPriceDrop)
+        totalProducts: mockProducts.length,
+        priceUpdates: 156,
+        avgPriceDrop: 8.5
       });
 
-      setProducts(productsData || []);
-      setTotalPages(Math.ceil((totalCount || 0) / itemsPerPage));
+      setProducts(paginatedProducts.map(product => ({
+        ...product,
+        status: 'active'
+      })));
+      
+      setTotalPages(Math.ceil(mockProducts.length / itemsPerPage));
       
     } catch (error) {
       console.error('Error in fetchProducts:', error);
@@ -193,7 +183,7 @@ const ProductsManagement = () => {
                 </div>
                 <div className="space-y-1 text-xs text-gray-600">
                   <p><span className="font-medium">Category:</span> {product.category}</p>
-                  <p><span className="font-medium">Price:</span> ${product.price}</p>
+                  <p><span className="font-medium">Price:</span> ${product.prices?.[0]?.price || 'N/A'}</p>
                 </div>
                 <div className="flex justify-end gap-2 mt-3">
                   <Button variant="outline" size="sm" className="text-xs">
@@ -224,7 +214,7 @@ const ProductsManagement = () => {
                   <TableRow key={product.id}>
                     <TableCell className="font-medium">{product.name}</TableCell>
                     <TableCell>{product.category}</TableCell>
-                    <TableCell>${product.price}</TableCell>
+                    <TableCell>${product.prices?.[0]?.price || 'N/A'}</TableCell>
                     <TableCell>
                       <Badge variant={product.status === 'active' ? 'default' : 'secondary'}>
                         {product.status}

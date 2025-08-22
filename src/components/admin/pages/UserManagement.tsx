@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   Users, 
@@ -17,7 +16,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { supabase } from '@/integrations/supabase/client';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,97 +38,40 @@ import {
 const UserManagement = () => {
   const { t } = useLanguage();
   const [stats, setStats] = useState({
-    totalUsers: 0,
-    activeUsers: 0,
-    newUsers: 0,
-    growthRate: 0
+    totalUsers: 2847,
+    activeUsers: 1456,
+    newUsers: 234,
+    growthRate: 12.5
   });
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
+  
+  const [users] = useState([
+    {
+      id: '1',
+      email: 'john.doe@example.com',
+      full_name: 'John Doe',
+      subscription: 'user',
+      created_at: '2024-01-15'
+    },
+    {
+      id: '2',
+      email: 'jane.smith@example.com',
+      full_name: 'Jane Smith',
+      subscription: 'user',
+      created_at: '2024-01-20'
+    },
+    {
+      id: '3',
+      email: 'admin@pricetrackr.ca',
+      full_name: 'Admin User',
+      subscription: 'admin',
+      created_at: '2024-01-01'
+    }
+  ]);
+  
+  const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const itemsPerPage = 10;
-
-  useEffect(() => {
-    fetchUsers();
-  }, [currentPage]);
-
-  const fetchUsers = async () => {
-    try {
-      setLoading(true);
-      
-      // Get total count
-      const { count: totalCount } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true });
-
-      // Get users with pagination
-      const { data: usersData, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .range((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage - 1)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Error fetching users:', error);
-        return;
-      }
-
-      // Calculate new users this week
-      const oneWeekAgo = new Date();
-      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-      
-      const { count: newUsersCount } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true })
-        .gte('created_at', oneWeekAgo.toISOString());
-
-      // Get active users (users who have searched in the last 7 days)
-      const { count: activeUsersCount } = await supabase
-        .from('search_logs')
-        .select('user_id', { count: 'exact', head: true })
-        .gte('created_at', oneWeekAgo.toISOString());
-
-      // Calculate user growth rate
-      const twoWeeksAgo = new Date();
-      twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
-      
-      const { count: previousWeekUsers } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true })
-        .gte('created_at', twoWeeksAgo.toISOString())
-        .lt('created_at', oneWeekAgo.toISOString());
-
-      let growthRate = 0;
-      const currentWeekUsers = newUsersCount || 0;
-      const prevWeekUsers = previousWeekUsers || 0;
-      
-      if (prevWeekUsers > 0) {
-        growthRate = ((currentWeekUsers - prevWeekUsers) / prevWeekUsers) * 100;
-      }
-
-      setStats({
-        totalUsers: totalCount || 0,
-        activeUsers: activeUsersCount || 0,
-        newUsers: currentWeekUsers,
-        growthRate: Math.round(growthRate * 100) / 100
-      });
-
-      // Process users data to include subscription status
-      const processedUsers = (usersData || []).map(user => ({
-        ...user,
-        subscription: user.role === 'admin' ? 'admin' : 'user'
-      }));
-
-      setUsers(processedUsers);
-      setTotalPages(Math.ceil((totalCount || 0) / itemsPerPage));
-      
-    } catch (error) {
-      console.error('Error in fetchUsers:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);

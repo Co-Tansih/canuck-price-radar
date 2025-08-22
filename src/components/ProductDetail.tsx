@@ -1,11 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Star, MapPin, Clock, ExternalLink, TrendingUp, ArrowLeft } from 'lucide-react';
 import PriceTrendChart from './PriceTrendChart';
 import StoreMap from './StoreMap';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { mockProducts, mockPriceHistory } from '@/data/mockData';
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -20,35 +19,16 @@ const ProductDetail = () => {
 
   const loadProduct = async () => {
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .eq('id', id)
-        .eq('status', 'active')
-        .single();
-
-      if (error) {
-        console.error('Error loading product:', error);
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Find product in mock data
+      const foundProduct = mockProducts.find(p => p.id === id);
+      
+      if (foundProduct) {
+        setProduct(foundProduct);
+      } else {
         setProduct(null);
-      } else if (data) {
-        // Convert database format to component format
-        const formattedProduct = {
-          id: data.id,
-          name: data.name,
-          description: data.description || '',
-          image: data.image_url || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e',
-          category: data.category || 'General',
-          rating: 4.5, // Default rating
-          reviews: 100, // Default reviews
-          prices: [{
-            store: 'Multiple Stores',
-            price: data.price || 0,
-            shipping: 'Free shipping',
-            availability: 'In stock',
-            link: data.affiliate_url || '#'
-          }]
-        };
-        setProduct(formattedProduct);
       }
     } catch (error) {
       console.error('Error loading product:', error);
@@ -239,9 +219,7 @@ const ProductDetail = () => {
             <TrendingUp className="h-6 w-6 text-primary" />
             <h2 className="text-2xl font-bold text-gray-900">Price History</h2>
           </div>
-          <div className="text-center py-8 text-gray-500">
-            <p>Price history data will be available after more data is collected.</p>
-          </div>
+          <PriceTrendChart data={mockPriceHistory} />
         </div>
 
         {/* Store Map */}

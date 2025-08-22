@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   Users, 
@@ -13,220 +12,38 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { supabase } from '@/integrations/supabase/client';
 
 const DashboardOverview = () => {
   const { t } = useLanguage();
   const [stats, setStats] = useState({
-    totalUsers: 0,
-    totalProducts: 0,
-    dailySearches: 0,
-    revenue: 0,
-    activeScrapers: 0
+    totalUsers: 2847,
+    totalProducts: 15432,
+    dailySearches: 1247,
+    revenue: 12500,
+    activeScrapers: 3
   });
-  const [chartData, setChartData] = useState([]);
-  const [scraperStatus, setScraperStatus] = useState([]);
-  const [recentActivity, setRecentActivity] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchDashboardData();
-    const interval = setInterval(fetchDashboardData, 30000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const fetchDashboardData = async () => {
-    try {
-      // Fetch user count
-      const { count: userCount } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true });
-
-      // Fetch product count
-      const { count: productCount } = await supabase
-        .from('products')
-        .select('*', { count: 'exact', head: true });
-
-      // Fetch daily searches
-      const today = new Date().toISOString().split('T')[0];
-      const { count: searchCount } = await supabase
-        .from('search_logs')
-        .select('*', { count: 'exact', head: true })
-        .gte('created_at', today + 'T00:00:00.000Z');
-
-      // Fetch scraper status
-      const { data: scraperLogs } = await supabase
-        .from('scraper_logs')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(10);
-
-      // Calculate revenue (mock calculation based on products)
-      const { data: products } = await supabase
-        .from('products')
-        .select('price');
-      
-      const totalRevenue = products?.reduce((sum, product) => {
-        const price = parseFloat(product.price?.toString() || '0');
-        return sum + (isNaN(price) ? 0 : price);
-      }, 0) || 0;
-
-      // Fetch chart data for the last 6 months
-      const chartData = await fetchChartData();
-
-      // Process scraper status
-      const processedScraperStatus = processScraperStatus(scraperLogs || []);
-
-      // Fetch recent activity
-      const activity = await fetchRecentActivity();
-
-      setStats({
-        totalUsers: userCount || 0,
-        totalProducts: productCount || 0,
-        dailySearches: searchCount || 0,
-        revenue: Math.round(totalRevenue * 0.1),
-        activeScrapers: processedScraperStatus.filter(s => s.status === 'active').length
-      });
-
-      setChartData(chartData);
-      setScraperStatus(processedScraperStatus);
-      setRecentActivity(activity);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error);
-      setLoading(false);
-    }
-  };
-
-  const fetchChartData = async () => {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-    const chartData = [];
-
-    for (let i = 5; i >= 0; i--) {
-      const date = new Date();
-      date.setMonth(date.getMonth() - i);
-      const monthStart = new Date(date.getFullYear(), date.getMonth(), 1).toISOString();
-      const monthEnd = new Date(date.getFullYear(), date.getMonth() + 1, 0).toISOString();
-
-      // Users registered in this month
-      const { count: userCount } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true })
-        .gte('created_at', monthStart)
-        .lte('created_at', monthEnd);
-
-      // Searches in this month
-      const { count: searchCount } = await supabase
-        .from('search_logs')
-        .select('*', { count: 'exact', head: true })
-        .gte('created_at', monthStart)
-        .lte('created_at', monthEnd);
-
-      chartData.push({
-        name: months[5 - i],
-        users: userCount || 0,
-        searches: searchCount || 0,
-        revenue: Math.round((searchCount || 0) * 2.5)
-      });
-    }
-
-    return chartData;
-  };
-
-  const processScraperStatus = (logs: any[]) => {
-    const scrapers = [
-      { name: 'Amazon Canada', id: 'amazon' },
-      { name: 'Walmart Canada', id: 'walmart' },
-      { name: 'Home Depot Canada', id: 'homedepot' }
-    ];
-
-    return scrapers.map(scraper => {
-      const recentLogs = logs.filter(log => 
-        log.scraper_name?.toLowerCase().includes(scraper.id)
-      ).slice(0, 5);
-
-      const lastLog = recentLogs[0];
-      const totalProducts = recentLogs.reduce((sum, log) => {
-        const products = parseInt(log.products_scraped?.toString() || '0');
-        return sum + (isNaN(products) ? 0 : products);
-      }, 0);
-      const successRate = recentLogs.length > 0 ? 
-        (recentLogs.filter(log => log.status === 'success').length / recentLogs.length) * 100 : 0;
-
-      return {
-        name: scraper.name,
-        status: lastLog?.status === 'success' ? 'active' : 
-                lastLog?.status === 'error' ? 'error' : 'warning',
-        lastRun: lastLog ? formatTimeAgo(lastLog.created_at) : 'Never',
-        products: totalProducts,
-        successRate: Math.round(successRate)
-      };
-    });
-  };
-
-  const fetchRecentActivity = async () => {
-    const activities = [];
-
-    // Recent user registrations
-    const { data: recentUsers } = await supabase
-      .from('profiles')
-      .select('email, created_at')
-      .order('created_at', { ascending: false })
-      .limit(3);
-
-    recentUsers?.forEach(user => {
-      activities.push({
-        action: 'New user registered',
-        user: user.email,
-        time: formatTimeAgo(user.created_at)
-      });
-    });
-
-    // Recent searches
-    const { data: recentSearches } = await supabase
-      .from('search_logs')
-      .select('search_query, created_at')
-      .order('created_at', { ascending: false })
-      .limit(3);
-
-    recentSearches?.forEach(search => {
-      activities.push({
-        action: 'Product searched',
-        product: search.search_query,
-        time: formatTimeAgo(search.created_at)
-      });
-    });
-
-    // Recent scraper activity
-    const { data: recentScraperLogs } = await supabase
-      .from('scraper_logs')
-      .select('scraper_name, message, created_at')
-      .order('created_at', { ascending: false })
-      .limit(3);
-
-    recentScraperLogs?.forEach(log => {
-      activities.push({
-        action: log.message || 'Scraper completed',
-        store: log.scraper_name,
-        time: formatTimeAgo(log.created_at)
-      });
-    });
-
-    return activities
-      .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
-      .slice(0, 8);
-  };
-
-  const formatTimeAgo = (dateString) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
-
-    if (diffInMinutes < 1) return 'Just now';
-    if (diffInMinutes < 60) return `${diffInMinutes} minutes ago`;
-    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)} hours ago`;
-    return `${Math.floor(diffInMinutes / 1440)} days ago`;
-  };
+  
+  const [chartData] = useState([
+    { name: 'Jan', users: 400, searches: 2400, revenue: 2400 },
+    { name: 'Feb', users: 300, searches: 1398, revenue: 2210 },
+    { name: 'Mar', users: 200, searches: 9800, revenue: 2290 },
+    { name: 'Apr', users: 278, searches: 3908, revenue: 2000 },
+    { name: 'May', users: 189, searches: 4800, revenue: 2181 },
+    { name: 'Jun', users: 239, searches: 3800, revenue: 2500 }
+  ]);
+  
+  const [scraperStatus] = useState([
+    { name: 'Amazon Scraper', status: 'active', lastRun: '2 minutes ago', products: 5420 },
+    { name: 'Walmart Scraper', status: 'warning', lastRun: '15 minutes ago', products: 3240 },
+    { name: 'Home Depot Scraper', status: 'active', lastRun: '5 minutes ago', products: 4560 }
+  ]);
+  
+  const [recentActivity] = useState([
+    { action: 'New user registered', user: 'john@example.com', time: '2 minutes ago' },
+    { action: 'Product searched', product: 'iPhone 15', time: '5 minutes ago' },
+    { action: 'Scraper completed', store: 'Amazon', time: '10 minutes ago' },
+    { action: 'Price alert sent', product: 'DEWALT Drill', time: '15 minutes ago' }
+  ]);
 
   const statsCards = [
     {
@@ -262,14 +79,6 @@ const DashboardOverview = () => {
       bgColor: 'bg-yellow-100'
     }
   ];
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-red-600"></div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-4 md:space-y-6 p-4 md:p-0">

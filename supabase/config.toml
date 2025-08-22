@@ -39,12 +39,6 @@ seed_mode = "memory"
 smtp_port = 54325
 web_port = 54326
 
-[functions.scrape-products]
-verify_jwt = false
-
-[functions.scheduled-scraper]
-verify_jwt = false
-
 [storage]
 enabled = true
 port = 54321

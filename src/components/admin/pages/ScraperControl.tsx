@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   Play, 
@@ -19,7 +18,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 const ScraperControl = () => {
   const { t } = useLanguage();
   
-  const [scrapers, setScrapers] = useState([
+  const [scrapers] = useState([
     {
       id: 1,
       name: 'Amazon Canada',
@@ -52,28 +51,6 @@ const ScraperControl = () => {
       successRate: 89.2,
       avgResponseTime: '2.1s',
       errors: 12
-    },
-    {
-      id: 4,
-      name: 'Home Depot Canada',
-      status: 'running',
-      lastRun: '3 minutes ago',
-      nextRun: 'in 27 minutes',
-      productsScraped: 4560,
-      successRate: 99.1,
-      avgResponseTime: '1.0s',
-      errors: 1
-    },
-    {
-      id: 5,
-      name: 'Costco Canada',
-      status: 'error',
-      lastRun: '2 hours ago',
-      nextRun: 'paused',
-      productsScraped: 1890,
-      successRate: 45.2,
-      avgResponseTime: '5.2s',
-      errors: 45
     }
   ]);
 
@@ -81,11 +58,7 @@ const ScraperControl = () => {
     { time: '14:32:15', scraper: 'Amazon Canada', level: 'info', message: 'Successfully scraped 1,247 products' },
     { time: '14:31:42', scraper: 'Best Buy Canada', level: 'info', message: 'Price update completed for Electronics category' },
     { time: '14:30:18', scraper: 'Canadian Tire', level: 'warning', message: 'Rate limit detected, backing off for 30 seconds' },
-    { time: '14:29:55', scraper: 'Home Depot Canada', level: 'info', message: 'Started scraping Building Materials category' },
-    { time: '14:28:33', scraper: 'Costco Canada', level: 'error', message: 'Connection timeout after 30 seconds' },
-    { time: '14:27:12', scraper: 'Amazon Canada', level: 'info', message: 'Detected 23 price changes in last run' },
-    { time: '14:26:45', scraper: 'Best Buy Canada', level: 'warning', message: 'Product page structure changed, updating parser' },
-    { time: '14:25:20', scraper: 'Canadian Tire', level: 'info', message: 'Successfully updated 892 product prices' }
+    { time: '14:29:55', scraper: 'Home Depot Canada', level: 'info', message: 'Started scraping Building Materials category' }
   ]);
 
   const getStatusIcon = (status: string) => {
@@ -114,14 +87,6 @@ const ScraperControl = () => {
         {status.charAt(0).toUpperCase() + status.slice(1)}
       </Badge>
     );
-  };
-
-  const handleScraperAction = (scraperId: number, action: string) => {
-    setScrapers(prev => prev.map(scraper => 
-      scraper.id === scraperId 
-        ? { ...scraper, status: action === 'start' ? 'running' : 'paused' }
-        : scraper
-    ));
   };
 
   return (
@@ -245,22 +210,10 @@ const ScraperControl = () => {
                   </div>
                   
                   <div className="flex items-center space-x-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleScraperAction(scraper.id, 'start')}
-                      disabled={scraper.status === 'running'}
-                      className="text-xs"
-                    >
+                    <Button variant="outline" size="sm" className="text-xs">
                       <Play className="h-3 w-3 md:h-4 md:w-4" />
                     </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleScraperAction(scraper.id, 'pause')}
-                      disabled={scraper.status !== 'running'}
-                      className="text-xs"
-                    >
+                    <Button variant="outline" size="sm" className="text-xs">
                       <Pause className="h-3 w-3 md:h-4 md:w-4" />
                     </Button>
                     <Button variant="outline" size="sm" className="text-xs">
