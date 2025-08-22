@@ -71,45 +71,35 @@ const SearchResults = () => {
         return;
       }
 
-      // Use localhost for development, update for production
-      const serverUrl = process.env.NODE_ENV === 'production' 
-        ? window.location.origin // Use same origin in production
-        : 'http://localhost:3001';
+      console.log('Fetching products via Supabase Edge Function...');
       
-      const params = new URLSearchParams();
-      if (query) params.append('query', query);
-      if (category && category !== 'All Categories') params.append('category', category);
-
-      console.log('Fetching live Amazon data from:', `${serverUrl}/api/products?${params}`);
-      
-      const response = await fetch(`${serverUrl}/api/products?${params}`, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-        },
+      const { data, error } = await supabase.functions.invoke('scrape-products', {
+        body: {
+          query: query || 'electronics',
+          category: category || 'general'
+        }
       });
 
-      if (!response.ok) {
-        // Retry once on 5xx errors
-        if (response.status >= 500 && !isRetry) {
-          console.log('Server error, retrying...');
+      if (error) {
+        throw new Error(error.message || 'Failed to invoke scrape function');
+      }
+
+      console.log('Scrape function response:', data);
+      
+      if (!data || !data.success) {
+        throw new Error(data?.message || 'Failed to fetch products');
+      }
+
+      // If no products found, try again once
+      if (!data.products || data.products.length === 0) {
+        if (!isRetry) {
+          console.log('No products found, retrying...');
           setTimeout(() => searchProducts(true), 1000);
           return;
         }
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      console.log('Live Amazon data received:', data);
-      
-      if (!data.success) {
-        throw new Error(data.message || 'Failed to fetch products');
-      }
-
-      // If no products found, trigger scraping
-      if (!data.products || data.products.length === 0) {
-        console.log('No products found, triggering live scraping...');
-        await triggerLiveScraping();
+        setProducts([]);
+        setLoading(false);
+        setRetrying(false);
         return;
       }
 
@@ -157,58 +147,57 @@ const SearchResults = () => {
   };
 
   const triggerLiveScraping = async () => {
+    setRetrying(true);
     try {
-      const serverUrl = process.env.NODE_ENV === 'production' 
-        ? window.location.origin
-        : 'http://localhost:3001';
+      console.log('Triggering live Amazon scraping via Edge Function...');
       
-      console.log('Triggering live Amazon scraping...');
-      
-      const response = await fetch(`${serverUrl}/api/scrape`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      const { data, error } = await supabase.functions.invoke('scrape-products', {
+        body: {
           query: query || 'electronics',
           category: category || 'general'
-        })
+        }
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Live scraping completed:', data);
+      if (error) {
+        throw new Error(error.message || 'Failed to invoke scrape function');
+      }
+
+      console.log('Live scraping completed:', data);
+      
+      if (data && data.success && data.products && data.products.length > 0) {
+        // Normalize and set the scraped products immediately
+        const normalizedProducts = data.products.map(product => ({
+          id: product.id || `scraped-${Date.now()}-${Math.random()}`,
+          name: product.name || product.title || 'Unknown Product',
+          description: product.description || product.snippet || '',
+          image: product.image_url || product.image || 'https://via.placeholder.com/400x400?text=No+Image',
+          category: product.category || category || 'General',
+          rating: product.rating || product.stars || 4.0,
+          reviews: product.reviews || product.reviews_count || 0,
+          prices: [{
+            store: 'Amazon',
+            price: product.price || product.current_price || 0,
+            shipping: product.shipping || 'Free shipping',
+            availability: product.availability || product.in_stock ? 'In stock' : 'Limited stock',
+            link: product.affiliate_url || product.url || '#'
+          }]
+        }));
         
-        if (data.success && data.products && data.products.length > 0) {
-          // Normalize and set the scraped products immediately
-          const normalizedProducts = data.products.map(product => ({
-            id: product.id || `scraped-${Date.now()}-${Math.random()}`,
-            name: product.name || product.title || 'Unknown Product',
-            description: product.description || product.snippet || '',
-            image: product.image_url || product.image || 'https://via.placeholder.com/400x400?text=No+Image',
-            category: product.category || category || 'General',
-            rating: product.rating || product.stars || 4.0,
-            reviews: product.reviews || product.reviews_count || 0,
-            prices: [{
-              store: 'Amazon',
-              price: product.price || product.current_price || 0,
-              shipping: product.shipping || 'Free shipping',
-              availability: product.availability || product.in_stock ? 'In stock' : 'Limited stock',
-              link: product.affiliate_url || product.url || '#'
-            }]
-          }));
-          
-          setProducts(normalizedProducts);
-          
-          // Cache the fresh results
-          const cacheKey = getCacheKey(query, category);
-          cache.set(cacheKey, {
-            data: normalizedProducts,
-            timestamp: Date.now()
-          });
-          
-          return;
-        }
+        setProducts(normalizedProducts);
+        
+        // Cache the fresh results
+        const cacheKey = getCacheKey(query, category);
+        cache.set(cacheKey, {
+          data: normalizedProducts,
+          timestamp: Date.now()
+        });
+        
+        toast({
+          title: "Success",
+          description: `Found ${normalizedProducts.length} products!`,
+        });
+        
+        return;
       }
 
       throw new Error('Live scraping failed or returned no results');
@@ -221,6 +210,8 @@ const SearchResults = () => {
         title: "Scraping Error",
         description: "Failed to scrape live Amazon data. Please try a different search.",
       });
+    } finally {
+      setRetrying(false);
     }
   };
 
