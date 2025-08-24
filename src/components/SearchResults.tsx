@@ -5,6 +5,7 @@ import FilterPanel from './FilterPanel';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
+import ErrorBoundary from './ErrorBoundary';
 import { Grid, List, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -35,32 +36,28 @@ const SearchResults = () => {
 
   const normalize = (items: any[]) =>
     (items || []).map((p: any, idx: number) => {
-      const rawPrice = p.price || "";
+      const rawPrice = p.price ?? p.prices ?? "";
       const priceNumber = typeof rawPrice === 'number'
         ? rawPrice
         : parseFloat(String(rawPrice).replace(/[^0-9.]/g, '')) || 0;
 
       return {
-        id: p.id || p.url || idx,
-        name: p.title || "",
-        title: p.title || "",
-        description: p.title || "",
-        image: p.image || p.imageUrl || "",
-        imageUrl: p.image || p.imageUrl || "",
-        category: "Tools & Home Improvement",
+        id: p.id || p.asin || p.url || String(idx),
+        name: p.title || p.name || "Product",
+        description: p.description || p.title || p.name || "Product description",
+        image: p.image || p.imageUrl || p.img || "",
+        category: p.category || "Tools & Home Improvement",
         prices: [
           {
             store: 'Amazon.ca',
             price: priceNumber,
             shipping: 'See site',
-            availability: 'In stock',
+            availability: p.availability || 'In stock',
             link: p.url || p.link || "",
           },
         ],
-        url: p.url || p.link || "",
-        link: p.url || p.link || "",
-        rating: typeof p.rating === 'number' ? p.rating : 0,
-        reviews: typeof p.reviews === 'number' ? p.reviews : 0,
+        rating: Number(p.rating) || 0,
+        reviews: Number(p.reviews) || 0,
       };
     });
 
@@ -69,19 +66,25 @@ const SearchResults = () => {
     setLoading(true);
     
     try {
+      console.log(`Searching for: "${query}"`);
       const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
       const data = await res.json();
       
       if (!res.ok) {
+        console.error('Search API error:', data);
         throw new Error(data.error || 'Failed to fetch products');
       }
       
-      const normalizedProducts = normalize(Array.isArray(data) ? data : (data.items || []));
+      // Accept various response shapes but prefer data.items
+      const rawItems = Array.isArray(data) ? data : (data.items || data.products || data.results || []);
+      const normalizedProducts = normalize(rawItems);
       setProducts(normalizedProducts);
+      
+      console.log(`Found ${normalizedProducts.length} products`);
       
       toast({
         title: "Search Complete",
-        description: `Found ${normalizedProducts.length} products from Amazon.ca!`,
+        description: `Found ${normalizedProducts.length} products from ${data.source || 'Amazon.ca'}`,
       });
       
     } catch (error) {
@@ -194,12 +197,13 @@ const SearchResults = () => {
                 : 'grid-cols-1'
           )}>
             {products.map((product) => (
-              <ProductCard 
-                key={product.id} 
-                product={product} 
-                viewMode={isMobile ? 'list' : viewMode}
-                isMobile={isMobile}
-              />
+              <ErrorBoundary key={product.id}>
+                <ProductCard 
+                  product={product} 
+                  viewMode={isMobile ? 'list' : viewMode}
+                  isMobile={isMobile}
+                />
+              </ErrorBoundary>
             ))}
           </div>
         ) : (

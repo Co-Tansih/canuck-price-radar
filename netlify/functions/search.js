@@ -1,99 +1,153 @@
 // netlify/functions/search.js
+// Serverless function: scrape Amazon.ca search results via ZenRows and return normalized JSON
 const cheerio = require("cheerio");
 
-// Main handler
+/**
+ * Use `globalThis.fetch` when available (Netlify runtime / modern Node).
+ * Fallback: dynamic import of node-fetch for local dev (only if needed).
+ */
+async function doFetch(url, opts) {
+  if (typeof globalThis.fetch === "function") {
+    return globalThis.fetch(url, opts);
+  }
+  // dynamic import to avoid breaking ESM/CJS runtime on Netlify
+  const nf = await import("node-fetch");
+  const fetchFn = nf.default || nf;
+  return fetchFn(url, opts);
+}
+
 exports.handler = async (event) => {
   try {
+    // Handle CORS preflight
+    if (event.httpMethod === "OPTIONS") {
+      return json(204, null);
+    }
+
     const q = (event.queryStringParameters?.q || "").trim();
-    if (!q) {
-      return json(400, { error: "Missing query param ?q=" });
+    if (!q) return json(400, { error: "Missing query param ?q=" });
+
+    if (!process.env.ZENROWS_KEY) {
+      console.error("ZENROWS_KEY missing from environment");
+      return json(500, { error: "Server misconfigured: ZENROWS_KEY not set" });
     }
 
-    // Prefer hardware category by adding i=tools (Amazon category bias)
-    const amazonSearch = `https://www.amazon.ca/s?k=${encodeURIComponent(q)}&i=tools`;
-
-    // ZenRows request (server-side only; key is in Netlify env)
-    const apiUrl =
-      `https://api.zenrows.com/v1/?apikey=${encodeURIComponent(process.env.ZENROWS_KEY)}` +
-      `&url=${encodeURIComponent(amazonSearch)}` +
-      `&js_render=true&premium_proxy=true&wait_for=networkidle`;
-
-    const zrRes = await fetch(apiUrl);
-    if (!zrRes.ok) {
-      const text = await zrRes.text();
-      return json(502, { error: "ZenRows error", details: text.slice(0, 500) });
-    }
-
-    const html = await zrRes.text();
+    // First try a tools/category-biased search (more relevant for hardware)
+    const toolsUrl = `https://www.amazon.ca/s?k=${encodeURIComponent(q)}&i=tools`;
+    let html = await fetchZenRows(toolsUrl);
     let items = parseAmazonSearch(html);
 
-    // Fallback: if category-biased search returns nothing, try generic search
-    if (items.length === 0) {
+    // If nothing found, try generic search (fallback)
+    if (!items || items.length === 0) {
       const genericUrl = `https://www.amazon.ca/s?k=${encodeURIComponent(q)}`;
-      const fallbackApi =
-        `https://api.zenrows.com/v1/?apikey=${encodeURIComponent(process.env.ZENROWS_KEY)}` +
-        `&url=${encodeURIComponent(genericUrl)}` +
-        `&js_render=true&premium_proxy=true&wait_for=networkidle`;
-
-      const alt = await fetch(fallbackApi);
-      const altHtml = await alt.text();
-      items = parseAmazonSearch(altHtml);
+      const html2 = await fetchZenRows(genericUrl);
+      items = parseAmazonSearch(html2);
     }
 
-    // Deduplicate & trim results
+    // Deduplicate and cap results
     const seen = new Set();
-    const unique = items.filter(p => {
+    const unique = (items || []).filter((p) => {
+      if (!p || !p.url) return false;
       if (seen.has(p.url)) return false;
       seen.add(p.url);
       return true;
     }).slice(0, 24);
 
-    return json(200, { items: unique });
+    return json(200, { items: unique, count: unique.length, query: q });
   } catch (err) {
-    console.error("Server error:", err);
-    return json(500, { error: "Server error", details: String(err) });
+    console.error("search.js server error:", err);
+    return json(500, { error: "Internal server error", details: String(err).slice(0, 500) });
   }
 };
 
-// --- Helpers ---
+// --- helper: call ZenRows and return HTML (throws on non-OK) ---
+async function fetchZenRows(targetUrl) {
+  const apiUrl =
+    `https://api.zenrows.com/v1/` +
+    `?apikey=${encodeURIComponent(process.env.ZENROWS_KEY)}` +
+    `&url=${encodeURIComponent(targetUrl)}` +
+    `&js_render=true&premium_proxy=true&wait_for=networkidle`;
 
+  const res = await doFetch(apiUrl, { method: "GET" });
+  const text = await res.text();
+  if (!res.ok) {
+    // include short excerpt to help debugging
+    const snippet = (text && text.slice) ? text.slice(0, 500) : String(text);
+    throw new Error(`ZenRows request failed: ${res.status} ${snippet}`);
+  }
+  return text;
+}
+
+// --- helper: parse Amazon search HTML into items array ---
 function parseAmazonSearch(html) {
+  if (!html || typeof html !== "string") return [];
+
   const $ = cheerio.load(html);
   const items = [];
 
+  // Amazon search result cards
   $('[data-component-type="s-search-result"]').each((_, el) => {
     const $el = $(el);
 
-    // Skip sponsored results
+    // Skip obvious sponsored results
     const sponsored =
       $el.find('[aria-label="Sponsored"]').length > 0 ||
-      $el.find('.s-sponsored-label-text').length > 0;
+      $el.find('.s-sponsored-label-text').length > 0 ||
+      $el.find('.s-label-popover-default').length > 0;
     if (sponsored) return;
 
-    const title = $el.find("h2 a span").text().trim();
-    const rel = $el.find("h2 a").attr("href") || "";
-    const url = rel.startsWith("http") ? rel : `https://www.amazon.ca${rel}`;
-    const image =
-      $el.find("img.s-image").attr("src") ||
-      $el.find("img.s-image").attr("data-src") ||
-      "";
-    const price =
-      $el.find(".a-price .a-offscreen").first().text().trim() ||
-      $el.find(".a-price-whole").first().text().trim();
-    const ratingText = $el.find(".a-icon-star-small .a-icon-alt").first().text().trim();
-    const rating = ratingText ? parseFloat(ratingText.split(" ")[0]) : null;
-    const reviewsText = $el.find('[aria-label$="ratings"]').first().attr("aria-label") || "";
-    const reviews = reviewsText ? parseInt(reviewsText.replace(/[^\d]/g, ""), 10) : null;
+    // Title
+    const title = $el.find('h2 a span').first().text().trim();
 
-    if (title && url && image) {
+    // URL (relative or absolute)
+    let rel = $el.find('h2 a').attr('href') || '';
+    if (!rel) {
+      rel = $el.find('a.a-link-normal').attr('href') || '';
+    }
+    const url = rel.startsWith('http') ? rel : `https://www.amazon.ca${rel}`;
+
+    // Image: try multiple attributes
+    const image =
+      $el.find('img.s-image').attr('src') ||
+      $el.find('img.s-image').attr('data-src') ||
+      $el.find('img.s-image').attr('data-lazy') ||
+      $el.find('img.s-image').attr('data-image-lazy') ||
+      '';
+
+    // Price: prefer .a-offscreen (full price string), else build from whole + fraction
+    let price = $el.find('.a-price .a-offscreen').first().text().trim();
+    if (!price) {
+      const whole = $el.find('.a-price-whole').first().text().replace(/[^\d]/g, '').trim();
+      const frac = $el.find('.a-price-fraction').first().text().replace(/[^\d]/g, '').trim();
+      if (whole) price = frac ? `${whole}.${frac}` : whole;
+    }
+    // Rating (e.g., "4.7 out of 5 stars")
+    const ratingText = $el.find('.a-icon-alt').first().text().trim();
+    const rating = ratingText ? parseFloat((ratingText.split(' ')[0] || '').replace(',', '.')) : null;
+
+    // Reviews count - try aria-labels or text nodes
+    let reviews = null;
+    const reviewsLabel = $el.find('[aria-label*="rating"], [aria-label$="ratings"], .a-size-base').first();
+    if (reviewsLabel && reviewsLabel.attr && reviewsLabel.attr('aria-label')) {
+      reviews = parseInt(reviewsLabel.attr('aria-label').replace(/[^\d]/g, ''), 10);
+    } else {
+      // fallback: look for numeric text in .a-size-base that looks like review counts
+      const revText = $el.find('.a-size-base').filter(function() {
+        const t = $(this).text().replace(/[, ]/g, '').trim();
+        return /^\d{1,6}$/.test(t);
+      }).first().text().trim();
+      if (revText) reviews = parseInt(revText.replace(/[^\d]/g, ''), 10);
+    }
+
+    // push when we have at least title + url (image/price optional)
+    if (title && url) {
       items.push({
         id: url,
         title,
-        price,
-        image,
+        price: price || null,
+        image: image || null,
         url,
-        rating,
-        reviews,
+        rating: Number.isFinite(rating) ? rating : null,
+        reviews: Number.isFinite(reviews) ? reviews : null,
       });
     }
   });
@@ -101,13 +155,17 @@ function parseAmazonSearch(html) {
   return items;
 }
 
+// --- helper: JSON response with CORS headers ---
 function json(statusCode, body) {
+  const headers = {
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET,OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+  };
   return {
     statusCode,
-    headers: {
-      "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*", // enable CORS
-    },
-    body: JSON.stringify(body),
+    headers,
+    body: body === null ? "" : JSON.stringify(body),
   };
 }
