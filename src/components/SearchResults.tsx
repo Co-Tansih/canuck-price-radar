@@ -34,21 +34,35 @@ const SearchResults = () => {
   }, [query, category]);
 
   const normalize = (items: any[]) =>
-    (items || []).map((p: any, idx: number) => ({
-      // keep both keys so ProductCard can read whatever it needs
-      id: p.id || p.url || idx,
-      name: p.title || "",
-      title: p.title || "",
-      price: p.price || "",
-      image: p.image || p.imageUrl || "",
-      imageUrl: p.image || p.imageUrl || "",
-      url: p.url || p.link || "",
-      link: p.url || p.link || "",
-      rating: p.rating ?? null,
-      reviews: p.reviews ?? null,
-      description: p.title || "",
-      category: "Hardware & Tools",
-    }));
+    (items || []).map((p: any, idx: number) => {
+      const rawPrice = p.price || "";
+      const priceNumber = typeof rawPrice === 'number'
+        ? rawPrice
+        : parseFloat(String(rawPrice).replace(/[^0-9.]/g, '')) || 0;
+
+      return {
+        id: p.id || p.url || idx,
+        name: p.title || "",
+        title: p.title || "",
+        description: p.title || "",
+        image: p.image || p.imageUrl || "",
+        imageUrl: p.image || p.imageUrl || "",
+        category: "Tools & Home Improvement",
+        prices: [
+          {
+            store: 'Amazon.ca',
+            price: priceNumber,
+            shipping: 'See site',
+            availability: 'In stock',
+            link: p.url || p.link || "",
+          },
+        ],
+        url: p.url || p.link || "",
+        link: p.url || p.link || "",
+        rating: typeof p.rating === 'number' ? p.rating : 0,
+        reviews: typeof p.reviews === 'number' ? p.reviews : 0,
+      };
+    });
 
   const searchProducts = async () => {
     if (!query) return;
@@ -62,7 +76,7 @@ const SearchResults = () => {
         throw new Error(data.error || 'Failed to fetch products');
       }
       
-      const normalizedProducts = normalize(data.items);
+      const normalizedProducts = normalize(Array.isArray(data) ? data : (data.items || []));
       setProducts(normalizedProducts);
       
       toast({
