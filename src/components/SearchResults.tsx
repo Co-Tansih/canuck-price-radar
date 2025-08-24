@@ -7,7 +7,6 @@ import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Grid, List, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { mockProducts } from '@/data/mockData';
 
 const SearchResults = () => {
   const [searchParams] = useSearchParams();
@@ -34,34 +33,55 @@ const SearchResults = () => {
     }
   }, [query, category]);
 
+  const normalize = (items: any[]) =>
+    (items || []).map((p: any, idx: number) => {
+      const rawPrice = p.price || "";
+      const priceNumber = typeof rawPrice === 'number'
+        ? rawPrice
+        : parseFloat(String(rawPrice).replace(/[^0-9.]/g, '')) || 0;
+
+      return {
+        id: p.id || p.url || idx,
+        name: p.title || "",
+        title: p.title || "",
+        description: p.title || "",
+        image: p.image || p.imageUrl || "",
+        imageUrl: p.image || p.imageUrl || "",
+        category: "Tools & Home Improvement",
+        prices: [
+          {
+            store: 'Amazon.ca',
+            price: priceNumber,
+            shipping: 'See site',
+            availability: 'In stock',
+            link: p.url || p.link || "",
+          },
+        ],
+        url: p.url || p.link || "",
+        link: p.url || p.link || "",
+        rating: typeof p.rating === 'number' ? p.rating : 0,
+        reviews: typeof p.reviews === 'number' ? p.reviews : 0,
+      };
+    });
+
   const searchProducts = async () => {
+    if (!query) return;
     setLoading(true);
     
     try {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+      const data = await res.json();
       
-      // Filter mock products based on search query and category
-      let filteredProducts = mockProducts;
-      
-      if (query) {
-        filteredProducts = filteredProducts.filter(product =>
-          product.name.toLowerCase().includes(query.toLowerCase()) ||
-          product.description.toLowerCase().includes(query.toLowerCase())
-        );
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to fetch products');
       }
       
-      if (category && category !== 'All Categories') {
-        filteredProducts = filteredProducts.filter(product =>
-          product.category.toLowerCase() === category.toLowerCase()
-        );
-      }
-      
-      setProducts(filteredProducts);
+      const normalizedProducts = normalize(Array.isArray(data) ? data : (data.items || []));
+      setProducts(normalizedProducts);
       
       toast({
         title: "Search Complete",
-        description: `Found ${filteredProducts.length} products!`,
+        description: `Found ${normalizedProducts.length} products from Amazon.ca!`,
       });
       
     } catch (error) {
