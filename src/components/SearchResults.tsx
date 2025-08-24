@@ -7,7 +7,6 @@ import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Grid, List, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { mockProducts } from '@/data/mockData';
 
 const SearchResults = () => {
   const [searchParams] = useSearchParams();
@@ -34,34 +33,41 @@ const SearchResults = () => {
     }
   }, [query, category]);
 
+  const normalize = (items: any[]) =>
+    (items || []).map((p: any, idx: number) => ({
+      // keep both keys so ProductCard can read whatever it needs
+      id: p.id || p.url || idx,
+      name: p.title || "",
+      title: p.title || "",
+      price: p.price || "",
+      image: p.image || p.imageUrl || "",
+      imageUrl: p.image || p.imageUrl || "",
+      url: p.url || p.link || "",
+      link: p.url || p.link || "",
+      rating: p.rating ?? null,
+      reviews: p.reviews ?? null,
+      description: p.title || "",
+      category: "Hardware & Tools",
+    }));
+
   const searchProducts = async () => {
+    if (!query) return;
     setLoading(true);
     
     try {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+      const data = await res.json();
       
-      // Filter mock products based on search query and category
-      let filteredProducts = mockProducts;
-      
-      if (query) {
-        filteredProducts = filteredProducts.filter(product =>
-          product.name.toLowerCase().includes(query.toLowerCase()) ||
-          product.description.toLowerCase().includes(query.toLowerCase())
-        );
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to fetch products');
       }
       
-      if (category && category !== 'All Categories') {
-        filteredProducts = filteredProducts.filter(product =>
-          product.category.toLowerCase() === category.toLowerCase()
-        );
-      }
-      
-      setProducts(filteredProducts);
+      const normalizedProducts = normalize(data.items);
+      setProducts(normalizedProducts);
       
       toast({
         title: "Search Complete",
-        description: `Found ${filteredProducts.length} products!`,
+        description: `Found ${normalizedProducts.length} products from Amazon.ca!`,
       });
       
     } catch (error) {
