@@ -32,10 +32,10 @@ const ProductCard = ({ product, viewMode = 'grid', isMobile = false }: ProductCa
   const savings = highestPrice - lowestPrice;
   
   // Fallback for missing image
-  const imageUrl = product.image || product.imageUrl || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=400&fit=crop';
+  const imageUrl = product.image || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=400&fit=crop';
   
   // Fallback for missing name/title
-  const productName = product.name || product.title || 'Product';
+  const productName = product.name || 'Product';
   const productDescription = product.description || productName;
 
   if (viewMode === 'list') {

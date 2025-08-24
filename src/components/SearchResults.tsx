@@ -42,12 +42,10 @@ const SearchResults = () => {
         : parseFloat(String(rawPrice).replace(/[^0-9.]/g, '')) || 0;
 
       return {
-        id: p.id || p.asin || p.url || idx,
-        name: p.title || p.name || "",
-        title: p.title || p.name || "",
-        description: p.description || p.title || p.name || "",
+        id: p.id || p.asin || p.url || String(idx),
+        name: p.title || p.name || "Product",
+        description: p.description || p.title || p.name || "Product description",
         image: p.image || p.imageUrl || p.img || "",
-        imageUrl: p.image || p.imageUrl || p.img || "",
         category: p.category || "Tools & Home Improvement",
         prices: [
           {
@@ -58,8 +56,6 @@ const SearchResults = () => {
             link: p.url || p.link || "",
           },
         ],
-        url: p.url || p.link || "",
-        link: p.url || p.link || "",
         rating: Number(p.rating) || 0,
         reviews: Number(p.reviews) || 0,
       };
