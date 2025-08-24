@@ -1,5 +1,19 @@
 # Welcome to your Lovable project
 
+## Environment Variables
+
+This project requires the following environment variables:
+
+### Frontend (Vite - Public)
+- `VITE_SUPABASE_URL` - Your Supabase project URL
+- `VITE_SUPABASE_ANON_KEY` - Your Supabase anonymous key
+
+### Backend (Netlify Functions - Private)
+- `ZENROWS_KEY` - Your ZenRows API key for web scraping
+
+Copy `.env.example` to `.env` and fill in your values for local development.
+For Netlify deployment, set these in your Netlify dashboard under Site Settings > Environment Variables.
+
 ## Project info
 
 **URL**: https://lovable.dev/projects/1b20f6b9-c06b-4971-b991-ad65fa588859

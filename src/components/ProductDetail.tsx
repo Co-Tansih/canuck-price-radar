@@ -78,6 +78,9 @@ const ProductDetail = () => {
   const lowestPrice = Math.min(...product.prices.map((p: any) => p.price));
   const highestPrice = Math.max(...product.prices.map((p: any) => p.price));
   const savings = highestPrice - lowestPrice;
+  
+  // Fallback for missing image
+  const imageUrl = product.image || product.imageUrl || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=400&fit=crop';
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -105,8 +108,11 @@ const ProductDetail = () => {
             {/* Product Image */}
             <div className="aspect-square overflow-hidden rounded-lg bg-gray-100">
               <img
-                src={product.image}
+                src={imageUrl}
                 alt={product.name}
+                onError={(e) => {
+                  e.currentTarget.src = 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=400&fit=crop';
+                }}
                 className="w-full h-full object-cover"
               />
             </div>

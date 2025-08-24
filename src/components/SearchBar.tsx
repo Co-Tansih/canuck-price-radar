@@ -40,6 +40,7 @@ const SearchBar = () => {
   const handleSearch = (searchTerm?: string) => {
     const term = searchTerm || query;
     if (term.trim()) {
+      console.log(`Navigating to search with query: "${term.trim()}"`);
       navigate(`/search?q=${encodeURIComponent(term.trim())}`);
       setShowSuggestions(false);
     }
@@ -61,7 +62,7 @@ const SearchBar = () => {
             onChange={handleInputChange}
             onFocus={() => query.length > 2 && setShowSuggestions(true)}
             onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-            placeholder="Search for products, tools, clothing, and more..."
+            placeholder="Search for drills, jackets, lumber, phones, and more..."
             className="w-full pl-12 pr-4 py-4 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent shadow-sm"
           />
           <button

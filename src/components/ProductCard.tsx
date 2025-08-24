@@ -26,9 +26,17 @@ interface ProductCardProps {
 }
 
 const ProductCard = ({ product, viewMode = 'grid', isMobile = false }: ProductCardProps) => {
-  const lowestPrice = Math.min(...product.prices.map(p => p.price));
-  const highestPrice = Math.max(...product.prices.map(p => p.price));
+  const validPrices = product.prices.filter(p => p.price && p.price > 0).map(p => p.price);
+  const lowestPrice = validPrices.length > 0 ? Math.min(...validPrices) : 0;
+  const highestPrice = validPrices.length > 0 ? Math.max(...validPrices) : 0;
   const savings = highestPrice - lowestPrice;
+  
+  // Fallback for missing image
+  const imageUrl = product.image || product.imageUrl || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=400&fit=crop';
+  
+  // Fallback for missing name/title
+  const productName = product.name || product.title || 'Product';
+  const productDescription = product.description || productName;
 
   if (viewMode === 'list') {
     return (
@@ -42,8 +50,11 @@ const ProductCard = ({ product, viewMode = 'grid', isMobile = false }: ProductCa
         )}>
           <Link to={`/product/${product.id}`} className="flex-shrink-0">
             <img
-              src={product.image}
-              alt={product.name}
+              src={imageUrl}
+              alt={productName}
+              onError={(e) => {
+                e.currentTarget.src = 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=400&fit=crop';
+              }}
               className={cn(
                 "object-cover rounded-lg",
                 isMobile ? "w-20 h-20" : "w-32 h-32"
@@ -62,12 +73,12 @@ const ProductCard = ({ product, viewMode = 'grid', isMobile = false }: ProductCa
                     "font-semibold text-gray-900 hover:text-primary transition-colors line-clamp-2",
                     isMobile ? "text-sm mb-1" : "text-lg mb-2"
                   )}>
-                    {product.name}
+                    {productName}
                   </h3>
                 </Link>
                 
                 {!isMobile && (
-                  <p className="text-gray-600 mt-1 line-clamp-2 text-sm">{product.description}</p>
+                  <p className="text-gray-600 mt-1 line-clamp-2 text-sm">{productDescription}</p>
                 )}
                 
                 <div className={cn(
@@ -91,7 +102,7 @@ const ProductCard = ({ product, viewMode = 'grid', isMobile = false }: ProductCa
                   "font-bold text-primary mb-1",
                   isMobile ? "text-lg" : "text-2xl"
                 )}>
-                  ${lowestPrice}
+                  {lowestPrice > 0 ? `$${lowestPrice.toFixed(2)}` : 'Price unavailable'}
                 </div>
                 {savings > 0 && (
                   <div className={cn(
@@ -155,8 +166,11 @@ const ProductCard = ({ product, viewMode = 'grid', isMobile = false }: ProductCa
       <Link to={`/product/${product.id}`}>
         <div className="aspect-square overflow-hidden">
           <img
-            src={product.image}
-            alt={product.name}
+            src={imageUrl}
+            alt={productName}
+            onError={(e) => {
+              e.currentTarget.src = 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=400&fit=crop';
+            }}
             className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
           />
         </div>
@@ -165,11 +179,11 @@ const ProductCard = ({ product, viewMode = 'grid', isMobile = false }: ProductCa
       <div className="p-4">
         <Link to={`/product/${product.id}`}>
           <h3 className="font-semibold text-gray-900 hover:text-primary transition-colors line-clamp-2 mb-2">
-            {product.name}
+            {productName}
           </h3>
         </Link>
         
-        <p className="text-sm text-gray-600 line-clamp-2 mb-3">{product.description}</p>
+        <p className="text-sm text-gray-600 line-clamp-2 mb-3">{productDescription}</p>
         
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center space-x-1">
@@ -185,7 +199,7 @@ const ProductCard = ({ product, viewMode = 'grid', isMobile = false }: ProductCa
         <div className="border-t pt-3">
           <div className="flex items-center justify-between mb-2">
             <div className="text-lg font-bold text-primary">
-              ${lowestPrice}
+              {lowestPrice > 0 ? `$${lowestPrice.toFixed(2)}` : 'Price unavailable'}
             </div>
             {savings > 0 && (
               <div className="text-sm text-green-600 font-medium">

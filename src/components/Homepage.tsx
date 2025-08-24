@@ -1,12 +1,15 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search, ShoppingCart, TrendingUp, Shield, Clock, MapPin, Star, ChevronRight, CheckCircle } from 'lucide-react';
+import SearchBar from './SearchBar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 const Homepage = () => {
   const { t } = useLanguage();
+  const navigate = useNavigate();
 
   const features = [
     {
@@ -82,6 +85,7 @@ const Homepage = () => {
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
               <Button 
+                onClick={() => navigate('/search')}
                 size="lg" 
                 className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-8 py-4 rounded-xl text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
               >
@@ -96,6 +100,11 @@ const Homepage = () => {
                 {t('learnMore')}
                 <ChevronRight className="ml-2 h-5 w-5" />
               </Button>
+            </div>
+
+            {/* Search Bar */}
+            <div className="max-w-2xl mx-auto mb-16">
+              <SearchBar />
             </div>
 
             {/* Key Features */}
@@ -213,6 +222,7 @@ const Homepage = () => {
             {t('heroDescription')}
           </p>
           <Button 
+            onClick={() => navigate('/search')}
             size="lg" 
             className="bg-white text-red-600 hover:bg-gray-50 px-12 py-6 rounded-2xl text-xl font-bold shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105"
           >
