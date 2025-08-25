@@ -8,6 +8,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import ErrorBoundary from './ErrorBoundary';
 import { Grid, List, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { mockProducts } from '@/data/mockData';
 
 const SearchResults = () => {
   const [searchParams] = useSearchParams();
@@ -29,62 +30,43 @@ const SearchResults = () => {
 
   // Search effect
   useEffect(() => {
-    if (query || category) {
-      searchProducts();
-    }
+    searchProducts(); // Always search, including showing all products initially
   }, [query, category]);
 
-  const normalize = (items: any[]) =>
-    (items || []).map((p: any, idx: number) => {
-      const rawPrice = p.price ?? p.prices ?? "";
-      const priceNumber = typeof rawPrice === 'number'
-        ? rawPrice
-        : parseFloat(String(rawPrice).replace(/[^0-9.]/g, '')) || 0;
-
-      return {
-        id: p.id || p.asin || p.url || String(idx),
-        name: p.title || p.name || "Product",
-        description: p.description || p.title || p.name || "Product description",
-        image: p.image || p.imageUrl || p.img || "",
-        category: p.category || "Tools & Home Improvement",
-        prices: [
-          {
-            store: 'Amazon.ca',
-            price: priceNumber,
-            shipping: 'See site',
-            availability: p.availability || 'In stock',
-            link: p.url || p.link || "",
-          },
-        ],
-        rating: Number(p.rating) || 0,
-        reviews: Number(p.reviews) || 0,
-      };
-    });
-
   const searchProducts = async () => {
-    if (!query) return;
     setLoading(true);
     
     try {
-      console.log(`Searching for: "${query}"`);
-      const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
-      const data = await res.json();
+      console.log(`Searching mock data for: "${query}" in category: "${category}"`);
       
-      if (!res.ok) {
-        console.error('Search API error:', data);
-        throw new Error(data.error || 'Failed to fetch products');
+      // Filter mock products based on search query and category
+      let filteredProducts = mockProducts;
+      
+      // Filter by category if specified
+      if (category) {
+        filteredProducts = filteredProducts.filter(product => 
+          product.category.toLowerCase().includes(category.toLowerCase())
+        );
       }
       
-      // Accept various response shapes but prefer data.items
-      const rawItems = Array.isArray(data) ? data : (data.items || data.products || data.results || []);
-      const normalizedProducts = normalize(rawItems);
-      setProducts(normalizedProducts);
+      // Filter by search query if specified
+      if (query) {
+        filteredProducts = filteredProducts.filter(product => 
+          product.name.toLowerCase().includes(query.toLowerCase()) ||
+          product.description.toLowerCase().includes(query.toLowerCase()) ||
+          product.category.toLowerCase().includes(query.toLowerCase())
+        );
+      }
       
-      console.log(`Found ${normalizedProducts.length} products`);
+      // Simulate API delay for better UX
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      setProducts(filteredProducts);
+      console.log(`Found ${filteredProducts.length} products`);
       
       toast({
         title: "Search Complete",
-        description: `Found ${normalizedProducts.length} products from ${data.source || 'Amazon.ca'}`,
+        description: `Found ${filteredProducts.length} products from mock data`,
       });
       
     } catch (error) {
