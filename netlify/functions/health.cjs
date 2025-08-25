@@ -3,7 +3,7 @@
 
 exports.handler = async (event) => {
   try {
-    const hasZenRows = !!process.env.ZENROWS_KEY;
+    const hasZenRows = !!(process.env.ZENROWS_KEY || process.env.VITE_ZENROWS_KEY || process.env.ZENROWS_API_KEY);
     
     return {
       statusCode: 200,

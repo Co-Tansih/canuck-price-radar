@@ -26,20 +26,21 @@ exports.handler = async (event) => {
     const q = (event.queryStringParameters?.q || "").trim();
     if (!q) return json(400, { error: "Missing query param ?q=" });
 
-    if (!process.env.ZENROWS_KEY) {
-      console.error("ZENROWS_KEY missing from environment");
+    const ZENROWS_KEY = process.env.ZENROWS_KEY || process.env.VITE_ZENROWS_KEY || process.env.ZENROWS_API_KEY;
+    if (!ZENROWS_KEY) {
+      console.error("ZENROWS_KEY missing from environment (checked: ZENROWS_KEY, VITE_ZENROWS_KEY, ZENROWS_API_KEY)");
       return json(500, { error: "Server misconfigured: ZENROWS_KEY not set" });
     }
 
     // First try a tools/category-biased search (more relevant for hardware)
     const toolsUrl = `https://www.amazon.ca/s?k=${encodeURIComponent(q)}&i=tools`;
-    let html = await fetchZenRows(toolsUrl);
+    let html = await fetchZenRows(toolsUrl, ZENROWS_KEY);
     let items = parseAmazonSearch(html);
 
     // If nothing found, try generic search (fallback)
     if (!items || items.length === 0) {
       const genericUrl = `https://www.amazon.ca/s?k=${encodeURIComponent(q)}`;
-      const html2 = await fetchZenRows(genericUrl);
+      const html2 = await fetchZenRows(genericUrl, ZENROWS_KEY);
       items = parseAmazonSearch(html2);
     }
 
@@ -60,10 +61,10 @@ exports.handler = async (event) => {
 };
 
 // --- helper: call ZenRows and return HTML (throws on non-OK) ---
-async function fetchZenRows(targetUrl) {
+async function fetchZenRows(targetUrl, apiKey) {
   const apiUrl =
     `https://api.zenrows.com/v1/` +
-    `?apikey=${encodeURIComponent(process.env.ZENROWS_KEY)}` +
+    `?apikey=${encodeURIComponent(apiKey)}` +
     `&url=${encodeURIComponent(targetUrl)}` +
     `&js_render=true&premium_proxy=true&wait_for=networkidle`;
 
